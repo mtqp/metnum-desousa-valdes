@@ -37,60 +37,55 @@ class Parabrisas {
 			int id;
 			Point position;
 			vector<Point> leeched_points;
-			
+	
 			vector<Point> affected_points(const Point p){
 					/// QUERIA HACER ESTO
 					vector<Point> res;
 					return res;
 			};
-			
+	
 			Leech();
 			Leech(const int id_leech, const Point p) : id(id_leech), position(p), leeched_points(affected_points(p)) {};
 		};
-		
+
 		struct PB_Matrix {
 			vector< vector<Temp> > matrix;
 			int real_width, real_height;
-			
-			PB_Matrix(){
+			const Parabrisas* pb;
+
+			PB_Matrix() : matrix(vector<vector<Temp> >(0, vector<Temp>(0, 0))), real_width(0), real_height(0), pb(0) {};
+			PB_Matrix(const Parabrisas* parab){
+				pb = parab;				
+
 				// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-				real_width = Parabrisas::width / Parabrisas::discr_interval;	//Techo, piso, round?
-				real_height = Parabrisas::height / Parabrisas::discr_interval;
-				
+				real_width = pb->width / pb->discr_interval;	//Techo, piso, round?
+				real_height = pb->height / pb->discr_interval;
+
 				matrix = vector<vector<Temp> >(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
-				
+
 				// Pongo los bordes en -100 (a revisar)
 				for( int i = 0; i < real_width; i++) {
 					matrix[0][i] = -100.0;
 					matrix[real_height][i] = -100.0;
 				}
-				
+
 				for (int j = 0; j < real_height; j++){
 					matrix[j][0] = -100.0;
 					matrix[j][real_width] = -100.0;
 				}
 			};
-			
+
 			Temp get(const Point p){
-				return matrix[p.x/Parabrisas::discr_interval][p.y/Parabrisas::discr_interval];
+				return matrix[p.x/pb->discr_interval][p.y/pb->discr_interval];
 			};
 		};
-		
+
 		void gaussian_elimination();
 		
-		static double width, height, discr_interval, radius, temp;
-		//int amount_of_leeches;	// No lo guardo porque se puede pedir el length de leeches, encima esto va a ir variando al matar sanguijuelas.
-		
+		double width, height, discr_interval, radius, temp;
 		vector<Leech> leeches;
+		PB_Matrix pb_matrix;
 };
-
-// Static variables para compilar 
-
-double Parabrisas::width = 0.0;
-double Parabrisas::height = 0.0;
-double Parabrisas::discr_interval = 0.0;
-double Parabrisas::radius = 0.0;
-double Parabrisas::temp = 0.0;
 
 Parabrisas::Parabrisas() { }
 
@@ -111,6 +106,10 @@ int Parabrisas::read_from_input() {
 		leeches.push_back(Leech(i, Point(x,y)));
 	}
 	
+
+	// Creo el parabrisas discreto
+	pb_matrix = PB_Matrix(this);
+
 	return 0;
 }
 
@@ -127,20 +126,19 @@ void Parabrisas::gaussian_elimination() {
 }
 
 void Parabrisas::write_output(char* output_file) {
-	/*ofstream file;
+	ofstream file;
 	
 	file.open(output_file);
 	
 	if (file.is_open()){				//chequea que este abierto x las dudas
-		for(int i = 0; i < real_width; i++){
-			for(int j = 0; j < real_height; j++){
-				file << i << " " << j << " " << matrix[i][j] << endl; 
+		for(int i = 0; i < pb_matrix.real_width; i++){
+			for(int j = 0; j < pb_matrix.real_height; j++){
+				file << i << " " << j << " " << pb_matrix.matrix[i][j] << endl; 
 			}
 		}
 		file.close();
 	 }
 	 else cout << "Unable to open file";		// si no pudo da esto... SE VE SI SE PONE REALMENTE
-*/
 }
 
 int main(int argc, char *argv[]) {
