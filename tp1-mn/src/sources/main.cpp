@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include <fstream>
 #include <cmath>
 #include <vector>
 #include <algorithm>
@@ -30,7 +31,7 @@ class Parabrisas {
 		int read_from_input();
 		void calculate_temps();
 		void kill_leech();
-		void show();
+		void write_output(char* file);
 	private:
 		struct Leech {
 			int id;
@@ -125,19 +126,21 @@ void Parabrisas::gaussian_elimination() {
 
 }
 
-void Parabrisas::show() {
-	/*if (best_path.size() == 0){
-		cout << "no" << endl;
-		return;
-	}
+void Parabrisas::write_output(char* output_file) {
+	/*ofstream file;
 	
-	// Pesos desde 0 se le habian sumado 1.
-	cout << best_weight_1 << " " << best_weight_2 << " " << best_path.size();
-	for(int i = 0; i < (int) best_path.size(); i++) {
-		// Nosotros numeramos desde 0 y ellos desde 1.
-		cout << " " << best_path[i] + 1;
-	}
-	cout << endl;*/
+	file.open(output_file);
+	
+	if (file.is_open()){				//chequea que este abierto x las dudas
+		for(int i = 0; i < real_width; i++){
+			for(int j = 0; j < real_height; j++){
+				file << i << " " << j << " " << matrix[i][j] << endl; 
+			}
+		}
+		file.close();
+	 }
+	 else cout << "Unable to open file";		// si no pudo da esto... SE VE SI SE PONE REALMENTE
+*/
 }
 
 int main(int argc, char *argv[]) {
@@ -145,7 +148,8 @@ int main(int argc, char *argv[]) {
 	
 	pb.read_from_input();
 	pb.calculate_temps();
-	pb.show();
+	char* output_file = argv[2];
+	pb.write_output(output_file);
 	
 	return 0;
 }
