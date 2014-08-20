@@ -37,8 +37,14 @@ class Parabrisas {
 			Point position;
 			vector<Point> leeched_points;
 			
+			vector<Point> affected_points(const Point p){
+					/// QUERIA HACER ESTO
+					vector<Point> res;
+					return res;
+			};
+			
 			Leech();
-			Leech(const int id_leech, const Point p) : id(id_leech), points(position), leeched_points(Parabrisas.affected_points(p)) {};
+			Leech(const int id_leech, const Point p) : id(id_leech), points(position), leeched_points(affected_points(p)) {};
 		};
 		
 		struct PB_Matrix {
@@ -69,7 +75,6 @@ class Parabrisas {
 			};
 		};
 		
-		static vector<Point> affected_points(const Point p);
 		void gaussian_elimination();
 		
 		static double width, height, discr_interval, radius, temp;
@@ -110,12 +115,6 @@ void Parabrisas::kill_leech() {
 
 void Parabrisas::gaussian_elimination() {
 
-}
-
-vector<Point> Parabrisas::affected_points(const Point p){
-	/// QUERIA HACER ESTO
-	vector<Point> res;
-	return res;
 }
 
 void Parabrisas::show() {
