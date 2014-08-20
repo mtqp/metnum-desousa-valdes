@@ -28,10 +28,10 @@ class Parabrisas {
 	public:
 		Parabrisas();
 		~Parabrisas();
-		int read_from_input();
+		int read_from_input(char* input_file);
 		void calculate_temps();
 		void kill_leech();
-		void write_output(char* file);
+		void write_output(char* output_file);
 	private:
 		struct Leech {
 			int id;
@@ -39,9 +39,9 @@ class Parabrisas {
 			vector<Point> leeched_points;
 	
 			vector<Point> affected_points(const Point p){
-					/// QUERIA HACER ESTO
-					vector<Point> res;
-					return res;
+				/// QUERIA HACER ESTO
+				vector<Point> res;
+				return res;
 			};
 	
 			Leech();
@@ -58,8 +58,8 @@ class Parabrisas {
 				pb = parab;				
 
 				// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-				real_width = pb->width / pb->discr_interval;	//Techo, piso, round?
-				real_height = pb->height / pb->discr_interval;
+				real_width = (pb->width / pb->discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
+				real_height = (pb->height / pb->discr_interval) + 1;
 
 				matrix = vector<vector<Temp> >(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
 
@@ -91,21 +91,25 @@ Parabrisas::Parabrisas() { }
 
 Parabrisas::~Parabrisas() { }
 
-int Parabrisas::read_from_input() {
+int Parabrisas::read_from_input(char* input_file) {
+	ifstream file;
+	file.open(input_file);
+
 	// Inicializo los valores a b h r t k.
 	int amount_of_leeches;
-	cin >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
+	file >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
 	
 	// Creo el vector de sanguijuelas. 
 	// Para cada sanguijuela creada veo los puntos afectados y los guardo en su propia estructura.
 	
 	for(int i = 0; i < amount_of_leeches; i++) {
 		double x, y;
-		cin >> x >> y;
+		file >> x >> y;
 		
 		leeches.push_back(Leech(i, Point(x,y)));
 	}
 	
+	file.close();
 
 	// Creo el parabrisas discreto
 	pb_matrix = PB_Matrix(this);
@@ -144,9 +148,11 @@ void Parabrisas::write_output(char* output_file) {
 int main(int argc, char *argv[]) {
 	Parabrisas pb;
 	
-	pb.read_from_input();
-	pb.calculate_temps();
+	char* input_file = argv[1];
 	char* output_file = argv[2];
+
+	pb.read_from_input(input_file);
+	pb.calculate_temps();
 	pb.write_output(output_file);
 	
 	return 0;
