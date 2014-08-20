@@ -15,7 +15,7 @@
 
 using namespace std;
 
-typedef Temp double;
+typedef double Temp;
 
 struct Point {
 	double x, y;
@@ -44,7 +44,7 @@ class Parabrisas {
 			};
 			
 			Leech();
-			Leech(const int id_leech, const Point p) : id(id_leech), points(position), leeched_points(affected_points(p)) {};
+			Leech(const int id_leech, const Point p) : id(id_leech), position(p), leeched_points(affected_points(p)) {};
 		};
 		
 		struct PB_Matrix {
@@ -53,25 +53,25 @@ class Parabrisas {
 			
 			PB_Matrix(){
 				// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-				this.real_width = Parabrisas.width / Parabrisas.discr_interval ;	//Techo, piso, round?
-				this.real_height = Parabrisas.height / Parabrisas.discr_interval ;
+				real_width = Parabrisas::width / Parabrisas::discr_interval;	//Techo, piso, round?
+				real_height = Parabrisas::height / Parabrisas::discr_interval;
 				
-				this.matrix = vector(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
+				matrix = vector<vector<Temp> >(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
 				
 				// Pongo los bordes en -100 (a revisar)
 				for( int i = 0; i < real_width; i++) {
-					this.matrix[0,i] = -100.0;
-					this.matrix[real_height,i] = -100.0;
+					matrix[0][i] = -100.0;
+					matrix[real_height][i] = -100.0;
 				}
 				
 				for (int j = 0; j < real_height; j++){
-					this.matrix[j,0] = -100.0;
-					this.matrix[j,real_width] = -100.0;
+					matrix[j][0] = -100.0;
+					matrix[j][real_width] = -100.0;
 				}
 			};
 			
 			Temp get(const Point p){
-				return this.matrix[p.x/Parabrisas.discr_interval][p.y/Parabrisas.discr_interval];
+				return matrix[p.x/Parabrisas::discr_interval][p.y/Parabrisas::discr_interval];
 			};
 		};
 		
@@ -82,6 +82,14 @@ class Parabrisas {
 		
 		vector<Leech> leeches;
 };
+
+// Static variables para compilar 
+
+double Parabrisas::width = 0.0;
+double Parabrisas::height = 0.0;
+double Parabrisas::discr_interval = 0.0;
+double Parabrisas::radius = 0.0;
+double Parabrisas::temp = 0.0;
 
 Parabrisas::Parabrisas() { }
 
@@ -99,7 +107,7 @@ int Parabrisas::read_from_input() {
 		double x, y;
 		cin >> x >> y;
 		
-		leeches.push(Leech(i, Point(x,y)));
+		leeches.push_back(Leech(i, Point(x,y)));
 	}
 	
 	return 0;
