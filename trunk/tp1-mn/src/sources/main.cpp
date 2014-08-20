@@ -31,7 +31,7 @@ class Parabrisas {
 		int read_from_input(char* input_file);
 		void calculate_temps();
 		void kill_leech();
-		void write_output(char* output_file);
+		int write_output(char* output_file);
 	private:
 		struct Leech {
 			int id;
@@ -94,25 +94,30 @@ Parabrisas::~Parabrisas() { }
 int Parabrisas::read_from_input(char* input_file) {
 	ifstream file;
 	file.open(input_file);
-
-	// Inicializo los valores a b h r t k.
-	int amount_of_leeches;
-	file >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
 	
-	// Creo el vector de sanguijuelas. 
-	// Para cada sanguijuela creada veo los puntos afectados y los guardo en su propia estructura.
+	if (file.is_open()){
+		// Inicializo los valores a b h r t k.
+		int amount_of_leeches;
+		file >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
 	
-	for(int i = 0; i < amount_of_leeches; i++) {
-		double x, y;
-		file >> x >> y;
+		// Creo el vector de sanguijuelas. 
+		// Para cada sanguijuela creada veo los puntos afectados y los guardo en su propia estructura.
+	
+		for(int i = 0; i < amount_of_leeches; i++) {
+			double x, y;
+			file >> x >> y;
 		
-		leeches.push_back(Leech(i, Point(x,y)));
-	}
-	
-	file.close();
+			leeches.push_back(Leech(i, Point(x,y)));
+		}
 
-	// Creo el parabrisas discreto
-	pb_matrix = PB_Matrix(this);
+		file.close();	
+
+		// Creo el parabrisas discreto
+		pb_matrix = PB_Matrix(this);
+	} else {
+		cout << "Unable to open input file" << endl;		
+		return 1;
+	}
 
 	return 0;
 }
@@ -129,7 +134,7 @@ void Parabrisas::gaussian_elimination() {
 
 }
 
-void Parabrisas::write_output(char* output_file) {
+int Parabrisas::write_output(char* output_file) {
 	ofstream file;
 	
 	file.open(output_file);
@@ -140,9 +145,14 @@ void Parabrisas::write_output(char* output_file) {
 				file << i << " " << j << " " << pb_matrix.matrix[i][j] << endl; 
 			}
 		}
+
 		file.close();
+		return 0;
 	 }
-	 else cout << "Unable to open file";		// si no pudo da esto... SE VE SI SE PONE REALMENTE
+	 else { 
+		cout << "Unable to open output file" << endl;		// si no pudo da esto... SE VE SI SE PONE REALMENTE
+		return 1;
+	}
 }
 
 int main(int argc, char *argv[]) {
@@ -151,9 +161,9 @@ int main(int argc, char *argv[]) {
 	char* input_file = argv[1];
 	char* output_file = argv[2];
 
-	pb.read_from_input(input_file);
+	if(pb.read_from_input(input_file)) exit(1);
 	pb.calculate_temps();
-	pb.write_output(output_file);
+	if(pb.write_output(output_file)) exit(1);
 	
 	return 0;
 }
