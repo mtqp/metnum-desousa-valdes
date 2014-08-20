@@ -7,6 +7,7 @@
 #define DEBUG
 
 #define UNDEFINED_TEMPERATURE 2048.0
+#define ERROR_TEMPERATURE -2048.0
 
 #ifdef DEBUG
 #define DEBUGMSG(X)  cout << X << endl;
@@ -33,21 +34,6 @@ class Parabrisas {
 		void kill_leech();
 		int write_output(char* output_file);
 	private:
-		struct Leech {
-			int id;
-			Point position;
-			vector<Point> leeched_points;
-	
-			vector<Point> affected_points(const Point p){
-				/// QUERIA HACER ESTO
-				vector<Point> res;
-				return res;
-			};
-	
-			Leech();
-			Leech(const int id_leech, const Point p) : id(id_leech), position(p), leeched_points(affected_points(p)) {};
-		};
-
 		struct PB_Matrix {
 			vector< vector<Temp> > matrix;
 			int real_width, real_height;
@@ -76,8 +62,29 @@ class Parabrisas {
 			};
 
 			Temp get(const Point p){
-				return matrix[p.x/pb->discr_interval][p.y/pb->discr_interval];
+				double intpart, d_x = p.x/pb->discr_interval, d_y = p.y/pb->discr_interval;
+				
+				if (modf(d_x, &intpart) == 0.0 and modf(d_y, &intpart) == 0.0)									//Si da una cuenta entera. VER ERROR
+					return matrix[p.x/pb->discr_interval][p.y/pb->discr_interval];
+				else
+					return ERROR_TEMPERATURE;
 			};
+		};
+
+		struct Leech {
+			int id;
+			Point position;
+			vector<Point> leeched_points;
+			Parabrisas* pb; 
+	
+			vector<Point> affected_points(const Point p){
+				/// QUERIA HACER ESTO
+				vector<Point> res;
+				return res;
+			};
+	
+			Leech();
+			Leech(const int id_leech, const Point p, Parabrisas* pba) : id(id_leech), position(p), leeched_points(affected_points(p)), pb(pba) {};
 		};
 
 		void gaussian_elimination();
@@ -107,7 +114,7 @@ int Parabrisas::read_from_input(char* input_file) {
 			double x, y;
 			file >> x >> y;
 		
-			leeches.push_back(Leech(i, Point(x,y)));
+			leeches.push_back(Leech(i, Point(x,y), this));
 		}
 
 		file.close();	
