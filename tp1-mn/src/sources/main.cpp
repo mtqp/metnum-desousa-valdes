@@ -24,6 +24,10 @@ struct Point {
 	double x, y;
 	Point();
 	Point(const double posx, const double posy) : x(posx), y(posy) {};
+	
+	friend bool operator==(const Point p1, const Point p2){
+		return p1.x == p2.x and p1.y == p2.y;
+	}
 };
 
 class Parabrisas {
@@ -115,6 +119,7 @@ class Parabrisas {
 		};
 
 		void gaussian_elimination();
+		bool is_affected(const Point p);
 		
 		double width, height, discr_interval, radius, temp;
 		vector<Leech> leeches;
@@ -174,8 +179,29 @@ int Parabrisas::read_from_input(char* input_file) {
 		pb_matrix = new PB_Matrix(pb_discr_matrix, this, discr_width, discr_height);
 		pb_matrix->set_borders();
 		
+
+		int complete_grid_size = discr_width*discr_height;
+
 		// Creo la matriz genérica A, habría que poner la info de las sanguijuelas
-		//	matrix_A = new vector<vector<int>*>(0, new vector<int>(
+		int** matrix_A= new int*[complete_grid_size];
+		for (int j = 0; j < complete_grid_size; j++){
+			int* v = new int[complete_grid_size];
+			for (int i = 0; i < complete_grid_size; i++){			// columnas
+				if (i == 0 || j == 0 || i == complete_grid_size-1 || j == complete_grid_size-1)
+					v[i] = 1;
+				else if (is_affected(Point(i,j))){
+					v[(i * complete_grid_size) + j] = -4;
+					v[((i-1) * complete_grid_size) + j] = 1;
+					v[((i+1) * complete_grid_size) + j] = 1;
+					v[(i * complete_grid_size) + (j+1)] = 1;
+					v[(i * complete_grid_size) + (j+1)] = 1;
+				}
+				else
+					v[i] = 0;
+			}
+				
+			matrix_A[j] = v;
+		}
 		
 	} else {
 		cout << "Unable to open input file" << endl;		
@@ -183,6 +209,16 @@ int Parabrisas::read_from_input(char* input_file) {
 	}
 
 	return 0;
+}
+
+bool Parabrisas::is_affected(const Point p){
+	for (unsigned int i = 0; i < leeches.size(); i++){
+		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
+			if (leeches[i].leeched_points[j] == p) return true;
+		}
+	}
+
+	return false;
 }
 
 double Parabrisas::get_width() const{
