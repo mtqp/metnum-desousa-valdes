@@ -19,6 +19,7 @@
 using namespace std;
 
 typedef double Temp;
+typedef vector< vector<Temp>* > TempMatrix;
 
 struct Point {
 	double x, y;
@@ -43,29 +44,23 @@ class Parabrisas {
 		
 	private:
 		struct PB_Matrix {
-			vector< vector<Temp> > matrix;
-			int real_width, real_height;
+			TempMatrix* matrix;
 			const Parabrisas* pb;
+			int discr_width, discr_height;
 
-			PB_Matrix() : matrix(vector<vector<Temp> >(0, vector<Temp>(0, 0))), real_width(0), real_height(0), pb(0) {};
-			PB_Matrix(const Parabrisas* parab){
-				pb = parab;				
-
-				// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-				real_width = (pb->get_width() / pb->get_discretization()) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
-				real_height = (pb->get_height() / pb->get_discretization()) + 1;
-
-				matrix = vector<vector<Temp> >(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
-
+			PB_Matrix() : matrix(NULL), pb(NULL), discr_width(0), discr_height(0) {};
+			PB_Matrix(TempMatrix* m, const Parabrisas* parab, int d_w, int d_h) : matrix(m), pb(parab), discr_width(d_w), discr_height(d_h) {};
+			
+			void set_borders(){
 				// Pongo los bordes en -100 (a revisar)
-				for( int i = 0; i < real_width; i++) {
-					matrix[0][i] = -100.0;
-					matrix[real_height][i] = -100.0;
+				for( int j = 0; j < discr_width; j++) {
+					matrix[0][j] = -100.0;
+					matrix[discr_height][j] = -100.0;
 				}
 
-				for (int j = 0; j < real_height; j++){
-					matrix[j][0] = -100.0;
-					matrix[j][real_width] = -100.0;
+				for (int i = 0; i < discr_height; i++){
+					matrix[i][0] = -100.0;
+					matrix[i][discr_width] = -100.0;
 				}
 			};
 
@@ -73,7 +68,7 @@ class Parabrisas {
 				double intpart, d_x = p.x/pb->get_discretization(), d_y = p.y/pb->get_discretization();
 				
 				if (modf(d_x, &intpart) <= 0.0 + EPS and modf(d_y, &intpart) <= 0.0 + EPS)									//Si da una cuenta entera. VER ERROR RELATIVO EPS
-					return matrix[d_x][d_y];
+					return matrix[(int)d_x][(int)d_y];
 				else
 					return ERROR_TEMPERATURE;
 			};
@@ -124,12 +119,19 @@ class Parabrisas {
 		
 		double width, height, discr_interval, radius, temp;
 		vector<Leech> leeches;
-		PB_Matrix pb_matrix;
+		
+		vector< vector<int> >* matrix_A;
+		PB_Matrix* pb_matrix;
 };
 
 Parabrisas::Parabrisas() { }
 
-Parabrisas::~Parabrisas() { }
+Parabrisas::~Parabrisas() { 
+	if (pb_matrix != NULL)
+		delete pb_matrix;
+	if (matrix_A != NULL)
+		delete matrix_A;
+}
 
 int Parabrisas::read_from_input(char* input_file) {
 	ifstream file;
@@ -152,8 +154,30 @@ int Parabrisas::read_from_input(char* input_file) {
 
 		file.close();	
 
+		
+		// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
+		int discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
+		int discr_height = (height / discr_interval) + 1;
+
+		// Temperatura arbitraria para las no-calculadas = UNDEFINED TEMPERATURE
+		TempMatrix* pb_discr_matrix = new TempMatrix;
+		for (int j = 0; j < discr_width; j++){
+			vector<Temp>* v = new vector<Temp>;
+
+			for (int i = 0; i < discr_height; i++)
+				v->push_back(UNDEFINED_TEMPERATURE);
+
+			pb_discr_matrix->push_back(v);
+		}
+		//	vector< vector<Temp>* >* pb_discr_matrix = new vector<vector<Temp>* >(discr_width, new vector<Temp>(discr_height, UNDEFINED_TEMPERATURE) );	
+
 		// Creo el parabrisas discreto
-		pb_matrix = PB_Matrix(this);
+		pb_matrix = new PB_Matrix(pb_discr_matrix, this, discr_width, discr_height);
+		pb_matrix->set_borders();
+		
+		// Creo la matriz genérica A, habría que poner la info de las sanguijuelas
+		//	matrix_A = new vector<vector<int>*>(0, new vector<int>(
+		
 	} else {
 		cout << "Unable to open input file" << endl;		
 		return 1;
@@ -200,9 +224,9 @@ int Parabrisas::write_output(char* output_file) {
 	file.open(output_file);
 	
 	if (file.is_open()){				//chequea que este abierto x las dudas
-		for(int i = 0; i < pb_matrix.real_width; i++){
-			for(int j = 0; j < pb_matrix.real_height; j++){
-				file << i << " " << j << " " << pb_matrix.matrix[i][j] << endl; 
+		for(int i = 0; i < pb_matrix->discr_width; i++){
+			for(int j = 0; j < pb_matrix->discr_height; j++){
+				file << i << " " << j << " " << pb_matrix->matrix[i][j] << endl; 
 			}
 		}
 
