@@ -104,9 +104,14 @@ class Parabrisas {
 				disc_y_low = (int)ceil(y_low/discretization);
 				disc_y_high = (int)floor(y_high/discretization);
 				
-				for (int i = disc_x_low; i < disc_x_high; i++)
-					for (int j = disc_y_low; j < disc_y_high; j++)
-						res.push_back(Point(i,j));
+				for (int i = disc_x_low; i < disc_x_high; i++){
+					double real_x = i*discretization;
+					for (int j = disc_y_low; j < disc_y_high; j++){
+						double real_y = j*discretization;
+						if (sqrt((p.x - real_x)*(p.x - real_x) + (p.y - real_y)*(p.y - real_y)) <= radius)
+							res.push_back(Point(i,j));
+					}
+				}
 				
 				return res;
 			};
