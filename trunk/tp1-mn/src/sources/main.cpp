@@ -19,7 +19,6 @@
 using namespace std;
 
 typedef double Temp;
-typedef vector< vector<Temp>* > TempMatrix;
 
 struct Point {
 	double x, y;
@@ -44,12 +43,12 @@ class Parabrisas {
 		
 	private:
 		struct PB_Matrix {
-			TempMatrix* matrix;
+			vector<Temp>** matrix;
 			const Parabrisas* pb;
 			int discr_width, discr_height;
 
 			PB_Matrix() : matrix(NULL), pb(NULL), discr_width(0), discr_height(0) {};
-			PB_Matrix(TempMatrix* m, const Parabrisas* parab, int d_w, int d_h) : matrix(m), pb(parab), discr_width(d_w), discr_height(d_h) {};
+			PB_Matrix(vector<Temp>** m, const Parabrisas* parab, int d_w, int d_h) : matrix(m), pb(parab), discr_width(d_w), discr_height(d_h) {};
 			
 			void set_borders(){
 				// Pongo los bordes en -100 (a revisar)
@@ -160,15 +159,11 @@ int Parabrisas::read_from_input(char* input_file) {
 		int discr_height = (height / discr_interval) + 1;
 
 		// Temperatura arbitraria para las no-calculadas = UNDEFINED TEMPERATURE
-		TempMatrix* pb_discr_matrix = new TempMatrix;
-		for (int j = 0; j < discr_width; j++){
-			vector<Temp>* v = new vector<Temp>;
-
-			for (int i = 0; i < discr_height; i++)
-				v->push_back(UNDEFINED_TEMPERATURE);
-
+		vector<Temp>** pb_discr_matrix = new vector<Temp>*(discr_width, new vector<Temp>(discr_height, UNDEFINED_TEMPERATURE) );
+/*		for (int j = 0; j < discr_width; j++){
+			vector<Temp>* v = new vector<Temp>(discr_height, UNDEFINED_TEMPERATURE);
 			pb_discr_matrix->push_back(v);
-		}
+		}*/
 		//	vector< vector<Temp>* >* pb_discr_matrix = new vector<vector<Temp>* >(discr_width, new vector<Temp>(discr_height, UNDEFINED_TEMPERATURE) );	
 
 		// Creo el parabrisas discreto
@@ -219,7 +214,7 @@ void Parabrisas::gaussian_elimination() {
 }
 
 int Parabrisas::write_output(char* output_file) {
-	ofstream file;
+	/*ofstream file;
 	
 	file.open(output_file);
 	
@@ -236,7 +231,7 @@ int Parabrisas::write_output(char* output_file) {
 	 else { 
 		cout << "Unable to open output file" << endl;		// si no pudo da esto... SE VE SI SE PONE REALMENTE
 		return 1;
-	}
+	}*/
 }
 
 int main(int argc, char *argv[]) {
