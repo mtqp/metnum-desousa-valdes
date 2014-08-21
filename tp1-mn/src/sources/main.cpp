@@ -8,6 +8,7 @@
 
 #define UNDEFINED_TEMPERATURE 2048.0
 #define ERROR_TEMPERATURE -2048.0
+#define EPS 1.0e-4
 
 #ifdef DEBUG
 #define DEBUGMSG(X)  cout << X << endl;
@@ -30,9 +31,16 @@ class Parabrisas {
 		Parabrisas();
 		~Parabrisas();
 		int read_from_input(char* input_file);
+		double get_width() const;
+		double get_height() const;
+		double get_radius() const;
+		double get_temp() const;
+		double get_discretization() const;
 		void calculate_temps();
 		void kill_leech();
 		int write_output(char* output_file);
+		
+		
 	private:
 		struct PB_Matrix {
 			vector< vector<Temp> > matrix;
@@ -44,8 +52,8 @@ class Parabrisas {
 				pb = parab;				
 
 				// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-				real_width = (pb->width / pb->discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
-				real_height = (pb->height / pb->discr_interval) + 1;
+				real_width = (pb->get_width() / pb->get_discretization()) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
+				real_height = (pb->get_height() / pb->get_discretization()) + 1;
 
 				matrix = vector<vector<Temp> >(real_width, vector<Temp>(real_height, UNDEFINED_TEMPERATURE) );	//temperatura arbitraria para las no-calculadas.
 
@@ -62,10 +70,10 @@ class Parabrisas {
 			};
 
 			Temp get(const Point p){
-				double intpart, d_x = p.x/pb->discr_interval, d_y = p.y/pb->discr_interval;
+				double intpart, d_x = p.x/pb->get_discretization(), d_y = p.y/pb->get_discretization();
 				
-				if (modf(d_x, &intpart) == 0.0 and modf(d_y, &intpart) == 0.0)									//Si da una cuenta entera. VER ERROR
-					return matrix[p.x/pb->discr_interval][p.y/pb->discr_interval];
+				if (modf(d_x, &intpart) <= 0.0 + EPS and modf(d_y, &intpart) <= 0.0 + EPS)									//Si da una cuenta entera. VER ERROR RELATIVO EPS
+					return matrix[d_x][d_y];
 				else
 					return ERROR_TEMPERATURE;
 			};
@@ -78,8 +86,28 @@ class Parabrisas {
 			Parabrisas* pb; 
 	
 			vector<Point> affected_points(const Point p){
-				/// QUERIA HACER ESTO
 				vector<Point> res;
+				double x_low, x_high, y_low, y_high, radius = pb->get_radius();
+				
+				// Defino los intervalos reales
+				x_low = p.x - radius;
+				x_high = p.x + radius;
+				y_low = p.y - radius;
+				y_high = p.y + radius;
+				
+				int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
+				double discretization = pb->get_discretization();
+
+				// Defino los intervalos CERRADOS discretos
+				disc_x_low = (int)ceil(x_low/discretization);
+				disc_x_high = (int)floor(x_high/discretization);
+				disc_y_low = (int)ceil(y_low/discretization);
+				disc_y_high = (int)floor(y_high/discretization);
+				
+				for (int i = disc_x_low; i < disc_x_high; i++)
+					for (int j = disc_y_low; j < disc_y_high; j++)
+						res.push_back(Point(i,j));
+				
 				return res;
 			};
 	
@@ -127,6 +155,26 @@ int Parabrisas::read_from_input(char* input_file) {
 	}
 
 	return 0;
+}
+
+double Parabrisas::get_width() const{
+	return width;
+}
+
+double Parabrisas::get_height() const{
+	return height;
+}
+
+double Parabrisas::get_discretization() const{
+	return discr_interval;
+}
+
+double Parabrisas::get_radius() const{
+	return radius;
+}
+
+double Parabrisas::get_temp() const{
+	return temp;
 }
 
 void Parabrisas::calculate_temps() {
