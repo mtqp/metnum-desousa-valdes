@@ -198,8 +198,8 @@ int Parabrisas::read_from_input(char* input_file) {
 		
 		
 		// Relleno con toda la info (bordes + sanguijuela)
-		for (int j = 0; j < complete_grid_size; j++){
-			for (int i = 0; i < complete_grid_size; i++){
+		for (int i = 0; i < complete_grid_size; i++){
+			for (int j = i; j < complete_grid_size; j++){
 				if (is_border(i,j))
 					matrix_A[i][j] = 1;
 				else if (is_affected(i,j))
@@ -211,7 +211,7 @@ int Parabrisas::read_from_input(char* input_file) {
 					matrix_A[i][j-1] = 1;
 					matrix_A[i][j+1] = 1;
 				}
-				
+				break;
 			}
 		}
 		
