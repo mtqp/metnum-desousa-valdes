@@ -119,13 +119,16 @@ class Parabrisas {
 		};
 
 		void gaussian_elimination();
-		bool is_affected(const Point p);
+		bool is_affected(int i, int j);
+		bool is_border(int i, int j);
 		
 		double width, height, discr_interval, radius, temp;
+		int discr_height, discr_width;
 		vector<Leech> leeches;
 		
 		PB_Matrix* pb_matrix;
 		int** matrix_A;
+		int* matrix_B;
 };
 
 Parabrisas::Parabrisas() { }
@@ -160,8 +163,8 @@ int Parabrisas::read_from_input(char* input_file) {
 
 		
 		// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-		int discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
-		int discr_height = (height / discr_interval) + 1;
+		discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
+		discr_height = (height / discr_interval) + 1;
 
 		// Temperatura arbitraria para las no-calculadas = UNDEFINED TEMPERATURE
 		//vector< vector<Temp> > pb_discr_matrix(discr_width, vector<Temp>(discr_height, UNDEFINED_TEMPERATURE));
@@ -195,11 +198,11 @@ int Parabrisas::read_from_input(char* input_file) {
 		
 		
 		// Relleno con toda la info (bordes + sanguijuela)
-		for (int i = 0; i < complete_grid_size; i++){
-			for (int j = 0; j < complete_grid_size; j++){
-				if (i == 0 || j == 0 || i == complete_grid_size-1 || j == complete_grid_size-1)
+		for (int j = 0; j < complete_grid_size; j++){
+			for (int i = 0; i < complete_grid_size; i++){
+				if (is_border(i,j))
 					matrix_A[i][j] = 1;
-				else if (is_affected(Point(i,j)))
+				else if (is_affected(i,j))
 					matrix_A[i][j] = temp;
 				else {
 					matrix_A[i][j] = -4;
@@ -208,6 +211,21 @@ int Parabrisas::read_from_input(char* input_file) {
 					matrix_A[i][j-1] = 1;
 					matrix_A[i][j+1] = 1;
 				}
+				
+			}
+		}
+		
+		matrix_B = new int[complete_grid_size];
+		for (int i = 0; i < discr_height; i++){
+			for (int j = 0; i < discr_width; j++){
+				int index = (i*discr_width) + j;
+				
+				if (is_affected(i,j))
+					matrix_B[index] = temp;
+				else if (is_border(i,j))
+					matrix_B[index] = -100;
+				else
+					matrix_B[index] = 0;
 			}
 		}
 		
@@ -219,14 +237,18 @@ int Parabrisas::read_from_input(char* input_file) {
 	return 0;
 }
 
-bool Parabrisas::is_affected(const Point p){
+bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
-			if (leeches[i].leeched_points[j] == p) return true;
+			if (leeches[i].leeched_points[j] == Point(ai,aj)) return true;
 		}
 	}
 
 	return false;
+}
+
+bool Parabrisas::is_border(int i, int j){
+	return i == 0 or j == 0 or i == discr_height or j == discr_width;
 }
 
 double Parabrisas::get_width() const{ return width; }
