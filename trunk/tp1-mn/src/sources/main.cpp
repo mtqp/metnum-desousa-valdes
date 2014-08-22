@@ -119,6 +119,7 @@ class Parabrisas {
 		};
 
 		void gaussian_elimination();
+		void create_all_matrices();
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
 		
@@ -161,79 +162,85 @@ int Parabrisas::read_from_input(char* input_file) {
 
 		file.close();	
 
-		
-		// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-		discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
-		discr_height = (height / discr_interval) + 1;
-
-		// Temperatura arbitraria para las no-calculadas = UNDEFINED TEMPERATURE
-		//vector< vector<Temp> > pb_discr_matrix(discr_width, vector<Temp>(discr_height, UNDEFINED_TEMPERATURE));
-		
-		Temp** pb_discr_matrix= new Temp*[discr_width];
-		for (int j = 0; j < discr_width; j++){
-			Temp* v = new Temp[discr_height];
-			for (int i = 0; i < discr_height; i++)
-				v[i] = UNDEFINED_TEMPERATURE;
-				
-			pb_discr_matrix[j] = v;
-		}
-
-		// Creo el parabrisas discreto
-		pb_matrix = new PB_Matrix(pb_discr_matrix, this, discr_width, discr_height);
-		pb_matrix->set_borders();
-		
-
-		int complete_grid_size = discr_width*discr_height;
-
-		// Creo la matriz genérica A
-		matrix_A = new int*[complete_grid_size];
-		for (int j = 0; j < complete_grid_size; j++){
-			int* v = new int[complete_grid_size];
-			
-			for (int i = 0; i < complete_grid_size; i++)	// Lleno todo con 0 por default
-				v[i] = 0;
-				
-			matrix_A[j] = v;
-		}
-		
-		
-		// Relleno con toda la info (bordes + sanguijuela)
-		for (int i = 0; i < complete_grid_size; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
-			int j = i;	//Para seguir nuestro modelo
-			
-			if (is_border(i,j))
-				matrix_A[i][j] = 1;
-			else if (is_affected(i,j))
-				matrix_A[i][j] = temp;
-			else {
-				matrix_A[i][j] = -4;
-				matrix_A[i][((i+1)*discr_width) + j] = 1;
-				matrix_A[i][((i-1)*discr_width) + j] = 1;
-				matrix_A[i][j-1] = 1;
-				matrix_A[i][j+1] = 1;
-			}
-		}
-		
-		matrix_B = new int[complete_grid_size];
-		for (int i = 0; i < discr_height; i++){
-			for (int j = 0; i < discr_width; j++){
-				int index = (i*discr_width) + j;
-				
-				if (is_affected(i,j))
-					matrix_B[index] = temp;
-				else if (is_border(i,j))
-					matrix_B[index] = -100;
-				else
-					matrix_B[index] = 0;
-			}
-		}
-		
+		create_all_matrices();		
 	} else {
 		cout << "Unable to open input file" << endl;		
 		return 1;
 	}
 
 	return 0;
+}
+
+void Parabrisas::create_all_matrices(){
+	// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
+	
+	discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
+	discr_height = (height / discr_interval) + 1;
+
+
+/****** 	Creación de la matriz del parabrisas final 	*******/
+	
+	Temp** pb_discr_matrix= new Temp*[discr_width];
+	for (int j = 0; j < discr_width; j++){
+		Temp* v = new Temp[discr_height];
+		for (int i = 0; i < discr_height; i++)
+			v[i] = UNDEFINED_TEMPERATURE;	// Temperatura arbitraria para las no-calculadas = UNDEFINED TEMPERATURE
+			
+		pb_discr_matrix[j] = v;
+	}
+
+	
+	pb_matrix = new PB_Matrix(pb_discr_matrix, this, discr_width, discr_height);
+	pb_matrix->set_borders();
+	
+
+/****** 	Creación de la matriz A 	******/
+
+	int complete_grid_size = discr_width * discr_height;
+	
+	matrix_A = new int*[complete_grid_size];
+	for (int j = 0; j < complete_grid_size; j++){
+		int* v = new int[complete_grid_size];
+		
+		for (int i = 0; i < complete_grid_size; i++)	// Lleno todo con 0 por default
+			v[i] = 0;
+			
+		matrix_A[j] = v;
+	}
+	
+	// Relleno con toda la info (bordes + sanguijuela)
+	for (int i = 0; i < complete_grid_size; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
+		int j = i;									// Para seguir nuestro modelo
+		
+		if (is_border(i,j))
+			matrix_A[i][j] = 1;
+		else if (is_affected(i,j))
+			matrix_A[i][j] = temp;
+		else {
+			matrix_A[i][j] = -4;
+			matrix_A[i][( (i+1) * discr_width) + j] = 1;
+			matrix_A[i][( (i-1) * discr_width) + j] = 1;
+			matrix_A[i][j-1] = 1;
+			matrix_A[i][j+1] = 1;
+		}
+	}
+	
+
+/******		Creación de la matriz B (pb_matrix aplanada) 	******/
+
+	matrix_B = new int[complete_grid_size];
+	for (int i = 0; i < discr_height; i++){
+		for (int j = 0; i < discr_width; j++){
+			int index = (i * discr_width) + j;
+			
+			if (is_affected(i,j))
+				matrix_B[index] = temp;
+			else if (is_border(i,j))
+				matrix_B[index] = -100;
+			else
+				matrix_B[index] = 0;
+		}
+	}
 }
 
 bool Parabrisas::is_affected(int ai, int aj){
