@@ -124,8 +124,8 @@ class Parabrisas {
 		double width, height, discr_interval, radius, temp;
 		vector<Leech> leeches;
 		
-		vector< vector<int> >* matrix_A;
 		PB_Matrix* pb_matrix;
+		int** matrix_A;
 };
 
 Parabrisas::Parabrisas() { }
@@ -182,25 +182,29 @@ int Parabrisas::read_from_input(char* input_file) {
 
 		int complete_grid_size = discr_width*discr_height;
 
-		// Creo la matriz genérica A, habría que poner la info de las sanguijuelas
-		int** matrix_A= new int*[complete_grid_size];
+		// Creo la matriz genérica A
+		matrix_A = new int*[complete_grid_size];
 		for (int j = 0; j < complete_grid_size; j++){
-			int* v = new int[complete_grid_size];
-			for (int i = 0; i < complete_grid_size; i++){			// columnas
+			int* v = new int[complete_grid_size];				
+			matrix_A[j] = v;
+		}
+		
+		
+		// Relleno con toda la info (bordes + sanguijuela)
+		for (int i = 0; i < complete_grid_size; i++){
+			for (int j = 0; j < complete_grid_size; j++){
 				if (i == 0 || j == 0 || i == complete_grid_size-1 || j == complete_grid_size-1)
-					v[i] = 1;
+					matrix_A[i][j] = 1;
 				else if (is_affected(Point(i,j))){
-					v[(i * complete_grid_size) + j] = -4;
-					v[((i-1) * complete_grid_size) + j] = 1;
-					v[((i+1) * complete_grid_size) + j] = 1;
-					v[(i * complete_grid_size) + (j+1)] = 1;
-					v[(i * complete_grid_size) + (j+1)] = 1;
+					matrix_A[i][j] = -4;
+					matrix_A[i-1][j] = 1;
+					matrix_A[i+1][j] = 1;
+					matrix_A[i][j-1] = 1;
+					matrix_A[i][j+1] = 1;
 				}
 				else
-					v[i] = 0;
+					matrix_A[i][j] = 0;
 			}
-				
-			matrix_A[j] = v;
 		}
 		
 	} else {
@@ -221,25 +225,11 @@ bool Parabrisas::is_affected(const Point p){
 	return false;
 }
 
-double Parabrisas::get_width() const{
-	return width;
-}
-
-double Parabrisas::get_height() const{
-	return height;
-}
-
-double Parabrisas::get_discretization() const{
-	return discr_interval;
-}
-
-double Parabrisas::get_radius() const{
-	return radius;
-}
-
-double Parabrisas::get_temp() const{
-	return temp;
-}
+double Parabrisas::get_width() const{ return width; }
+double Parabrisas::get_height() const{ return height; }
+double Parabrisas::get_discretization() const{ return discr_interval; }
+double Parabrisas::get_radius() const{ return radius; }
+double Parabrisas::get_temp() const{ return temp; }
 
 void Parabrisas::calculate_temps() {
 
