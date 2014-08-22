@@ -185,7 +185,11 @@ int Parabrisas::read_from_input(char* input_file) {
 		// Creo la matriz genérica A
 		matrix_A = new int*[complete_grid_size];
 		for (int j = 0; j < complete_grid_size; j++){
-			int* v = new int[complete_grid_size];				
+			int* v = new int[complete_grid_size];
+			
+			for (int i = 0; i < complete_grid_size; i++)	// Lleno todo con 0 por default
+				v[i] = 0;
+				
 			matrix_A[j] = v;
 		}
 		
