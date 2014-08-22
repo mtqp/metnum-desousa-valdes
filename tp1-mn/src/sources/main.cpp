@@ -26,7 +26,7 @@ struct Point {
 	Point(const double posx, const double posy) : x(posx), y(posy) {};
 	
 	friend bool operator==(const Point p1, const Point p2){
-		return p1.x == p2.x and p1.y == p2.y;
+		return p1.x == p2.x && p1.y == p2.y;
 	}
 };
 
@@ -198,20 +198,19 @@ int Parabrisas::read_from_input(char* input_file) {
 		
 		
 		// Relleno con toda la info (bordes + sanguijuela)
-		for (int i = 0; i < complete_grid_size; i++){
-			for (int j = i; j < complete_grid_size; j++){
-				if (is_border(i,j))
-					matrix_A[i][j] = 1;
-				else if (is_affected(i,j))
-					matrix_A[i][j] = temp;
-				else {
-					matrix_A[i][j] = -4;
-					matrix_A[i-1][j] = 1;
-					matrix_A[i+1][j] = 1;
-					matrix_A[i][j-1] = 1;
-					matrix_A[i][j+1] = 1;
-				}
-				break;
+		for (int i = 0; i < complete_grid_size; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
+			int j = i;	//Para seguir nuestro modelo
+			
+			if (is_border(i,j))
+				matrix_A[i][j] = 1;
+			else if (is_affected(i,j))
+				matrix_A[i][j] = temp;
+			else {
+				matrix_A[i][j] = -4;
+				matrix_A[i][((i+1)*discr_width) + j] = 1;
+				matrix_A[i][((i-1)*discr_width) + j] = 1;
+				matrix_A[i][j-1] = 1;
+				matrix_A[i][j+1] = 1;
 			}
 		}
 		
@@ -248,7 +247,7 @@ bool Parabrisas::is_affected(int ai, int aj){
 }
 
 bool Parabrisas::is_border(int i, int j){
-	return i == 0 or j == 0 or i == discr_height or j == discr_width;
+	return i == 0 || j == 0 || i == discr_height || j == discr_width;
 }
 
 double Parabrisas::get_width() const{ return width; }
