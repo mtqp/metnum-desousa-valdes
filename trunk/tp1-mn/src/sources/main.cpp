@@ -223,8 +223,8 @@ void Parabrisas::create_all_matrices(){
 			matrix_A[i][j] = temp;
 		else {
 			matrix_A[i][j] = -4;
-			matrix_A[i][( (i+1) * discr_width) + j] = 1;
-			matrix_A[i][( (i-1) * discr_width) + j] = 1;
+			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
+			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
 			matrix_A[i][j-1] = 1;
 			matrix_A[i][j+1] = 1;
 		}
