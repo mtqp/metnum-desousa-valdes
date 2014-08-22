@@ -48,11 +48,11 @@ class Parabrisas {
 	private:
 		struct PB_Matrix {
 			Temp** matrix;
-			const Parabrisas* pb;
 			int discr_width, discr_height;
+			double discretization;
 
-			PB_Matrix() : matrix(NULL), pb(NULL), discr_width(0), discr_height(0) {};
-			PB_Matrix(Temp** m, const Parabrisas* parab, int d_w, int d_h) : matrix(m), pb(parab), discr_width(d_w), discr_height(d_h) {};
+			PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
+			PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
 			
 			void set_borders(){
 				// Pongo los bordes en -100 (a revisar)
@@ -68,9 +68,9 @@ class Parabrisas {
 			};
 
 			Temp get(const Point p){
-				double intpart, d_x = p.x/pb->get_discretization(), d_y = p.y/pb->get_discretization();
+				double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
 				
-				if (modf(d_x, &intpart) <= 0.0 + EPS and modf(d_y, &intpart) <= 0.0 + EPS)									//Si da una cuenta entera. VER ERROR RELATIVO EPS
+				if (modf(d_x, &intpart) <= 0.0 + EPS and modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
 					return matrix[(int)d_x][(int)d_y];
 				else
 					return ERROR_TEMPERATURE;
@@ -137,8 +137,13 @@ Parabrisas::Parabrisas() { }
 Parabrisas::~Parabrisas() { 
 	if (pb_matrix != NULL)
 		delete pb_matrix;
-	if (matrix_A != NULL)
-		delete matrix_A;
+	if (matrix_A != NULL){
+		for (int i = 0; i < discr_height * discr_width; i++)
+			delete matrix_A[i];
+		delete [] matrix_A;
+	}
+	if (matrix_B != NULL)
+		delete [] matrix_B;
 }
 
 int Parabrisas::read_from_input(char* input_file) {
@@ -190,7 +195,7 @@ void Parabrisas::create_all_matrices(){
 	}
 
 	
-	pb_matrix = new PB_Matrix(pb_discr_matrix, this, discr_width, discr_height);
+	pb_matrix = new PB_Matrix(pb_discr_matrix, discr_width, discr_height, discr_interval);
 	pb_matrix->set_borders();
 	
 
