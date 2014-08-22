@@ -129,7 +129,7 @@ class Parabrisas {
 		
 		PB_Matrix* pb_matrix;
 		int** matrix_A;
-		int* matrix_B;
+		Temp* matrix_B;
 };
 
 Parabrisas::Parabrisas() { }
@@ -233,7 +233,7 @@ void Parabrisas::create_all_matrices(){
 
 /******		Creación de la matriz B (pb_matrix aplanada) 	******/
 
-	matrix_B = new int[complete_grid_size];
+	matrix_B = new Temp[complete_grid_size];
 	for (int i = 0; i < discr_height; i++){
 		for (int j = 0; i < discr_width; j++){
 			int index = (i * discr_width) + j;
