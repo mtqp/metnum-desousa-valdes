@@ -196,14 +196,14 @@ int Parabrisas::read_from_input(char* input_file) {
 				if (i == 0 || j == 0 || i == complete_grid_size-1 || j == complete_grid_size-1)
 					matrix_A[i][j] = 1;
 				else if (is_affected(Point(i,j))){
+					matrix_A[i][j] = temp;
+				}
+				else
 					matrix_A[i][j] = -4;
 					matrix_A[i-1][j] = 1;
 					matrix_A[i+1][j] = 1;
 					matrix_A[i][j-1] = 1;
 					matrix_A[i][j+1] = 1;
-				}
-				else
-					matrix_A[i][j] = 0;
 			}
 		}
 		
