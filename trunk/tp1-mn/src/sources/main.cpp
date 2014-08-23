@@ -26,7 +26,7 @@ struct Point {
 	Point(const double posx, const double posy) : x(posx), y(posy) {};
 	
 	friend bool operator==(const Point p1, const Point p2){
-		return p1.x == p2.x && p1.y == p2.y;
+		return abs(p1.x - p2.x) <= EPS  && abs(p1.y - p2.y) <= EPS;
 	}
 };
 
@@ -70,7 +70,7 @@ class Parabrisas {
 			Temp get(const Point p){
 				double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
 				
-				if (modf(d_x, &intpart) <= 0.0 + EPS and modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
+				if (modf(d_x, &intpart) <= 0.0 + EPS && modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
 					return matrix[(int)d_x][(int)d_y];
 				else
 					return ERROR_TEMPERATURE;
@@ -220,7 +220,7 @@ void Parabrisas::create_all_matrices(){
 		if (is_border(i,j))
 			matrix_A[i][j] = 1;
 		else if (is_affected(i,j))
-			matrix_A[i][j] = temp;
+			matrix_A[i][j] = 1;
 		else {
 			matrix_A[i][j] = -4;
 			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
@@ -277,7 +277,11 @@ void Parabrisas::kill_leech() {
 }
 
 void Parabrisas::gaussian_elimination() {
-
+	for (unsigned int i = 0; i < ; i++){
+		for (unsigned int j = i+1; j < ; j++){
+			
+		}
+	}
 }
 
 int Parabrisas::write_output(char* output_file) {
