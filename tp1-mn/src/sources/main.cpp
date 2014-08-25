@@ -3,6 +3,7 @@
 #include <cmath>
 #include <vector>
 #include <algorithm>
+#include <iomanip>
 
 #define DEBUG
 
@@ -30,6 +31,88 @@ struct Point {
 	}
 };
 
+struct PB_Matrix {
+	Temp** matrix;
+	int discr_width, discr_height;
+	double discretization;
+
+	PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
+	PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
+	~PB_Matrix(){
+		if (matrix != NULL){
+			for (int i = 0; i < discr_height; i++)
+				delete [] matrix[i];
+			delete [] matrix;
+		}
+	}
+	
+	void set_borders(){
+		// Pongo los bordes en -100 (a revisar)
+		for( int j = 0; j < discr_width; j++) {
+			matrix[0][j] = -100.0;
+			matrix[discr_height-1][j] = -100.0;
+		}
+
+		for (int i = 0; i < discr_height; i++){
+			matrix[i][0] = -100.0;
+			matrix[i][discr_width-1] = -100.0;
+		}
+	};
+
+	Temp get(const Point p){
+		double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
+		
+		if (modf(d_x, &intpart) <= 0.0 + EPS && modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
+			return matrix[(int)d_x][(int)d_y];
+		else
+			return ERROR_TEMPERATURE;
+	};
+};
+
+double get_norm_2(double a_x, double a_y, double b_x, double b_y){
+	return sqrt((a_x - b_x)*(a_x - b_x) + (a_y - b_y)*(a_y - b_y));
+}
+
+struct Leech {
+	int id;
+	Point position;
+	double discretization, radius;
+	vector<Point> leeched_points;
+
+	vector<Point> affected_points(const Point p){
+		vector<Point> affected_points;
+		double x_low, x_high, y_low, y_high;
+		
+		// Defino los intervalos reales
+		x_low = p.x - radius;
+		x_high = p.x + radius;
+		y_low = p.y - radius;
+		y_high = p.y + radius;
+		int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
+
+		// Defino los intervalos CERRADOS discretos
+		disc_x_low = (int)ceil(x_low / discretization);
+		disc_x_high = (int)floor( x_high / discretization);
+		disc_y_low = (int)ceil( y_low / discretization);
+		disc_y_high = (int)floor(y_high / discretization);
+		
+		for (int i = disc_x_low; i < disc_x_high; i++){
+			double real_x = i*discretization;
+			for (int j = disc_y_low; j < disc_y_high; j++){
+				double real_y = j*discretization;
+				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius)
+					affected_points.push_back(Point(i,j));
+			}
+		}
+		
+		return affected_points;
+	};
+
+	Leech();
+	Leech(const int id_leech, const Point p, double d, double r)
+		: id(id_leech), position(p), discretization(d), radius(r), leeched_points(affected_points(p)) {};
+};
+
 class Parabrisas {
 	public:
 		Parabrisas();
@@ -41,83 +124,6 @@ class Parabrisas {
 		
 		
 	private:
-		struct PB_Matrix {
-			Temp** matrix;
-			int discr_width, discr_height;
-			double discretization;
-
-			PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
-			PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
-			~PB_Matrix(){
-				if (matrix != NULL){
-					for (int i = 0; i < discr_height; i++)
-						delete [] matrix[i];
-					delete [] matrix;
-				}
-			}
-			
-			void set_borders(){
-				// Pongo los bordes en -100 (a revisar)
-				for( int j = 0; j < discr_width; j++) {
-					matrix[0][j] = -100.0;
-					matrix[discr_height-1][j] = -100.0;
-				}
-
-				for (int i = 0; i < discr_height; i++){
-					matrix[i][0] = -100.0;
-					matrix[i][discr_width-1] = -100.0;
-				}
-			};
-
-			Temp get(const Point p){
-				double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
-				
-				if (modf(d_x, &intpart) <= 0.0 + EPS && modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
-					return matrix[(int)d_x][(int)d_y];
-				else
-					return ERROR_TEMPERATURE;
-			};
-		};
-
-		struct Leech {
-			int id;
-			Point position;
-			Parabrisas* pb;
-			double discretization, radius;
-			vector<Point> leeched_points;
-	
-			vector<Point> affected_points(const Point p){
-				vector<Point> affected_points;
-				double x_low, x_high, y_low, y_high;
-				
-				// Defino los intervalos reales
-				x_low = p.x - radius;
-				x_high = p.x + radius;
-				y_low = p.y - radius;
-				y_high = p.y + radius;
-				int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
-
-				// Defino los intervalos CERRADOS discretos
-				disc_x_low = (int)ceil(x_low / discretization);
-				disc_x_high = (int)floor( x_high / discretization);
-				disc_y_low = (int)ceil( y_low / discretization);
-				disc_y_high = (int)floor(y_high / discretization);
-				for (int i = disc_x_low; i < disc_x_high; i++){
-					double real_x = i*discretization;
-					for (int j = disc_y_low; j < disc_y_high; j++){
-						double real_y = j*discretization;
-						if (sqrt((p.x - real_x)*(p.x - real_x) + (p.y - real_y)*(p.y - real_y)) <= radius)
-							affected_points.push_back(Point(i,j));
-					}
-				}
-				
-				return affected_points;
-			};
-	
-			Leech();
-			Leech(const int id_leech, const Point p, Parabrisas* pba, double d, double r)
-				: id(id_leech), position(p), pb(pba), discretization(d), radius(r), leeched_points(affected_points(p)) {};
-		};
 
 		int rowIndexToWindShield(int i);
 		int colIndexToWindShield(int j);
@@ -130,7 +136,7 @@ class Parabrisas {
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
 		
-		void imprimir(double** matrix);
+		void imprimir(double** matrix, int i_range, int j_range);
 		double width, height, discr_interval, radius, temp;
 		int discr_height, discr_width;
 		vector<Leech> leeches;
@@ -140,19 +146,21 @@ class Parabrisas {
 		Temp* matrix_B;
 };
 
-void Parabrisas :: imprimir(double** matrix)
+void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
 {
 	/*int dimFi = matrix[0].size();
 	int dimCol =matrix[0].;
 	cout << "Dimension Filas = " << dimFi << endl;
 	cout << "Dimension Columnas = " <<  dimCol<< endl;*/
   
-	for(int i=0; i< discr_height*discr_width; i++){
+	for(int i=0; i<  i_range; i++){
 		cout << endl;
-		for(int j=0; j< discr_height*discr_width; j++){
+		for(int j=0; j< j_range; j++){
 			cout << matrix[i][j] << "\t";
 		}
 	}
+	
+	cout << endl;
 
 }
 
@@ -186,7 +194,7 @@ int Parabrisas::read_from_input(char* input_file) {
 		for(int i = 0; i < amount_of_leeches; i++) {
 			double x, y;
 			file >> x >> y;
-			leeches.push_back(Leech(i, Point(x,height - y), this, discr_interval, radius));
+			leeches.push_back(Leech(i, Point(x,height - y), discr_interval, radius));
 		}
 
 		file.close();	
@@ -320,8 +328,6 @@ void Parabrisas::addLeechInfo(){
 			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
 			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
 			matrix_A[i][j-1] = 1;
-			//cout << "j: " << j << endl;
-			//cout << "multiplicacion: " << discr_height * discr_width << endl;
 			matrix_A[i][j+1] = 1;
 		}
 	}	
@@ -329,11 +335,15 @@ void Parabrisas::addLeechInfo(){
 
 void Parabrisas::calculate_temps() {
 	cout << "ANTES: " << endl;
-	imprimir(matrix_A);
-	cout << "DPS: " << endl;
+	int size = discr_height * discr_width;
+	imprimir(matrix_A, size, size);
+	
 
+	
+	
 	gaussianElimination();
-	imprimir(matrix_A);
+	cout << "DPS: " << endl;
+	imprimir(matrix_A, size, size);
 	for (int i = 0; i < discr_height * discr_width; i++)
 	{
 		cout << matrix_B[i] << endl;
@@ -363,7 +373,7 @@ void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate
 } 
 
 void Parabrisas::gaussianElimination() {
-	for (int i = 0; i < discr_height * discr_width; i++){
+	for (int i = 0; i < discr_height * discr_width - 1; i++){
 		for (int j = i+1; j < discr_height * discr_width; j++){			// Ver si los bordes estan bien
 			if(abs(matrix_A[i][i])  < EPS){
 				cout << "0 en la diagonal en iteracion:" << i << endl;
@@ -383,7 +393,9 @@ int Parabrisas::write_output(char* output_file) {
 	if (file.is_open()){				//chequea que este abierto x las dudas
 		for(int i = 0; i < pb_matrix->discr_width; i++){
 			for(int j = 0; j < pb_matrix->discr_height; j++){
-				file << i << " " << j << " " << pb_matrix->matrix[i][j] << endl; 
+				file << i << " " << j << " " ;
+				file << fixed;
+				file << setprecision(5) << pb_matrix->matrix[i][j] << endl; 
 			}
 		}
 
