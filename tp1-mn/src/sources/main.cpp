@@ -328,8 +328,12 @@ void Parabrisas::addLeechInfo(){
 }
 
 void Parabrisas::calculate_temps() {
+	cout << "ANTES: " << endl;
+	imprimir(matrix_A);
+	cout << "DPS: " << endl;
+
 	gaussianElimination();
-	//mprimir(matrix_A);
+	imprimir(matrix_A);
 	for (int i = 0; i < discr_height * discr_width; i++)
 	{
 		cout << matrix_B[i] << endl;
