@@ -35,11 +35,6 @@ class Parabrisas {
 		Parabrisas();
 		~Parabrisas();
 		int read_from_input(char* input_file);
-		double get_width() const;
-		double get_height() const;
-		double get_radius() const;
-		double get_temp() const;
-		double get_discretization() const;
 		void calculate_temps();
 		void kill_leech();
 		int write_output(char* output_file);
@@ -53,17 +48,24 @@ class Parabrisas {
 
 			PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
 			PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
+			~PB_Matrix(){
+				if (matrix != NULL){
+					for (int i = 0; i < discr_height; i++)
+						delete [] matrix[i];
+					delete [] matrix;
+				}
+			}
 			
 			void set_borders(){
 				// Pongo los bordes en -100 (a revisar)
 				for( int j = 0; j < discr_width; j++) {
 					matrix[0][j] = -100.0;
-					matrix[discr_height][j] = -100.0;
+					matrix[discr_height-1][j] = -100.0;
 				}
 
 				for (int i = 0; i < discr_height; i++){
 					matrix[i][0] = -100.0;
-					matrix[i][discr_width] = -100.0;
+					matrix[i][discr_width-1] = -100.0;
 				}
 			};
 
@@ -80,57 +82,79 @@ class Parabrisas {
 		struct Leech {
 			int id;
 			Point position;
+			Parabrisas* pb;
+			double discretization, radius;
 			vector<Point> leeched_points;
-			Parabrisas* pb; 
 	
 			vector<Point> affected_points(const Point p){
-				vector<Point> res;
-				double x_low, x_high, y_low, y_high, radius = pb->get_radius();
+				vector<Point> affected_points;
+				double x_low, x_high, y_low, y_high;
 				
 				// Defino los intervalos reales
 				x_low = p.x - radius;
 				x_high = p.x + radius;
 				y_low = p.y - radius;
 				y_high = p.y + radius;
-				
 				int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
-				double discretization = pb->get_discretization();
 
 				// Defino los intervalos CERRADOS discretos
-				disc_x_low = (int)ceil(x_low/discretization);
-				disc_x_high = (int)floor(x_high/discretization);
-				disc_y_low = (int)ceil(y_low/discretization);
-				disc_y_high = (int)floor(y_high/discretization);
-				
+				disc_x_low = (int)ceil(x_low / discretization);
+				disc_x_high = (int)floor( x_high / discretization);
+				disc_y_low = (int)ceil( y_low / discretization);
+				disc_y_high = (int)floor(y_high / discretization);
 				for (int i = disc_x_low; i < disc_x_high; i++){
 					double real_x = i*discretization;
 					for (int j = disc_y_low; j < disc_y_high; j++){
 						double real_y = j*discretization;
 						if (sqrt((p.x - real_x)*(p.x - real_x) + (p.y - real_y)*(p.y - real_y)) <= radius)
-							res.push_back(Point(i,j));
+							affected_points.push_back(Point(i,j));
 					}
 				}
 				
-				return res;
+				return affected_points;
 			};
 	
 			Leech();
-			Leech(const int id_leech, const Point p, Parabrisas* pba) : id(id_leech), position(p), leeched_points(affected_points(p)), pb(pba) {};
+			Leech(const int id_leech, const Point p, Parabrisas* pba, double d, double r)
+				: id(id_leech), position(p), pb(pba), discretization(d), radius(r), leeched_points(affected_points(p)) {};
 		};
 
-		void gaussian_elimination();
+		int rowIndexToWindShield(int i);
+		int colIndexToWindShield(int j);
+		void gaussianElimination();
+		void addLeechInfo();
+		void recreateWindShield(vector<double>& vectorX);
+		void updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate);
+		vector<double> resolveTriangularMatrix();
 		void create_all_matrices();
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
 		
+		void imprimir(double** matrix);
 		double width, height, discr_interval, radius, temp;
 		int discr_height, discr_width;
 		vector<Leech> leeches;
 		
 		PB_Matrix* pb_matrix;
-		int** matrix_A;
+		double** matrix_A;
 		Temp* matrix_B;
 };
+
+void Parabrisas :: imprimir(double** matrix)
+{
+	/*int dimFi = matrix[0].size();
+	int dimCol =matrix[0].;
+	cout << "Dimension Filas = " << dimFi << endl;
+	cout << "Dimension Columnas = " <<  dimCol<< endl;*/
+  
+	for(int i=0; i< discr_height*discr_width; i++){
+		cout << endl;
+		for(int j=0; j< discr_height*discr_width; j++){
+			cout << matrix[i][j] << "\t";
+		}
+	}
+
+}
 
 Parabrisas::Parabrisas() { }
 
@@ -139,11 +163,12 @@ Parabrisas::~Parabrisas() {
 		delete pb_matrix;
 	if (matrix_A != NULL){
 		for (int i = 0; i < discr_height * discr_width; i++)
-			delete matrix_A[i];
+			delete [] matrix_A[i];
 		delete [] matrix_A;
 	}
 	if (matrix_B != NULL)
 		delete [] matrix_B;
+	
 }
 
 int Parabrisas::read_from_input(char* input_file) {
@@ -161,8 +186,7 @@ int Parabrisas::read_from_input(char* input_file) {
 		for(int i = 0; i < amount_of_leeches; i++) {
 			double x, y;
 			file >> x >> y;
-		
-			leeches.push_back(Leech(i, Point(x,y), this));
+			leeches.push_back(Leech(i, Point(x,height - y), this, discr_interval, radius));
 		}
 
 		file.close();	
@@ -203,9 +227,9 @@ void Parabrisas::create_all_matrices(){
 
 	int complete_grid_size = discr_width * discr_height;
 	
-	matrix_A = new int*[complete_grid_size];
+	matrix_A = new double*[complete_grid_size];
 	for (int j = 0; j < complete_grid_size; j++){
-		int* v = new int[complete_grid_size];
+		double* v = new double[complete_grid_size];
 		
 		for (int i = 0; i < complete_grid_size; i++)	// Lleno todo con 0 por default
 			v[i] = 0;
@@ -213,30 +237,14 @@ void Parabrisas::create_all_matrices(){
 		matrix_A[j] = v;
 	}
 	
-	// Relleno con toda la info (bordes + sanguijuela)
-	for (int i = 0; i < complete_grid_size; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
-		int j = i;									// Para seguir nuestro modelo
-		
-		if (is_border(i,j))
-			matrix_A[i][j] = 1;
-		else if (is_affected(i,j))
-			matrix_A[i][j] = 1;
-		else {
-			matrix_A[i][j] = -4;
-			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
-			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
-			matrix_A[i][j-1] = 1;
-			matrix_A[i][j+1] = 1;
-		}
-	}
-	
+	addLeechInfo();
 
 /******		Creación de la matriz B (pb_matrix aplanada) 	******/
 
 	matrix_B = new Temp[complete_grid_size];
 	for (int i = 0; i < discr_height; i++){
-		for (int j = 0; i < discr_width; j++){
-			int index = (i * discr_width) + j;
+		for (int j = 0; j < discr_width; j++){
+			int index = (i * (discr_width)) + j;
 			
 			if (is_affected(i,j))
 				matrix_B[index] = temp;
@@ -259,16 +267,78 @@ bool Parabrisas::is_affected(int ai, int aj){
 }
 
 bool Parabrisas::is_border(int i, int j){
-	return i == 0 || j == 0 || i == discr_height || j == discr_width;
+	return i == 0 || j == 0 || i == (discr_height-1) || j == (discr_width-1);
 }
 
-double Parabrisas::get_width() const{ return width; }
-double Parabrisas::get_height() const{ return height; }
-double Parabrisas::get_discretization() const{ return discr_interval; }
-double Parabrisas::get_radius() const{ return radius; }
-double Parabrisas::get_temp() const{ return temp; }
+vector<double> Parabrisas::resolveTriangularMatrix(){
+	vector<double> vectorX; 
+	double sum = 0.0;
+	for (int i = (discr_height * discr_width) - 1; i >= 0; i--){
+		//Calculate Xi
+		double b_i = matrix_B[i];
+		double a_ii = matrix_A[i][i];
+		double x_i = (b_i - sum) / a_ii;
+	
+		//Update vector
+		vectorX.insert(vectorX.begin(),x_i);
+		
+		//Update sum
+		if (i != 0){
+			double a_iminus1_i = matrix_A[i-1][i];
+			sum += x_i * a_iminus1_i;
+		}
+	}
+	return vectorX;
+}
+
+int Parabrisas :: rowIndexToWindShield(int i){
+	return i / discr_height;
+}
+
+int Parabrisas :: colIndexToWindShield(int j){
+	return j % discr_width;
+}
+
+void Parabrisas :: recreateWindShield(vector<double>& vectorX){
+	for (int i = 0; i < discr_height * discr_width; i++)
+	{
+		pb_matrix->matrix[rowIndexToWindShield(i)][colIndexToWindShield(i)] = vectorX[i];
+	}
+	
+}
+
+void Parabrisas::addLeechInfo(){
+	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
+		int j = i;											// Para seguir nuestro modelo
+		
+		if (is_border(rowIndexToWindShield(i),colIndexToWindShield(j)))
+			matrix_A[i][j] = 1;
+		else if (is_affected(i,j))
+			matrix_A[i][j] = 1;
+		else {
+			matrix_A[i][j] = -4;
+			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
+			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
+			matrix_A[i][j-1] = 1;
+			//cout << "j: " << j << endl;
+			//cout << "multiplicacion: " << discr_height * discr_width << endl;
+			matrix_A[i][j+1] = 1;
+		}
+	}	
+}
 
 void Parabrisas::calculate_temps() {
+	gaussianElimination();
+	//mprimir(matrix_A);
+	for (int i = 0; i < discr_height * discr_width; i++)
+	{
+		cout << matrix_B[i] << endl;
+	}
+	
+	
+	vector<double> temperatureVector = resolveTriangularMatrix();
+	
+	recreateWindShield(temperatureVector);
 
 }
 
@@ -276,10 +346,27 @@ void Parabrisas::kill_leech() {
 
 }
 
-void Parabrisas::gaussian_elimination() {
-	for (unsigned int i = 0; i < ; i++){
-		for (unsigned int j = i+1; j < ; j++){
-			
+void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
+	for(int j = 0; j < discr_width; j++){ 
+		double valorAnterior = matrix_A[rowToUpdate][j];
+		matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
+		if(valorAnterior != 0)
+		{		
+			cout << "i:" << rowToUpdate << " j:" << j << "; antes:" << valorAnterior << " ahora:" << matrix_A[rowToUpdate][j] << endl;
+		}
+	}
+	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
+} 
+
+void Parabrisas::gaussianElimination() {
+	for (int i = 0; i < discr_height * discr_width; i++){
+		for (int j = i+1; j < discr_height * discr_width; j++){			// Ver si los bordes estan bien
+			if(abs(matrix_A[i][i])  < EPS){
+				cout << "0 en la diagonal en iteracion:" << i << endl;
+				return; 
+			}
+			double i_j_multiplier = matrix_A[j][i] / matrix_A[i][i];			// Chequear por error
+			updateRowJ(i_j_multiplier, i, j);
 		}
 	}
 }
@@ -312,7 +399,9 @@ int main(int argc, char *argv[]) {
 	char* output_file = argv[2];
 
 	if(pb.read_from_input(input_file)) exit(1);
+	//if(pb.write_output(output_file)) exit(1);
 	pb.calculate_temps();
+	
 	if(pb.write_output(output_file)) exit(1);
 	
 	return 0;
