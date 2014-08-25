@@ -31,6 +31,21 @@ struct Point {
 	}
 };
 
+struct PointDiscr {
+	int i, j;
+	PointDiscr();
+	PointDiscr(const int posx, const int posy) : i(posx), j(posy) {};
+	
+	friend ostream& operator<<(ostream& stream, const PointDiscr p1){
+		stream << "i: " << p1.i << "; j: " << p1.j << endl;
+		return stream;
+	}
+	
+	friend bool operator==(const PointDiscr p1, const PointDiscr p2){
+		return p1.i == p2.i && p1.j == p2.j;
+	}
+};
+
 struct PB_Matrix {
 	Temp** matrix;
 	int discr_width, discr_height;
@@ -77,10 +92,10 @@ struct Leech {
 	int id;
 	Point position;
 	double discretization, radius;
-	vector<Point> leeched_points;
+	vector<PointDiscr> leeched_points;
 
-	vector<Point> affected_points(const Point p){
-		vector<Point> affected_points;
+	vector<PointDiscr> affected_points(const Point p){
+		vector<PointDiscr> affected_points;
 		double x_low, x_high, y_low, y_high;
 		
 		// Defino los intervalos reales
@@ -101,7 +116,7 @@ struct Leech {
 			for (int j = disc_y_low; j < disc_y_high; j++){
 				double real_y = j*discretization;
 				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius)
-					affected_points.push_back(Point(i,j));
+					affected_points.push_back(PointDiscr(i,j));
 			}
 		}
 		
@@ -197,6 +212,11 @@ int Parabrisas::read_from_input(char* input_file) {
 			leeches.push_back(Leech(i, Point(x,height - y), discr_interval, radius));
 		}
 
+		for (int i = 0; i < amount_of_leeches; i++){
+			for (int j = 0; j < (int)leeches[i].leeched_points.size(); j++)
+				cout << "punto afectado: " << leeches[i].leeched_points[j] << endl;
+		}
+
 		file.close();	
 
 		create_all_matrices();		
@@ -267,7 +287,7 @@ void Parabrisas::create_all_matrices(){
 bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
-			if (leeches[i].leeched_points[j] == Point(ai,aj)) return true;
+			if (leeches[i].leeched_points[j] == PointDiscr(ai,aj)) return true;
 		}
 	}
 
@@ -346,7 +366,7 @@ void Parabrisas::addLeechInfo(){
 
 void Parabrisas::calculate_temps() {
 	//cout << "ANTES A: " << endl;
-	//int size = discr_height * discr_width;
+	int size = discr_height * discr_width;
 	
 	
 	/*cout << endl << "ANTES B: " << endl;
@@ -354,7 +374,7 @@ void Parabrisas::calculate_temps() {
 		cout << matrix_B[i] << endl;*/
 	
 	gaussianElimination();
-	//imprimir(matrix_A, size, size);
+	imprimir(matrix_A, size, size);
 	/*cout << "DESPUES A: " << endl;
 	imprimir(matrix_A, size, size);
 	
