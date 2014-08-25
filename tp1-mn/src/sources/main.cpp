@@ -212,10 +212,10 @@ int Parabrisas::read_from_input(char* input_file) {
 			leeches.push_back(Leech(i, Point(x,height - y), discr_interval, radius));
 		}
 
-		for (int i = 0; i < amount_of_leeches; i++){
+		/*for (int i = 0; i < amount_of_leeches; i++){
 			for (int j = 0; j < (int)leeches[i].leeched_points.size(); j++)
 				cout << "punto afectado: " << leeches[i].leeched_points[j] << endl;
-		}
+		}*/
 
 		file.close();	
 
@@ -274,10 +274,10 @@ void Parabrisas::create_all_matrices(){
 		for (int j = 0; j < discr_width; j++){
 			int index = (i * (discr_width)) + j;
 			
-			if (is_affected(i,j))
-				matrix_B[index] = temp;
-			else if (is_border(i,j))
+			if (is_border(i,j))
 				matrix_B[index] = -100;
+			else if (is_affected(i,j))
+				matrix_B[index] = temp;
 			else
 				matrix_B[index] = 0;
 		}
@@ -315,18 +315,8 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 		double x_i = (b_i - sum) / a_ii;
 	
 		//Update vector
-		vectorX.insert(vectorX.begin(), x_i);
-		
-		//Update sum
-		/*if (i != 0){
-			double a_iminus1_i = matrix_A[i-1][i];
-			sum += x_i * a_iminus1_i;
-			//cout << endl << sum << " = " << sum-x_i*a_iminus1_i << " + " <<  x_i << " * " << a_iminus1_i << endl << endl;
-		}*/
-		
+		vectorX.insert(vectorX.begin(), x_i);		
 	}
-			/*for (int j = 0; j < (int) vectorX.size(); j++)
-			cout << vectorX[j] << endl;*/
 	return vectorX;
 }
 
@@ -366,15 +356,14 @@ void Parabrisas::addLeechInfo(){
 
 void Parabrisas::calculate_temps() {
 	//cout << "ANTES A: " << endl;
-	int size = discr_height * discr_width;
+	/*int size = discr_height * discr_width;
 	
-	
-	/*cout << endl << "ANTES B: " << endl;
+	imprimir(matrix_A, size, size);
+	cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
 		cout << matrix_B[i] << endl;*/
 	
 	gaussianElimination();
-	imprimir(matrix_A, size, size);
 	/*cout << "DESPUES A: " << endl;
 	imprimir(matrix_A, size, size);
 	
