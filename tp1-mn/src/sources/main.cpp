@@ -334,26 +334,26 @@ void Parabrisas::addLeechInfo(){
 }
 
 void Parabrisas::calculate_temps() {
-	cout << "ANTES: " << endl;
+	/*cout << "ANTES A: " << endl;
 	int size = discr_height * discr_width;
 	imprimir(matrix_A, size, size);
 	
-
-	
+	cout << endl << "ANTES B: " << endl;
+	for (int i = 0; i < discr_height*discr_width; i++)
+		cout << matrix_B[i] << endl;*/
 	
 	gaussianElimination();
-	cout << "DPS: " << endl;
-	imprimir(matrix_A, size, size);
-	for (int i = 0; i < discr_height * discr_width; i++)
-	{
-		cout << matrix_B[i] << endl;
-	}
 	
+	/*cout << "DESPUES A: " << endl;
+	imprimir(matrix_A, size, size);
+	
+	cout << endl << "DESPUES B: " << endl;
+	for (int i = 0; i < discr_height*discr_width; i++)
+		cout << matrix_B[i] << endl;*/
 	
 	vector<double> temperatureVector = resolveTriangularMatrix();
 	
 	recreateWindShield(temperatureVector);
-
 }
 
 void Parabrisas::kill_leech() {
@@ -361,19 +361,20 @@ void Parabrisas::kill_leech() {
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
-	for(int j = 0; j < discr_width; j++){ 
+	for(int j = 0; j < discr_width * discr_height; j++){ 
 		double valorAnterior = matrix_A[rowToUpdate][j];
 		matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
-		if(valorAnterior != 0)
+		/*if(valorAnterior != 0)
 		{		
-			cout << "i:" << rowToUpdate << " j:" << j << "; antes:" << valorAnterior << " ahora:" << matrix_A[rowToUpdate][j] << endl;
-		}
+			cout << "rowToUse: " << rowToUse << "; i_j_multiplier: " << i_j_multiplier << endl;
+			cout << "i:" << rowToUpdate << " j:" << j << "; antes:" << valorAnterior << " ahora:" << matrix_A[rowToUpdate][j] << endl << endl;
+		}*/
 	}
 	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 } 
 
 void Parabrisas::gaussianElimination() {
-	for (int i = 0; i < discr_height * discr_width - 1; i++){
+	for (int i = 0; i < (discr_height * discr_width) - 1; i++){
 		for (int j = i+1; j < discr_height * discr_width; j++){			// Ver si los bordes estan bien
 			if(abs(matrix_A[i][i])  < EPS){
 				cout << "0 en la diagonal en iteracion:" << i << endl;
