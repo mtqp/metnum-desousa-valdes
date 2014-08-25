@@ -280,22 +280,33 @@ bool Parabrisas::is_border(int i, int j){
 
 vector<double> Parabrisas::resolveTriangularMatrix(){
 	vector<double> vectorX; 
-	double sum = 0.0;
+	//double sum = 0.0;
 	for (int i = (discr_height * discr_width) - 1; i >= 0; i--){
 		//Calculate Xi
 		double b_i = matrix_B[i];
 		double a_ii = matrix_A[i][i];
+		double sum = 0.0;
+		
+		int xs = (int)(vectorX.size()-1);
+		for (int j = (discr_height * discr_width) - 1;  j >= i+1 && i != 0; j--){
+			sum += matrix_A[i][j] * vectorX[xs];
+			xs--;
+		}
 		double x_i = (b_i - sum) / a_ii;
 	
 		//Update vector
-		vectorX.insert(vectorX.begin(),x_i);
+		vectorX.insert(vectorX.begin(), x_i);
 		
 		//Update sum
-		if (i != 0){
+		/*if (i != 0){
 			double a_iminus1_i = matrix_A[i-1][i];
 			sum += x_i * a_iminus1_i;
-		}
+			//cout << endl << sum << " = " << sum-x_i*a_iminus1_i << " + " <<  x_i << " * " << a_iminus1_i << endl << endl;
+		}*/
+		
 	}
+			/*for (int j = 0; j < (int) vectorX.size(); j++)
+			cout << vectorX[j] << endl;*/
 	return vectorX;
 }
 
@@ -334,16 +345,16 @@ void Parabrisas::addLeechInfo(){
 }
 
 void Parabrisas::calculate_temps() {
-	/*cout << "ANTES A: " << endl;
-	int size = discr_height * discr_width;
-	imprimir(matrix_A, size, size);
+	//cout << "ANTES A: " << endl;
+	//int size = discr_height * discr_width;
 	
-	cout << endl << "ANTES B: " << endl;
+	
+	/*cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
 		cout << matrix_B[i] << endl;*/
 	
 	gaussianElimination();
-	
+	//imprimir(matrix_A, size, size);
 	/*cout << "DESPUES A: " << endl;
 	imprimir(matrix_A, size, size);
 	
@@ -362,7 +373,7 @@ void Parabrisas::kill_leech() {
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
 	for(int j = 0; j < discr_width * discr_height; j++){ 
-		double valorAnterior = matrix_A[rowToUpdate][j];
+		//double valorAnterior = matrix_A[rowToUpdate][j];
 		matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
 		/*if(valorAnterior != 0)
 		{		
@@ -394,7 +405,7 @@ int Parabrisas::write_output(char* output_file) {
 	if (file.is_open()){				//chequea que este abierto x las dudas
 		for(int i = 0; i < pb_matrix->discr_width; i++){
 			for(int j = 0; j < pb_matrix->discr_height; j++){
-				file << i << " " << j << " " ;
+				file << i << "\t" << j << "\t" ;
 				file << fixed;
 				file << setprecision(5) << pb_matrix->matrix[i][j] << endl; 
 			}
