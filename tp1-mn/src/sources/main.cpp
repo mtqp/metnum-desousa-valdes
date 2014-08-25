@@ -136,7 +136,7 @@ class Parabrisas {
 		void calculate_temps();
 		void kill_leech();
 		int write_output(char* output_file);
-		
+		double temperatureOnCriticalPoint();
 		
 	private:
 
@@ -358,10 +358,10 @@ void Parabrisas::calculate_temps() {
 	//cout << "ANTES A: " << endl;
 	/*int size = discr_height * discr_width;
 	
-	imprimir(matrix_A, size, size);
+	imprimir(matrix_A, size, size);*/
 	cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;*/
+		cout << matrix_B[i] << endl;
 	
 	gaussianElimination();
 	/*cout << "DESPUES A: " << endl;
@@ -377,7 +377,8 @@ void Parabrisas::calculate_temps() {
 }
 
 void Parabrisas::kill_leech() {
-
+	//killCriticalPointNearestLeech();
+	leeches.pop_back();
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
@@ -404,6 +405,14 @@ void Parabrisas::gaussianElimination() {
 			updateRowJ(i_j_multiplier, i, j);
 		}
 	}
+}
+
+double Parabrisas :: temperatureOnCriticalPoint(){
+	double middle_x = height / 2;
+	double middle_y = width / 2;
+	Point criticalPoint = Point(middle_x, middle_y);
+	
+	return pb_matrix->get(criticalPoint);
 }
 
 int Parabrisas::write_output(char* output_file) {
@@ -438,6 +447,11 @@ int main(int argc, char *argv[]) {
 	if(pb.read_from_input(input_file)) exit(1);
 	//if(pb.write_output(output_file)) exit(1);
 	pb.calculate_temps();
+	cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	while (pb.temperatureOnCriticalPoint() >= 235.0){
+		pb.kill_leech();
+		pb.calculate_temps();
+	}
 	
 	if(pb.write_output(output_file)) exit(1);
 	
