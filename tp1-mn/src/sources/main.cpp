@@ -1,132 +1,10 @@
-﻿#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-
-#define DEBUG
-
-#define UNDEFINED_TEMPERATURE 2048.0
-#define ERROR_TEMPERATURE -2048.0
-#define EPS 1.0e-4
-
-#ifdef DEBUG
-#define DEBUGMSG(X)  cout << X << endl;
-#else
-#define DEBUGMSG(X)
-#endif
+﻿#include "structs.h"
 
 using namespace std;
-
-typedef double Temp;
-
-struct Point {
-	double x, y;
-	Point();
-	Point(const double posx, const double posy) : x(posx), y(posy) {};
-	
-	friend bool operator==(const Point p1, const Point p2){
-		return abs(p1.x - p2.x) <= EPS  && abs(p1.y - p2.y) <= EPS;
-	}
-};
-
-struct PointDiscr {
-	int i, j;
-	PointDiscr();
-	PointDiscr(const int posx, const int posy) : i(posx), j(posy) {};
-	
-	friend ostream& operator<<(ostream& stream, const PointDiscr p1){
-		stream << "i: " << p1.i << "; j: " << p1.j << endl;
-		return stream;
-	}
-	
-	friend bool operator==(const PointDiscr p1, const PointDiscr p2){
-		return p1.i == p2.i && p1.j == p2.j;
-	}
-};
-
-struct PB_Matrix {
-	Temp** matrix;
-	int discr_width, discr_height;
-	double discretization;
-
-	PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
-	PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
-	~PB_Matrix(){
-		if (matrix != NULL){
-			for (int i = 0; i < discr_height; i++)
-				delete [] matrix[i];
-			delete [] matrix;
-		}
-	}
-	
-	void set_borders(){
-		// Pongo los bordes en -100 (a revisar)
-		for( int j = 0; j < discr_width; j++) {
-			matrix[0][j] = -100.0;
-			matrix[discr_height-1][j] = -100.0;
-		}
-
-		for (int i = 0; i < discr_height; i++){
-			matrix[i][0] = -100.0;
-			matrix[i][discr_width-1] = -100.0;
-		}
-	};
-
-	Temp get(const Point p){
-		double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
-		
-		if (modf(d_x, &intpart) <= 0.0 + EPS && modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
-			return matrix[(int)d_x][(int)d_y];
-		else
-			return ERROR_TEMPERATURE;
-	};
-};
 
 double get_norm_2(double a_x, double a_y, double b_x, double b_y){
 	return sqrt((a_x - b_x)*(a_x - b_x) + (a_y - b_y)*(a_y - b_y));
 }
-
-struct Leech {
-	int id;
-	Point position;
-	double discretization, radius;
-	vector<PointDiscr> leeched_points;
-
-	vector<PointDiscr> affected_points(const Point p){
-		vector<PointDiscr> affected_points;
-		double x_low, x_high, y_low, y_high;
-		
-		// Defino los intervalos reales
-		x_low = p.x - radius;
-		x_high = p.x + radius;
-		y_low = p.y - radius;
-		y_high = p.y + radius;
-		int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
-
-		// Defino los intervalos CERRADOS discretos
-		disc_x_low = (int)ceil(x_low / discretization);
-		disc_x_high = (int)floor( x_high / discretization);
-		disc_y_low = (int)ceil( y_low / discretization);
-		disc_y_high = (int)floor(y_high / discretization);
-		
-		for (int i = disc_x_low; i < disc_x_high; i++){
-			double real_x = i*discretization;
-			for (int j = disc_y_low; j < disc_y_high; j++){
-				double real_y = j*discretization;
-				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius)
-					affected_points.push_back(PointDiscr(i,j));
-			}
-		}
-		
-		return affected_points;
-	};
-
-	Leech();
-	Leech(const int id_leech, const Point p, double d, double r)
-		: id(id_leech), position(p), discretization(d), radius(r), leeched_points(affected_points(p)) {};
-};
 
 class Parabrisas {
 	public:
@@ -162,12 +40,7 @@ class Parabrisas {
 };
 
 void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
-{
-	/*int dimFi = matrix[0].size();
-	int dimCol =matrix[0].;
-	cout << "Dimension Filas = " << dimFi << endl;
-	cout << "Dimension Columnas = " <<  dimCol<< endl;*/
-  
+{  
 	for(int i=0; i<  i_range; i++){
 		cout << endl;
 		for(int j=0; j< j_range; j++){
@@ -176,7 +49,6 @@ void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
 	}
 	
 	cout << endl;
-
 }
 
 Parabrisas::Parabrisas() { }
@@ -287,6 +159,8 @@ void Parabrisas::create_all_matrices(){
 bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
+			cout << leeches[i].leeched_points[j];
+			cout << PointDiscr(ai,aj);
 			if (leeches[i].leeched_points[j] == PointDiscr(ai,aj)) return true;
 		}
 	}
@@ -308,7 +182,7 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 		double sum = 0.0;
 		
 		int xs = (int)(vectorX.size()-1);
-		for (int j = (discr_height * discr_width) - 1;  j >= i+1 && i != 0; j--){
+		for (int j = (discr_height * discr_width) - 1;  j >= i+1; j--){
 			sum += matrix_A[i][j] * vectorX[xs];
 			xs--;
 		}
@@ -342,7 +216,7 @@ void Parabrisas::addLeechInfo(){
 		
 		if (is_border(rowIndexToWindShield(i),colIndexToWindShield(j)))
 			matrix_A[i][j] = 1;
-		else if (is_affected(i,j))
+		else if (is_affected(rowIndexToWindShield(i),colIndexToWindShield(j)))
 			matrix_A[i][j] = 1;
 		else {
 			matrix_A[i][j] = -4;
@@ -355,21 +229,21 @@ void Parabrisas::addLeechInfo(){
 }
 
 void Parabrisas::calculate_temps() {
-	//cout << "ANTES A: " << endl;
-	/*int size = discr_height * discr_width;
+	cout << "ANTES A: " << endl;
+	int size = discr_height * discr_width;
 	
-	imprimir(matrix_A, size, size);*/
+	imprimir(matrix_A, size, size);
 	cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
 		cout << matrix_B[i] << endl;
 	
 	gaussianElimination();
-	/*cout << "DESPUES A: " << endl;
+	cout << "DESPUES A: " << endl;
 	imprimir(matrix_A, size, size);
 	
 	cout << endl << "DESPUES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;*/
+		cout << matrix_B[i] << endl;
 	
 	vector<double> temperatureVector = resolveTriangularMatrix();
 	
@@ -457,4 +331,3 @@ int main(int argc, char *argv[]) {
 	
 	return 0;
 }
- 
