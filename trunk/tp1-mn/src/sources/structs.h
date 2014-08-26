@@ -147,5 +147,5 @@ struct Leech {
 
 	Leech();
 	Leech(const int id_leech, const Point p, const int d_w, const int d_h, double d, double r)
-		: id(id_leech), position(p), discr_width(d_w), discr_height(d_h), discretization(d), radius(r), leeched_points(affected_points(p)) {};
+		: id(id_leech), position(p), discr_width(d_w), discr_height(d_h), discretization(d), radius(r) {};
 };

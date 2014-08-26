@@ -94,7 +94,15 @@ int Parabrisas::read_from_input(char* input_file) {
 		for(int i = 0; i < amount_of_leeches; i++) {
 			double x, y;
 			file >> x >> y;
-			leeches.push_back(Leech(i, Point(x,height - y), discr_width, discr_height, discr_interval, radius));
+			Point pointLeech = Point(x,height - y);
+			Leech leech = Leech(i, pointLeech, discr_width, discr_height, discr_interval, radius); 
+			leech.leeched_points = leech.affected_points(pointLeech);
+			
+			/*for (int j = 0; j < (int)leech.leeched_points.size(); j++)
+				cout << leech.leeched_points[i];*/
+				
+			if (!leech.leeched_points.empty())
+				leeches.push_back(leech);
 		}
 
 		file.close();	
