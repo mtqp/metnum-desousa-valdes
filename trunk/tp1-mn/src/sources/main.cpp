@@ -13,23 +13,31 @@ class Parabrisas {
 		int read_from_input(char* input_file);
 		void calculate_temps();
 		void kill_leech();
+		bool freeOfLeeches();
 		int write_output(char* output_file);
 		double temperatureOnCriticalPoint();
 		
 	private:
 
-		int rowIndexToWindShield(int i);
-		int colIndexToWindShield(int j);
-		void gaussianElimination();
+		void create_all_matrices();
+		void createPBMatrix();
+		void createMatrixA();
+		void createMatrixB();
+		
 		void addLeechInfo();
-		void recreateWindShield(vector<double>& vectorX);
+		void gaussianElimination();
 		void updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate);
 		vector<double> resolveTriangularMatrix();
-		void create_all_matrices();
+		void recreateWindShield(vector<double>& vectorX);
+		
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
+		int rowIndexToWindShield(int i);
+		int colIndexToWindShield(int j);
 		
 		void imprimir(double** matrix, int i_range, int j_range);
+		
+		
 		double width, height, discr_interval, radius, temp;
 		int discr_height, discr_width;
 		vector<Leech> leeches;
@@ -75,19 +83,19 @@ int Parabrisas::read_from_input(char* input_file) {
 		int amount_of_leeches;
 		file >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
 	
+	
+		// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
+		discr_width = (width / discr_interval) + 1;
+		discr_height = (height / discr_interval) + 1;
+		
 		// Creo el vector de sanguijuelas. 
 		// Para cada sanguijuela creada veo los puntos afectados y los guardo en su propia estructura.
 	
 		for(int i = 0; i < amount_of_leeches; i++) {
 			double x, y;
 			file >> x >> y;
-			leeches.push_back(Leech(i, Point(x,height - y), discr_interval, radius));
+			leeches.push_back(Leech(i, Point(x,height - y), discr_width, discr_height, discr_interval, radius));
 		}
-
-		/*for (int i = 0; i < amount_of_leeches; i++){
-			for (int j = 0; j < (int)leeches[i].leeched_points.size(); j++)
-				cout << "punto afectado: " << leeches[i].leeched_points[j] << endl;
-		}*/
 
 		file.close();	
 
@@ -100,15 +108,7 @@ int Parabrisas::read_from_input(char* input_file) {
 	return 0;
 }
 
-void Parabrisas::create_all_matrices(){
-	// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
-	
-	discr_width = (width / discr_interval) + 1;	//Techo, piso, round? Se asume correcto entero. N+1 y M+1!! CONSULTAR
-	discr_height = (height / discr_interval) + 1;
-
-
-/****** 	Creación de la matriz del parabrisas final 	*******/
-	
+void Parabrisas::createPBMatrix(){
 	Temp** pb_discr_matrix= new Temp*[discr_width];
 	for (int j = 0; j < discr_width; j++){
 		Temp* v = new Temp[discr_height];
@@ -117,14 +117,11 @@ void Parabrisas::create_all_matrices(){
 			
 		pb_discr_matrix[j] = v;
 	}
-
 	
 	pb_matrix = new PB_Matrix(pb_discr_matrix, discr_width, discr_height, discr_interval);
-	pb_matrix->set_borders();
-	
+}
 
-/****** 	Creación de la matriz A 	******/
-
+void Parabrisas:: createMatrixA(){
 	int complete_grid_size = discr_width * discr_height;
 	
 	matrix_A = new double*[complete_grid_size];
@@ -138,10 +135,28 @@ void Parabrisas::create_all_matrices(){
 	}
 	
 	addLeechInfo();
+}
 
-/******		Creación de la matriz B (pb_matrix aplanada) 	******/
+void Parabrisas::addLeechInfo(){
+	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
+		int j = i;											// Para seguir nuestro modelo
+		
+		if (is_border(rowIndexToWindShield(i),colIndexToWindShield(j)))
+			matrix_A[i][j] = 1;
+		else if (is_affected(rowIndexToWindShield(i),colIndexToWindShield(j)))
+			matrix_A[i][j] = 1;
+		else {
+			matrix_A[i][j] = -4;
+			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
+			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
+			matrix_A[i][j-1] = 1;
+			matrix_A[i][j+1] = 1;
+		}
+	}	
+}
 
-	matrix_B = new Temp[complete_grid_size];
+void Parabrisas::createMatrixB(){
+	matrix_B = new Temp[discr_height * discr_width];
 	for (int i = 0; i < discr_height; i++){
 		for (int j = 0; j < discr_width; j++){
 			int index = (i * (discr_width)) + j;
@@ -156,11 +171,17 @@ void Parabrisas::create_all_matrices(){
 	}
 }
 
+void Parabrisas::create_all_matrices(){
+	createPBMatrix();
+	createMatrixA();
+	createMatrixB();
+}
+
 bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
-			cout << leeches[i].leeched_points[j];
-			cout << PointDiscr(ai,aj);
+			/*cout << leeches[i].leeched_points[j];
+			cout << PointDiscr(ai,aj);*/
 			if (leeches[i].leeched_points[j] == PointDiscr(ai,aj)) return true;
 		}
 	}
@@ -210,40 +231,23 @@ void Parabrisas :: recreateWindShield(vector<double>& vectorX){
 	
 }
 
-void Parabrisas::addLeechInfo(){
-	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
-		int j = i;											// Para seguir nuestro modelo
-		
-		if (is_border(rowIndexToWindShield(i),colIndexToWindShield(j)))
-			matrix_A[i][j] = 1;
-		else if (is_affected(rowIndexToWindShield(i),colIndexToWindShield(j)))
-			matrix_A[i][j] = 1;
-		else {
-			matrix_A[i][j] = -4;
-			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
-			matrix_A[i][j - discr_width] = 1; // i+1 en la fila
-			matrix_A[i][j-1] = 1;
-			matrix_A[i][j+1] = 1;
-		}
-	}	
-}
-
 void Parabrisas::calculate_temps() {
-	cout << "ANTES A: " << endl;
+	/*cout << "ANTES A: " << endl;
 	int size = discr_height * discr_width;
 	
 	imprimir(matrix_A, size, size);
+
 	cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;
+		cout << matrix_B[i] << endl;*/
 	
 	gaussianElimination();
-	cout << "DESPUES A: " << endl;
+	/*cout << "DESPUES A: " << endl;
 	imprimir(matrix_A, size, size);
 	
 	cout << endl << "DESPUES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;
+		cout << matrix_B[i] << endl;*/
 	
 	vector<double> temperatureVector = resolveTriangularMatrix();
 	
@@ -252,18 +256,26 @@ void Parabrisas::calculate_temps() {
 
 void Parabrisas::kill_leech() {
 	//killCriticalPointNearestLeech();
+	Leech& lastLeech = leeches.back();
+	for (int i = 0; i < (int) lastLeech.leeched_points.size(); i++){
+		PointDiscr affectedPoint = lastLeech.leeched_points[i];
+		int affP_i = affectedPoint.i;
+		int affP_j = affectedPoint.j;
+		
+		matrix_A[affP_i][affP_j] = -4;
+		matrix_A[affP_i][affP_j + discr_width]  = 1; // i-1 en la fila
+		matrix_A[affP_i][affP_j - discr_width] = 1; // i+1 en la fila
+		matrix_A[affP_i][affP_j-1] = 1;
+		matrix_A[affP_i][affP_j+1] = 1;
+		
+		matrix_B[affP_i] = 0;
+	}
 	leeches.pop_back();
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
 	for(int j = 0; j < discr_width * discr_height; j++){ 
-		//double valorAnterior = matrix_A[rowToUpdate][j];
 		matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
-		/*if(valorAnterior != 0)
-		{		
-			cout << "rowToUse: " << rowToUse << "; i_j_multiplier: " << i_j_multiplier << endl;
-			cout << "i:" << rowToUpdate << " j:" << j << "; antes:" << valorAnterior << " ahora:" << matrix_A[rowToUpdate][j] << endl << endl;
-		}*/
 	}
 	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 } 
@@ -287,6 +299,10 @@ double Parabrisas :: temperatureOnCriticalPoint(){
 	Point criticalPoint = Point(middle_x, middle_y);
 	
 	return pb_matrix->get(criticalPoint);
+}
+
+bool Parabrisas :: freeOfLeeches(){
+	return leeches.empty();
 }
 
 int Parabrisas::write_output(char* output_file) {
@@ -319,10 +335,10 @@ int main(int argc, char *argv[]) {
 	char* output_file = argv[2];
 
 	if(pb.read_from_input(input_file)) exit(1);
-	//if(pb.write_output(output_file)) exit(1);
+	
 	pb.calculate_temps();
-	cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	while (pb.temperatureOnCriticalPoint() >= 235.0){
+	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
 		pb.kill_leech();
 		pb.calculate_temps();
 	}

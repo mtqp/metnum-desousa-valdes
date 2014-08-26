@@ -54,7 +54,9 @@ struct PB_Matrix {
 	double discretization;
 
 	PB_Matrix() : matrix(NULL), discr_width(0), discr_height(0), discretization(0) {};
-	PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {};
+	PB_Matrix(Temp** m, int d_w, int d_h, double discr) : matrix(m), discr_width(d_w), discr_height(d_h), discretization(discr) {
+		set_borders();
+	};
 	~PB_Matrix(){
 		if (matrix != NULL){
 			for (int i = 0; i < discr_height; i++)
@@ -89,8 +91,13 @@ struct PB_Matrix {
 struct Leech {
 	int id;
 	Point position;
+	int discr_width, discr_height;
 	double discretization, radius;
 	vector<PointDiscr> leeched_points;
+
+	bool is_border(int i, int j){
+		return i == 0 || j == 0 || i == (discr_height-1) || j == (discr_width-1);
+	};
 
 	vector<PointDiscr> affected_points(const Point p){
 		vector<PointDiscr> affected_points;
@@ -103,10 +110,10 @@ struct Leech {
 		y_high = p.y + radius;
 		int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
 		
-		cout << "x_low: " << x_low << endl;
+		/*cout << "x_low: " << x_low << endl;
 		cout << "x_high: " << x_high << endl;
 		cout << "y_low: " << y_low << endl;
-		cout << "y_high: " << y_high << endl;
+		cout << "y_high: " << y_high << endl;*/
 		
 		// Defino los intervalos CERRADOS discretos
 		disc_x_low = (int)ceil(x_low / discretization);
@@ -114,17 +121,21 @@ struct Leech {
 		disc_y_low = (int)ceil( y_low / discretization);
 		disc_y_high = (int)floor(y_high / discretization);
 		
-		cout << "disc_x_low: " << disc_x_low << endl;
+		/*cout << "disc_x_low: " << disc_x_low << endl;
 		cout << "disc_x_high: " << disc_x_high << endl;
 		cout << "disc_y_low: " << disc_y_low << endl;
-		cout << "disc_y_high: " << disc_y_high << endl;
+		cout << "disc_y_high: " << disc_y_high << endl;*/
 		
 		for (int i = disc_x_low; i <= disc_x_high; i++){
 			double real_x = i*discretization;
 			
 			for (int j = disc_y_low; j <= disc_y_high; j++){
+				if (is_border(i,j)){
+					vector<PointDiscr> vacio;
+					return vacio;
+				}
 				double real_y = j*discretization;
-				cout << "radius: " << radius << "; norma2: " << get_norm_2(p.x, p.y, real_x, real_y) << endl;
+			//	cout << "radius: " << radius << "; norma2: " << get_norm_2(p.x, p.y, real_x, real_y) << endl;
 				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius) //corregir borde mata sanguijuela
 					affected_points.push_back(PointDiscr(i,j));
 			}
@@ -135,6 +146,6 @@ struct Leech {
 	};
 
 	Leech();
-	Leech(const int id_leech, const Point p, double d, double r)
-		: id(id_leech), position(p), discretization(d), radius(r), leeched_points(affected_points(p)) {};
+	Leech(const int id_leech, const Point p, const int d_w, const int d_h, double d, double r)
+		: id(id_leech), position(p), discr_width(d_w), discr_height(d_h), discretization(d), radius(r), leeched_points(affected_points(p)) {};
 };
