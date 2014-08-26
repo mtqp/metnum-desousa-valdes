@@ -202,23 +202,16 @@ bool Parabrisas::is_border(int i, int j){
 }
 
 vector<double> Parabrisas::resolveTriangularMatrix(){
-	vector<double> vectorX; 
-	//double sum = 0.0;
-	for (int i = (discr_height * discr_width) - 1; i >= 0; i--){
-		//Calculate Xi
-		double b_i = matrix_B[i];
-		double a_ii = matrix_A[i][i];
-		double sum = 0.0;
-		
-		int xs = (int)(vectorX.size()-1);
-		for (int j = (discr_height * discr_width) - 1;  j >= i+1; j--){
-			sum += matrix_A[i][j] * vectorX[xs];
-			xs--;
+	int n = discr_height * discr_width;
+	vector<double> vectorX = vector<double>(n); 
+
+	for (int i = n - 1; i >= 0; i--){
+		vectorX[i] = matrix_B[i];
+		for (int j = i+1; j < n; j++){
+			vectorX[i] -= matrix_A[i][j] * vectorX[j];
 		}
-		double x_i = (b_i - sum) / a_ii;
-	
-		//Update vector
-		vectorX.insert(vectorX.begin(), x_i);		
+		
+		vectorX[i] /= matrix_A[i][i];	
 	}
 	return vectorX;
 }
