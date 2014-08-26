@@ -267,8 +267,9 @@ void Parabrisas::kill_leech() {
 	Leech& lastLeech = leeches.back();
 	for (int i = 0; i < (int) lastLeech.leeched_points.size(); i++){
 		PointDiscr affectedPoint = lastLeech.leeched_points[i];
-		int affP_i = affectedPoint.i;
-		int affP_j = affectedPoint.j;
+		//cout << affectedPoint;
+		int affP_i = (affectedPoint.i * discr_width) + affectedPoint.j;
+		int affP_j = affP_i;
 		
 		matrix_A[affP_i][affP_j] = -4;
 		matrix_A[affP_i][affP_j + discr_width]  = 1; // i-1 en la fila
