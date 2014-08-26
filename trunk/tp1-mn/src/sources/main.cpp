@@ -188,8 +188,8 @@ void Parabrisas::create_all_matrices(){
 bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
-			/*cout << leeches[i].leeched_points[j];
-			cout << PointDiscr(ai,aj);*/
+			//cout << leeches[i].leeched_points[j];
+			/*	cout << PointDiscr(ai,aj);*/
 			if (leeches[i].leeched_points[j] == PointDiscr(ai,aj)) return true;
 		}
 	}
@@ -229,7 +229,6 @@ void Parabrisas :: recreateWindShield(vector<double>& vectorX){
 	{
 		pb_matrix->matrix[rowIndexToWindShield(i)][colIndexToWindShield(i)] = vectorX[i];
 	}
-	
 }
 
 void Parabrisas::calculate_temps() {
@@ -339,10 +338,13 @@ int main(int argc, char *argv[]) {
 	if(pb.read_from_input(input_file)) exit(1);
 	
 	pb.calculate_temps();
+	
 	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
+	
 		pb.kill_leech();
 		pb.calculate_temps();
+		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	}
 	
 	if(pb.write_output(output_file)) exit(1);
