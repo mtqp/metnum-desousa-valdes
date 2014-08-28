@@ -125,22 +125,23 @@ struct Leech {
 		cout << "disc_x_high: " << disc_x_high << endl;
 		cout << "disc_y_low: " << disc_y_low << endl;
 		cout << "disc_y_high: " << disc_y_high << endl;*/
-		
+		//discr_height = (height / discr_interval) + 1;
 		for (int i = disc_x_low; i <= disc_x_high; i++){
 			double real_x = i*discretization;
 			
 			for (int j = disc_y_low; j <= disc_y_high; j++){
 				//cout << "i: " << i << "; j: "<< j << endl;
-				if (is_border(i,j)){
-					vector<PointDiscr> vacio;
-					return vacio;
-				}
 				double real_y = j*discretization;
 				//cout << "radius: " << radius << "; norma2: " << get_norm_2(p.x, p.y, real_x, real_y) << endl;
 				
 				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius){ //corregir borde mata sanguijuela
 					//cout << "estoy adentro" << endl;
+					if (is_border(i,j)){
+						vector<PointDiscr> vacio;
+						return vacio;
+					}
 					affected_points.push_back(PointDiscr(i,j));
+					
 				}
 			}
 			
