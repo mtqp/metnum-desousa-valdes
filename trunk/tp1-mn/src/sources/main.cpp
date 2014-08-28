@@ -279,6 +279,7 @@ void Parabrisas::kill_leech() {
 	double closestDistance = width * height;	//Esta distancia es mas grande que cualquier punto afectado al centro
 	int leechToKillId = 0;
 	
+	
 	for (int i = 0 ; i < (int) leeches.size(); i++){
 		for (int j = 0; j < (int) leeches[i].leeched_points.size(); j++){
 			PointDiscr affectedPoint = leeches[i].leeched_points[j];
@@ -289,6 +290,12 @@ void Parabrisas::kill_leech() {
 			if ( distanceToMiddle < closestDistance ){
 				closestDistance = distanceToMiddle;
 				leechToKillId = i;
+			} else if ( abs(distanceToMiddle - closestDistance) < EPS){				// Si la distancia es la misma pero una tiene mas puntos afectados que la otra
+				unsigned int leechToKillAmountOfPoints = leeches[leechToKillId].leeched_points.size();
+				unsigned int currentLeechAmountOfPoints = leeches[i].leeched_points.size();
+				if (currentLeechAmountOfPoints > leechToKillAmountOfPoints){
+					leechToKillId = i;
+				}
 			}
 		}
 	}
