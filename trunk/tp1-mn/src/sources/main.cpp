@@ -152,6 +152,7 @@ void Parabrisas::addLeechInfo(){
 	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
 		int j = i;											// Para seguir nuestro modelo
 
+		//cout << "es borde " << i << ", " << j << ": " << is_border(index_i,index_j) << " index_i: " << index_i << "; index_j: " << index_j << endl;
 		if (is_border(index_i,index_j))
 			matrix_A[i][j] = 1;
 		else if (is_affected(index_i,index_j))
@@ -176,7 +177,7 @@ void Parabrisas::createMatrixB(){
 	for (int i = 0; i < discr_height; i++){
 		for (int j = 0; j < discr_width; j++){
 			int index = (i * (discr_width)) + j;
-			
+		
 			if (is_border(i,j))
 				matrix_B[index] = -100;
 			else if (is_affected(i,j))
@@ -242,7 +243,7 @@ void Parabrisas :: recreateWindShield(vector<double>& vectorX){
 	{
 		for (int j = 0; j < discr_width; j++)
 		{
-			pb_matrix->matrix[i][j] = vectorX[i*discr_height + j];
+			pb_matrix->matrix[i][j] = vectorX[i*discr_width + j];
 		}
 	}
 }
