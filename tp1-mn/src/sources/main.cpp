@@ -272,11 +272,32 @@ void Parabrisas::calculate_temps() {
 }
 
 void Parabrisas::kill_leech() {
-	//killCriticalPointNearestLeech();
-	Leech& lastLeech = leeches.back();
-	for (int i = 0; i < (int) lastLeech.leeched_points.size(); i++){
-		PointDiscr affectedPoint = lastLeech.leeched_points[i];
-		//cout << affectedPoint;
+	// Busco el punto afectado mas cercano al centro y quito su sanguijuela asociada
+	double middle_x = height / 2;
+	double middle_y = width / 2;
+	
+	double closestDistance = width * height;	//Esta distancia es mas grande que cualquier punto afectado al centro
+	int leechToKillId = 0;
+	
+	for (int i = 0 ; i < (int) leeches.size(); i++){
+		for (int j = 0; j < (int) leeches[i].leeched_points.size(); j++){
+			PointDiscr affectedPoint = leeches[i].leeched_points[j];
+			double real_affP_x = affectedPoint.i * discr_interval;
+			double real_affP_y = affectedPoint.j * discr_interval;
+			double distanceToMiddle = get_norm_2(real_affP_x, real_affP_y, middle_x, middle_y);
+			
+			if ( distanceToMiddle < closestDistance ){
+				closestDistance = distanceToMiddle;
+				leechToKillId = i;
+			}
+		}
+	}
+	
+	// Hago los cambios necesarios en la matriz A y B
+	Leech& leechToKill = leeches[leechToKillId];
+	
+	for (int i = 0; i < (int) leechToKill.leeched_points.size(); i++){
+		PointDiscr affectedPoint = leechToKill.leeched_points[i];
 		int affP_i = (affectedPoint.i * discr_width) + affectedPoint.j;
 		int affP_j = affP_i;
 		
@@ -288,7 +309,9 @@ void Parabrisas::kill_leech() {
 		
 		matrix_B[affP_i] = 0;
 	}
-	leeches.pop_back();
+	
+	// Mato a la sanguijuela indicada en leechToKillId
+	leeches.erase(leeches.begin() + leechToKillId);	
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
@@ -356,14 +379,14 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	/*while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
+	/*cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
 	
 		pb.kill_leech();
 		pb.calculate_temps();
-		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	}
-	*/
+		cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	}*/
+	
 	if(pb.write_output(output_file)) exit(1);
 	
 	return 0;
