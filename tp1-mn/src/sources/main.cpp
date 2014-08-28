@@ -355,14 +355,14 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-	cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
+	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	/*while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
 	
 		pb.kill_leech();
 		pb.calculate_temps();
-		cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	}
-	
+	*/
 	if(pb.write_output(output_file)) exit(1);
 	
 	return 0;
