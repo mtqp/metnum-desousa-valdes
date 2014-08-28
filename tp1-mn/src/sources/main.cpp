@@ -328,9 +328,9 @@ int Parabrisas::write_output(char* output_file) {
 	file.open(output_file);
 	
 	if (file.is_open()){				//chequea que este abierto x las dudas
-		for(int j = 0; j < discr_width; j++){
-			for(int i = 0; i < discr_height; i++){
-				file << j << "\t" << i << "\t" ;
+	for(int i = 0; i < discr_height; i++){
+			for(int j = 0; j < discr_width; j++){
+				file << i << "\t" << j << "\t" ;
 				file << fixed;
 				file << setprecision(5) << pb_matrix->matrix[i][j] << endl; 
 			}
