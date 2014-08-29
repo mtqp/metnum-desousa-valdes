@@ -9,6 +9,7 @@ double get_norm_2(double a_x, double a_y, double b_x, double b_y){
 class Parabrisas {
 	public:
 		Parabrisas();
+		Parabrisas(int bandImpl);
 		~Parabrisas();
 		int read_from_input(char* input_file);
 		void calculate_temps();
@@ -40,6 +41,7 @@ class Parabrisas {
 		
 		double width, height, discr_interval, radius, temp;
 		int discr_height, discr_width;
+		int bandImplementation;
 		vector<Leech> leeches;
 		
 		PB_Matrix* pb_matrix;
@@ -59,7 +61,13 @@ void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
 	cout << endl;
 }
 
-Parabrisas::Parabrisas() { }
+Parabrisas::Parabrisas() { 
+	bandImplementation = false;
+}
+
+Parabrisas :: Parabrisas(int bandImpl){
+	bandImplementation = bandImpl;
+}
 
 Parabrisas::~Parabrisas() { 
 	if (pb_matrix != NULL)
@@ -131,17 +139,23 @@ void Parabrisas::createPBMatrix(){
 
 void Parabrisas:: createMatrixA(){
 	int complete_grid_size = discr_width * discr_height;
+	int row_width;
 	
-	matrix_A = new double*[complete_grid_size];
-	for (int j = 0; j < complete_grid_size; j++){
-		double* v = new double[complete_grid_size];
+	if (!bandImplementation)
+		row_width = complete_grid_size;
+	else
+		row_width = 2*discr_width +1;
 		
-		for (int i = 0; i < complete_grid_size; i++)	// Lleno todo con 0 por default
-			v[i] = 0;
+		matrix_A = new double*[complete_grid_size];
+		for (int j = 0; j < complete_grid_size; j++){
+			double* v = new double[row_width];
+		
+			for (int i = 0; i < row_width; i++)	// Lleno todo con 0 por default
+				v[i] = 0;
 			
-		matrix_A[j] = v;
-	}
-	
+			matrix_A[j] = v;
+		}
+		
 	addLeechInfo();
 }
 
@@ -150,7 +164,11 @@ void Parabrisas::addLeechInfo(){
 	int index_j = 0;
 	
 	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
-		int j = i;											// Para seguir nuestro modelo
+		int j;											
+		if (!bandImplementation)
+			j = i;
+		else
+			j = discr_width;
 
 		//cout << "es borde " << i << ", " << j << ": " << is_border(index_i,index_j) << " index_i: " << index_i << "; index_j: " << index_j << endl;
 		if (is_border(index_i,index_j))
@@ -214,14 +232,40 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 	int n = discr_height * discr_width;
 	vector<double> vectorX = vector<double>(n); 
 
-	for (int i = n - 1; i >= 0; i--){
-		vectorX[i] = matrix_B[i];
-		for (int j = i+1; j < n; j++){
-			vectorX[i] -= matrix_A[i][j] * vectorX[j];
-		}
+	
+	if (!bandImplementation){
+		for (int i = n - 1; i >= 0; i--){
+			vectorX[i] = matrix_B[i];
+			for (int j = i+1; j < n; j++){
+				vectorX[i] -= matrix_A[i][j] * vectorX[j];
+			}
 		
-		vectorX[i] /= matrix_A[i][i];	
+			vectorX[i] /= matrix_A[i][i];	
+		}
+	} else {
+		int j_range = 0;
+		for (int i = n - 1; i >= 0; i--){
+			vectorX[i] = matrix_B[i];
+			
+			int j_start;
+			if (i < discr_width)
+				j_start = discr_width-i;
+			else 
+				j_start = 0;
+			//cout << "j_start: " << j_start << "; j_range: "<< j_range <<endl ;
+			for (int j = j_start; j < j_range; j++){
+				//cout << "matrix_A[i][j+discr_width+1] = "<< matrix_A[i][j+discr_width+1] << "; vectorX[i+j+1] = " << vectorX[i+j+1] << endl;
+				//cout << "i: " << i << "; j: " << j << endl;
+				vectorX[i] -= matrix_A[i][j+discr_width+1] * vectorX[i+j+1];
+			}
+			if (j_range < 2*discr_width + 1) j_range++;
+
+			//cout << "vectorX[" << i << "] = " << vectorX[i] << "; matrix_A[i][discr_width] = " << matrix_A[i][discr_width] << endl;
+			vectorX[i] /= matrix_A[i][discr_width];	
+		}
 	}
+	
+	
 	return vectorX;
 }
 
@@ -252,7 +296,7 @@ void Parabrisas::calculate_temps() {
 	/*cout << "ANTES A: " << endl;
 	int size = discr_height * discr_width;
 	
-	imprimir(matrix_A, size, size);
+	imprimir(matrix_A, size, 2*discr_width + 1);
 
 	cout << endl << "ANTES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
@@ -260,7 +304,7 @@ void Parabrisas::calculate_temps() {
 	
 	gaussianElimination();
 	/*cout << "DESPUES A: " << endl;
-	imprimir(matrix_A, size, size);
+	imprimir(matrix_A, size, 2*discr_width + 1);
 	
 	cout << endl << "DESPUES B: " << endl;
 	for (int i = 0; i < discr_height*discr_width; i++)
@@ -322,21 +366,71 @@ void Parabrisas::kill_leech() {
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
-	for(int j = 0; j < discr_width * discr_height; j++){ 
-		matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
+	if (!bandImplementation){
+		for(int j = 0; j < discr_width * discr_height; j++){ 
+			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
+		}
+		matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
+	} else {
+		/* UPDATEROWJ BANDA */
+		int n = discr_width;
+		int offset = rowToUpdate - rowToUse;
+	
+		//Defino rangos
+		int j_range;
+		if (rowToUpdate > discr_width*discr_height - 1 - n)
+			j_range = 2*n + 1 - offset; //- (rowToUpdate - (discr_width*discr_height - 1 - n));
+		else
+			j_range = 2*n + 1 - offset;
+		
+		int j_start;
+		if (rowToUpdate < n)
+			j_start = n-rowToUpdate;
+		else 
+			j_start = 0;
+		
+		//cout << "j_start: " << j_start << "; j_range: " << j_range << endl;
+		for (int j = j_start; j < j_range; j++){
+			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j+offset];
+		}
+		matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 	}
-	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 } 
 
 void Parabrisas::gaussianElimination() {
-	for (int i = 0; i < (discr_height * discr_width) - 1; i++){
-		for (int j = i+1; j < discr_height * discr_width; j++){			// Ver si los bordes estan bien
-			if(abs(matrix_A[i][i])  < EPS){
-				cout << "0 en la diagonal en iteracion:" << i << endl;
-				return; 
+	if (!bandImplementation){
+		for (int i = 0; i < (discr_height * discr_width) - 1; i++){
+			for (int j = i+1; j < discr_height * discr_width; j++){
+				if(abs(matrix_A[i][i])  < EPS){
+					cout << "0 en la diagonal en iteracion:" << i << endl;
+					return; 
+				}
+				double i_j_multiplier = matrix_A[j][i] / matrix_A[i][i];
+				updateRowJ(i_j_multiplier, i, j);
 			}
-			double i_j_multiplier = matrix_A[j][i] / matrix_A[i][i];			// Chequear por error
-			updateRowJ(i_j_multiplier, i, j);
+		}
+	} else {	
+		/* EG BANDA */
+		int n = discr_width;
+		int i_range = (discr_height * discr_width) - 1;
+		for (int i = 0; i < i_range; i++){
+			int j_range;
+			if ( i >= (i_range + 1) - n )
+				j_range = i_range + 1;
+			else
+				j_range = i + 1 + n;
+			
+			for (int j = i+1; j < j_range; j++){
+				if(abs(matrix_A[i][n])  < EPS){
+					cout << "0 en la diagonal en iteracion:" << i << endl;
+					return; 
+				}
+				double a = matrix_A[i][n];
+				//cout << "j: " << j << "; i: "  << i << endl;
+				double b = matrix_A[j][n-j+i];
+				double i_j_multiplier = b /a;
+				updateRowJ(i_j_multiplier, i, j);
+			}
 		}
 	}
 }
@@ -376,12 +470,12 @@ int Parabrisas::write_output(char* output_file) {
 	}
 }
 
-int main(int argc, char *argv[]) {
-	Parabrisas pb;
-	
+int main(int argc, char *argv[]) {	
 	char* input_file = argv[1];
 	char* output_file = argv[2];
+	int bandImplementation = atoi(argv[3]);
 
+	Parabrisas pb(bandImplementation);
 	if(pb.read_from_input(input_file)) exit(1);
 	
 	pb.calculate_temps();
