@@ -144,7 +144,7 @@ void Parabrisas:: createMatrixA(){
 	if (!bandImplementation)
 		row_width = complete_grid_size;
 	else
-		row_width = 2*discr_width +1;
+		row_width = 2*discr_width +1;			// Si usamos matriz banda, el ancho será 2n + 1 por fila para cubrir toda la banda. Se mantiene la cantidad de filas
 		
 		matrix_A = new double*[complete_grid_size];
 		for (int j = 0; j < complete_grid_size; j++){
@@ -164,13 +164,10 @@ void Parabrisas::addLeechInfo(){
 	int index_j = 0;
 	
 	for (int i = 0; i < discr_height * discr_width; i++){	// Voy fila por fila y me fijo la diagonal (el triangulo inferior queda 0)
-		int j;											
-		if (!bandImplementation)
-			j = i;
-		else
-			j = discr_width;
+		int j = i;											
+		if (bandImplementation)
+			j = discr_width;			// Para matriz banda, el elemento de la mitad (indice discr_width) representa al elemento de la diagonal (de la matriz cuadrada) en la fila i 
 
-		//cout << "es borde " << i << ", " << j << ": " << is_border(index_i,index_j) << " index_i: " << index_i << "; index_j: " << index_j << endl;
 		if (is_border(index_i,index_j))
 			matrix_A[i][j] = 1;
 		else if (is_affected(index_i,index_j))
@@ -215,8 +212,6 @@ void Parabrisas::create_all_matrices(){
 bool Parabrisas::is_affected(int ai, int aj){
 	for (unsigned int i = 0; i < leeches.size(); i++){
 		for (unsigned int j = 0; j < leeches[i].leeched_points.size(); j++){
-			//cout << leeches[i].leeched_points[j];
-			/*	cout << PointDiscr(ai,aj);*/
 			if (leeches[i].leeched_points[j] == PointDiscr(ai,aj)) return true;
 		}
 	}
@@ -247,20 +242,15 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 		for (int i = n - 1; i >= 0; i--){
 			vectorX[i] = matrix_B[i];
 			
-			int j_start;
+			int j_start = 0;
 			if (i < discr_width)
 				j_start = discr_width-i;
-			else 
-				j_start = 0;
-			//cout << "j_start: " << j_start << "; j_range: "<< j_range <<endl ;
+				
 			for (int j = j_start; j < j_range; j++){
-				//cout << "matrix_A[i][j+discr_width+1] = "<< matrix_A[i][j+discr_width+1] << "; vectorX[i+j+1] = " << vectorX[i+j+1] << endl;
-				//cout << "i: " << i << "; j: " << j << endl;
 				vectorX[i] -= matrix_A[i][j+discr_width+1] * vectorX[i+j+1];
 			}
 			if (j_range < 2*discr_width + 1) j_range++;
 
-			//cout << "vectorX[" << i << "] = " << vectorX[i] << "; matrix_A[i][discr_width] = " << matrix_A[i][discr_width] << endl;
 			vectorX[i] /= matrix_A[i][discr_width];	
 		}
 	}
@@ -278,18 +268,9 @@ int Parabrisas :: colIndexToWindShield(int j){
 }
 
 void Parabrisas :: recreateWindShield(vector<double>& vectorX){
-	//cout << "discr_height: " << discr_height << endl;
-	//cout << "discr_width: " << discr_width << endl;
-	//cout << "rowIndex: " << rowIndexToWindShield(i) << endl;
-	//cout << "colIndex: " << colIndexToWindShield(i) << endl;
-	//cout << "i: " << i << endl; //361
 	for (int i = 0; i < discr_height; i++)
-	{
 		for (int j = 0; j < discr_width; j++)
-		{
 			pb_matrix->matrix[i][j] = vectorX[i*discr_width + j];
-		}
-	}
 }
 
 void Parabrisas::calculate_temps() {
@@ -351,6 +332,8 @@ void Parabrisas::kill_leech() {
 		PointDiscr affectedPoint = leechToKill.leeched_points[i];
 		int affP_i = (affectedPoint.i * discr_width) + affectedPoint.j;
 		int affP_j = affP_i;
+		if (bandImplementation)
+			affP_j = discr_width;		//Idem, elijo el elemento "diagonal" que se encuentra en el medio
 		
 		matrix_A[affP_i][affP_j] = -4;
 		matrix_A[affP_i][affP_j + discr_width]  = 1; // i-1 en la fila
@@ -367,34 +350,26 @@ void Parabrisas::kill_leech() {
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
 	if (!bandImplementation){
-		for(int j = 0; j < discr_width * discr_height; j++){ 
+		for(int j = 0; j < discr_width * discr_height; j++)
 			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
-		}
-		matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
+		
 	} else {
 		/* UPDATEROWJ BANDA */
 		int n = discr_width;
 		int offset = rowToUpdate - rowToUse;
 	
 		//Defino rangos
-		int j_range;
-		if (rowToUpdate > discr_width*discr_height - 1 - n)
-			j_range = 2*n + 1 - offset; //- (rowToUpdate - (discr_width*discr_height - 1 - n));
-		else
-			j_range = 2*n + 1 - offset;
+		int j_range = 2*n + 1 - offset;
 		
-		int j_start;
+		int j_start = 0;
 		if (rowToUpdate < n)
 			j_start = n-rowToUpdate;
-		else 
-			j_start = 0;
 		
-		//cout << "j_start: " << j_start << "; j_range: " << j_range << endl;
-		for (int j = j_start; j < j_range; j++){
+		for (int j = j_start; j < j_range; j++)
 			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j+offset];
-		}
-		matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
+
 	}
+	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 } 
 
 void Parabrisas::gaussianElimination() {
@@ -414,21 +389,18 @@ void Parabrisas::gaussianElimination() {
 		int n = discr_width;
 		int i_range = (discr_height * discr_width) - 1;
 		for (int i = 0; i < i_range; i++){
-			int j_range;
+			int j_range = i + 1 + n;
 			if ( i >= (i_range + 1) - n )
 				j_range = i_range + 1;
-			else
-				j_range = i + 1 + n;
 			
 			for (int j = i+1; j < j_range; j++){
 				if(abs(matrix_A[i][n])  < EPS){
 					cout << "0 en la diagonal en iteracion:" << i << endl;
 					return; 
 				}
-				double a = matrix_A[i][n];
-				//cout << "j: " << j << "; i: "  << i << endl;
-				double b = matrix_A[j][n-j+i];
-				double i_j_multiplier = b /a;
+				double elemDiagonal = matrix_A[i][n];
+				double elemBajoDiagonal = matrix_A[j][n-j+i];
+				double i_j_multiplier = elemBajoDiagonal / elemDiagonal;
 				updateRowJ(i_j_multiplier, i, j);
 			}
 		}
@@ -452,7 +424,7 @@ int Parabrisas::write_output(char* output_file) {
 	
 	file.open(output_file);
 	
-	if (file.is_open()){				//chequea que este abierto x las dudas
+	if (file.is_open()){			
 	for(int i = 0; i < discr_height; i++){
 			for(int j = 0; j < discr_width; j++){
 				file << i << "\t" << j << "\t" ;
@@ -465,7 +437,7 @@ int Parabrisas::write_output(char* output_file) {
 		return 0;
 	 }
 	 else { 
-		cout << "Unable to open output file" << endl;		// si no pudo da esto... SE VE SI SE PONE REALMENTE
+		cout << "Unable to open output file" << endl;
 		return 1;
 	}
 }
@@ -480,12 +452,13 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-	/*cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+	/*
+	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
 	
 		pb.kill_leech();
 		pb.calculate_temps();
-		cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	}*/
 	
 	if(pb.write_output(output_file)) exit(1);
