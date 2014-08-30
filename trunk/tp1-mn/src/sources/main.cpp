@@ -480,6 +480,8 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
+    cout << "Temp(PuntoCritico): " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+    
     if(argc >= 5)
     {
         int killLeechState = atoi(argv[4]);
