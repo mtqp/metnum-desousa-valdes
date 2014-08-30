@@ -30,6 +30,7 @@ class Parabrisas {
 		void updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate);
 		vector<double> resolveTriangularMatrix();
 		void recreateWindShield(vector<double>& vectorX);
+		void clearMatrixA();
 		
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
@@ -49,6 +50,20 @@ class Parabrisas {
 		Temp* matrix_B;
 };
 
+void Parabrisas :: clearMatrixA(){
+	int n = discr_height*discr_width;
+	int j_range = n;
+	if (bandImplementation)
+		j_range = 2*discr_width + 1;
+		
+	for (int i = 0; i < n; i++){
+		for (int j = 0; j < j_range; j++){
+			matrix_A[i][j] = 0;
+		}
+	}
+	
+}
+
 void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
 {  
 	for(int i=0; i<  i_range; i++){
@@ -63,10 +78,16 @@ void Parabrisas :: imprimir(double** matrix, int i_range, int j_range)
 
 Parabrisas::Parabrisas() { 
 	bandImplementation = false;
+	matrix_A = NULL;
+	matrix_B = NULL;
+	pb_matrix = NULL;	
 }
 
 Parabrisas :: Parabrisas(int bandImpl){
 	bandImplementation = bandImpl;
+	matrix_A = NULL;
+	matrix_B = NULL;
+	pb_matrix = NULL;
 }
 
 Parabrisas::~Parabrisas() { 
@@ -168,10 +189,9 @@ void Parabrisas::addLeechInfo(){
 		if (bandImplementation)
 			j = discr_width;			// Para matriz banda, el elemento de la mitad (indice discr_width) representa al elemento de la diagonal (de la matriz cuadrada) en la fila i 
 
-		if (is_border(index_i,index_j))
+		if (is_border(index_i,index_j) || is_affected(index_i, index_j)){
 			matrix_A[i][j] = 1;
-		else if (is_affected(index_i,index_j))
-			matrix_A[i][j] = 1;
+		}
 		else {
 			matrix_A[i][j] = -4;
 			matrix_A[i][j + discr_width]  = 1; // i-1 en la fila
@@ -188,7 +208,7 @@ void Parabrisas::addLeechInfo(){
 }
 
 void Parabrisas::createMatrixB(){
-	matrix_B = new Temp[discr_height * discr_width];
+	if (matrix_B == NULL) matrix_B = new Temp[discr_height * discr_width];
 	for (int i = 0; i < discr_height; i++){
 		for (int j = 0; j < discr_width; j++){
 			int index = (i * (discr_width)) + j;
@@ -326,7 +346,7 @@ void Parabrisas::kill_leech() {
 	}
 	
 	// Hago los cambios necesarios en la matriz A y B
-	Leech& leechToKill = leeches[leechToKillId];
+	/*Leech& leechToKill = leeches[leechToKillId];
 	
 	for (int i = 0; i < (int) leechToKill.leeched_points.size(); i++){
 		PointDiscr affectedPoint = leechToKill.leeched_points[i];
@@ -342,10 +362,13 @@ void Parabrisas::kill_leech() {
 		matrix_A[affP_i][affP_j+1] = 1;
 		
 		matrix_B[affP_i] = 0;
-	}
+	}*/
 	
 	// Mato a la sanguijuela indicada en leechToKillId
 	leeches.erase(leeches.begin() + leechToKillId);	
+	clearMatrixA();
+	createMatrixB();
+	addLeechInfo();
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
@@ -452,14 +475,14 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-	/*
+	
 	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
 	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
 	
 		pb.kill_leech();
 		pb.calculate_temps();
 		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	}*/
+	}
 	
 	if(pb.write_output(output_file)) exit(1);
 	
