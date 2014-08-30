@@ -1,5 +1,5 @@
 main:
-	g++ -o main main.cpp -Wall -ggdb -O3
+	g++ -o main main.cpp -Wall -ggdb
 
 clean:
 	rm main
