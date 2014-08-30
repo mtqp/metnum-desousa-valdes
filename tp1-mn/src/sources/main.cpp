@@ -267,10 +267,13 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 				j_start = discr_width-i;
 				
 			for (int j = j_start; j < j_range; j++){
-				cout << "i: " << i << "; j: " << j << endl;
+				//cout << "i: " << i << "; j: " << j << endl;
+				//double a = matrix_A[i][j+discr_width+1];
+				//double b = vectorX[i+j+1];
+				
 				vectorX[i] -= matrix_A[i][j+discr_width+1] * vectorX[i+j+1];
 			}
-			if (j_range < 2*discr_width + 1) j_range++;
+			if (j_range < discr_width) j_range++;
 
 			vectorX[i] /= matrix_A[i][discr_width];	
 		}
