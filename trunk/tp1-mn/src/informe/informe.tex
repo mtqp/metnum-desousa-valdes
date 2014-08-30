@@ -1,0 +1,152 @@
+%********************************************************************************************
+%								COMANDOS ÚTILES PARA LATEX EN ESTE TP							
+%
+%	\ : espacio simple
+%	\\ : nueva línea
+%	\par : va a la línea de abajo y deja sangría
+%	\vspace{##tamaño en pt##} o \vspace{\baselineskip} en general:
+%								 para dejar un espacio vertical
+%	\textbf{text} :text en negrita
+%	\textit{text} :text en itálica
+%
+% GRAFICOS CENTRADOS:
+%	\begin{center}
+%		\includegraphics[width=\textwidth]{./img/##ruta imagen (no hace falta extension)##}
+%	\end{center}
+%		--> se pueden agregar atributos como scale por si se hace muy grande
+%
+% TABLAS CENTRADAS:
+%	\begin{center}
+%	\begin{tabular}{|c|c|}
+%	\hline
+%	\ \textbf{Programa} & \textbf{Ticks} \\
+%	\hline
+%		ASM & 675127609 \\
+%	\hline
+%	\end{tabular}
+%	\end{center}
+%
+% ALGORITMOS (EN VARIOS LENGUAJES):
+% \begin{lstlisting}
+%	void sumoDiez(int &num)
+%	{
+%	    num += 10;
+%	}
+%	
+%	int main()
+%	{
+% 	   int i;
+%	    int numeroAProcesar = 20;
+%	    for (i = 0; i < 50; i++)
+%	    {
+%	        sumoDiez(numeroAProcesar);	//Proceso el numero en cada ciclo
+%	    } 
+%	    return 0;
+%	}
+%	\end{lstlisting}
+%
+% para info sobre todo lo que tiene el package detallado:
+% http://en.wikibooks.org/wiki/LaTeX/Source\_Code\_Listings
+%
+%********************************************************************************************
+
+\documentclass[10pt,a4paper]{article}
+\usepackage[utf8]{inputenc} % para poder usar tildes en archivos UTF-8
+\usepackage[spanish]{babel} % para que comandos como \today den el resultado en castellano
+\usepackage{a4wide} % márgenes un poco más anchos que lo usual
+\usepackage[conEntregas]{caratula}
+\usepackage{amssymb}
+\usepackage{fancybox}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage{hyperref}
+\usepackage{listings}
+\usepackage{clrscode3e}
+\usepackage{xcolor}
+\usepackage{amsmath}
+
+
+\hypersetup{
+    colorlinks,
+    citecolor=black,
+    filecolor=black,
+    linkcolor=black,
+    urlcolor=black
+}
+
+\lstdefinestyle{customc}{
+  belowcaptionskip=1\baselineskip,
+  breaklines=true,
+  frame=L,
+  xleftmargin=\parindent,
+  language=C,
+  showstringspaces=false,
+  basicstyle=\footnotesize\ttfamily,
+  keywordstyle=\bfseries\color{green!40!black},
+  commentstyle=\itshape\color{purple!40!black},
+  identifierstyle=\color{blue},
+  stringstyle=\color{orange},
+}
+
+\lstset{escapechar=@,style=customc}
+
+\begin{document}
+
+\titulo{Trabajo Práctico 1}
+\subtitulo{Monkey Island [Primera entrega]}
+
+\fecha{\today}
+
+\materia{Métodos Numéricos}
+\grupo{Grupo Autodenominado "Los Pichis"}
+
+\integrante{De Sousa Bispo, Germán Edgardo}{359/12}{german\_nba11@hotmail.com}
+\integrante{De Sousa Bispo, Mariano Edgardo}{389/08}{marian\_sabianaa@hotmail.com}
+\integrante{Valdés Castro, Tobías}{800/12}{tobias.vc@hotmail.com}
+
+
+\maketitle
+
+\tableofcontents
+\newpage
+
+\section*{Introducción}
+\addcontentsline{toc}{section}{Introducción}
+
+El problema que se nos presentó es el del capitán Guybrush Threepwood (un gran pirata) y su barco "El Pepino Marino". La existencia de las raras sanguijuelas mutantes ocasiona malestar a nuestro estimado capitán. Las mismas se adhieren al parabrisas de la nave y generan temperatura que pone en peligro la integridad del mismo. La transmisión del calor por parte de las sanguijuelas se produce de manera circular y la temperatura es idéntica para todas ellas. 
+\par 
+El parabrisas no es invencible: si la temperatura en su punto central supera los 235 grados centígrados, las sanguijuelas ganan y el parabrisas se rompe, dejando al capitán Guybrush Threepwood a merced de las alimañas mutantes. A este punto central se lo denominará \textit{punto crítco}.
+\par 
+Sin embargo, el parabrisas posee un mecanismo de defensa ante las criaturas. Los bordes emiten temperaturas bajo cero, para permitir el enfriamiento y así vencer a las sanguijuelas. El sistema de refrigeramiento emite -100 grados centígrados en todo el borde del parabrisas, disminuyendo de esta forma la temperatura global de la superficie. 
+\par 
+A su vez, nuestro querido capitán Threepwood posee un pollo de hule (el arma más temible para las criaturas de los Siete Mares) con el cual puede destruir sanguijuelas. Sin embargo, el uso del "Gran Pollo" es agotador para Guybrush, por lo que debe intentar utilizarlo la menor cantidad de veces posibles para no comprometer el resultado de la misión. 
+
+\vspace{\baselineskip}
+\par 
+
+
+   
+
+\section{Desarrollo}
+
+\subsection{Ideas y pseudocódigo}
+
+\subsection{Implementación}
+
+\subsection{Experimentación}
+
+\section{Conclusión}
+
+\section{Apéndice}
+
+\section{Bibliografía y referencias} %arreglar cuando se termine 
+
+\begin{itemize}
+	\item \textbf{STL de C++}: \url{http://en.cppreference.com}.
+	\par Para la función \texttt{rand()}, \url{http://en.cppreference.com/w/cpp/numeric/random/rand}.
+	\par Para la función \texttt{sort()}, \url{http://en.cppreference.com/w/cpp/algorithm/sort}.
+	\item Distribución de \texttt{rand()}?, \url{http://eternallyconfuzzled.com/arts/jsw\_art\_rand.aspx}
+	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
+\end{itemize}
+
+
+\end{document}
