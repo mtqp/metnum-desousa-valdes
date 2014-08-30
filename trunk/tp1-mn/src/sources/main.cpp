@@ -475,14 +475,22 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-	
-	//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
-	
-		pb.kill_leech();
-		pb.calculate_temps();
-		//cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
-	}
+    if(argc >= 5)
+    {
+        int killLeechState = atoi(argv[4]);
+        bool shouldKillLeeches = killLeechState == 1;
+        
+        if(shouldKillLeeches)
+        {
+            //cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+            while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
+            
+                pb.kill_leech();
+                pb.calculate_temps();
+                //cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+            }
+        }
+    }    
 	
 	if(pb.write_output(output_file)) exit(1);
 	
