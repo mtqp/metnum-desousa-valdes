@@ -112,7 +112,7 @@
 \section*{Introducción}
 \addcontentsline{toc}{section}{Introducción}
 
-El problema que se nos presentó es el del capitán Guybrush Threepwood (un gran pirata) y su barco "El Pepino Marino". La existencia de las raras sanguijuelas mutantes ocasiona malestar a nuestro estimado capitán. Las mismas se adhieren al parabrisas de la nave y generan temperatura que pone en peligro la integridad del mismo. La transmisión del calor por parte de las sanguijuelas se produce de manera circular y la temperatura es idéntica para todas ellas. 
+El problema que se nos presentó es el del capitán Guybrush Threepwood (un gran pirata) y su barco ``El Pepino Marino''. La existencia de las raras sanguijuelas mutantes ocasiona malestar a nuestro estimado capitán. Las mismas se adhieren al parabrisas de la nave y generan temperatura que pone en peligro la integridad del mismo. La transmisión del calor por parte de las sanguijuelas se produce de manera circular y la temperatura es idéntica para todas ellas. 
 \par 
 El parabrisas no es invencible: si la temperatura en su punto central supera los 235 grados centígrados, las sanguijuelas ganan y el parabrisas se rompe, dejando al capitán Guybrush Threepwood a merced de las alimañas mutantes. A este punto central se lo denominará \textit{punto crítco}.
 \par 
@@ -122,13 +122,37 @@ A su vez, nuestro querido capitán Threepwood posee un pollo de hule (el arma m�
 
 \vspace{\baselineskip}
 \par 
+Es nuestro deber, como aspirantes a piratas (informáticos), ayudar al capitán Threepwood para determinar la temperatura en el punto crítico y saber si es necesario utilizar el pollo de hule para matar a las malvadas sanguijuelas. Para ello, llevamos la situación al mundo de la Computación: ya que no podemos representar los infinitos puntos que forman el parabrisas, utilizaremos una discretización que nos permitirá computar la resolución a este problema. 
+\par
+Gracias a las fórmulas otorgadas por la cátedra para obtener la temperatura en cada punto del parabrisas, calcularla en el punto crítico implica saber además \textit{la temperatura en todos los otros puntos}. Es por esto que encontrar una solución al problema se traduce a \textit{plantear y resolver un sistema lineal en el que las incógnitas son las temperaturas de cada posición discreta del parabrisas}. Es decir, matemáticamente, queremos encontrar una solución a la ecuación
 
+\[ Ax = b \]
 
-   
+donde $x$ representa el vector con todas las temperaturas punto a punto del parabrisas discretizado. Esto nos obliga entonces a pensar qué son la matriz $A$ y el vector $b$ en esta ecuación, lo cual será explicado en la sección \textbf{Desarrollo}. Para resolver este sistema se deberá aplicar \textbf{\textit{Eliminación Gaussiana}} a fin de obtener una matriz triangular superior. Luego, se aplicará un algoritmo de resolución llamado \textbf{\textit{backward substitution}} que se encargará de devolvernos todas las temperaturas de los puntos que hayamos podido discretizar.
 
 \section{Desarrollo}
 
+
 \subsection{Ideas y pseudocódigo}
+
+ Teniendo en cuenta la siguiente fórmula para el cálculo de temperaturas
+
+\[
+0 \ \cong\ \frac{ t_{i-1,j} + t_{i+1,j} - 4t_{i,j} + t_{i,j-1} + t_{i,j+1}}{h^2}
+\]
+
+(con $h$ siendo la discretización elegida), que los puntos de los bordes tienen temperatura fija -100${}^o$C y que los puntos afectados por el radio de ataque de las sanguijuelas valen otra temperatura fijada $t_{sang}$ en los parámetros del problema, podemos plantear a $b$ como el vector que sigue esta función partida para cada posición ($i,j$) de la matriz discreta del parabrisas:
+
+$$f(i,j) = \left\{
+\begin{array}{c l}
+ -100 & si \ la \ posicion  \ p_{i,j} \ es  \ un \ borde  \ del \ parabrisas\\
+ t_{sang} & si \ la \ posicion  \ p_{i,j} \ es \ afectada \ por \ una \ sanguijuela \\
+ 0 & en \ otro \ caso \ en \ el \ cual \ no \ conozca \ la \ temperatura \ en \ p_{i,j}
+\end{array}
+\right.
+$$
+
+De esta forma, el vector $b$ tendrá un tamaño igual a la cantidad de elementos de la matriz que representa al parabrisas, es decir $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas.
 
 \subsection{Implementación}
 
