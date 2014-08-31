@@ -26,7 +26,7 @@ class Parabrisas {
 		void createMatrixA();
 		void createMatrixB();
 		
-		void addLeechInfo();
+		void addLeechAndBorderInfo();
 		void gaussianElimination();
 		void updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate);
 		vector<double> resolveTriangularMatrix();
@@ -35,8 +35,6 @@ class Parabrisas {
 		
 		bool is_affected(int i, int j);
 		bool is_border(int i, int j);
-		int rowIndexToWindShield(int i);
-		int colIndexToWindShield(int j);
 		
 		void imprimir(double** matrix, int i_range, int j_range);
 		
@@ -85,10 +83,8 @@ Parabrisas::Parabrisas() {
 }
 
 Parabrisas :: Parabrisas(int bandImpl){
+	Parabrisas();
 	bandImplementation = bandImpl;
-	matrix_A = NULL;
-	matrix_B = NULL;
-	pb_matrix = NULL;
 }
 
 Parabrisas::~Parabrisas() { 
@@ -178,10 +174,10 @@ void Parabrisas:: createMatrixA(){
 			matrix_A[j] = v;
 		}
 		
-	addLeechInfo();
+	addLeechAndBorderInfo();
 }
 
-void Parabrisas::addLeechInfo(){
+void Parabrisas::addLeechAndBorderInfo(){
 	int index_i = 0;
 	int index_j = 0;
 	
@@ -250,6 +246,8 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 
 	
 	if (!bandImplementation){
+		// Para la implementación clásica, se utiliza una EG sin modificaciones
+		
 		for (int i = n - 1; i >= 0; i--){
 			vectorX[i] = matrix_B[i];
 			for (int j = i+1; j < n; j++){
@@ -267,13 +265,9 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 			if (i < discr_width)
 				j_start = discr_width-i;
 				
-			for (int j = j_start; j < j_range; j++){
-				//cout << "i: " << i << "; j: " << j << endl;
-				//double a = matrix_A[i][j+discr_width+1];
-				//double b = vectorX[i+j+1];
-				
+			for (int j = j_start; j < j_range; j++)				
 				vectorX[i] -= matrix_A[i][j+discr_width+1] * vectorX[i+j+1];
-			}
+			
 			if (j_range < discr_width) j_range++;
 
 			vectorX[i] /= matrix_A[i][discr_width];	
@@ -284,14 +278,6 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 	return vectorX;
 }
 
-int Parabrisas :: rowIndexToWindShield(int i){
-	return i / discr_height;
-}
-
-int Parabrisas :: colIndexToWindShield(int j){
-	return j % discr_width;
-}
-
 void Parabrisas :: recreateWindShield(vector<double>& vectorX){
 	for (int i = 0; i < discr_height; i++)
 		for (int j = 0; j < discr_width; j++)
@@ -299,25 +285,12 @@ void Parabrisas :: recreateWindShield(vector<double>& vectorX){
 }
 
 void Parabrisas::calculate_temps() {
-	/*cout << "ANTES A: " << endl;
-	int size = discr_height * discr_width;
-	
-	imprimir(matrix_A, size, 2*discr_width + 1);
-
-	cout << endl << "ANTES B: " << endl;
-	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;*/
-	
+	/* Aquí se calculan las temperaturas, primero aplicando eliminación gaussiana
+     * y luego resolviendo la matriz triangular superior.
+	 * Después se rellena la matriz que representa el parabrisas */
+	 
 	gaussianElimination();
-	/*cout << "DESPUES A: " << endl;
-	imprimir(matrix_A, size, 2*discr_width + 1);
-	
-	cout << endl << "DESPUES B: " << endl;
-	for (int i = 0; i < discr_height*discr_width; i++)
-		cout << matrix_B[i] << endl;*/
-	
 	vector<double> temperatureVector = resolveTriangularMatrix();
-	
 	recreateWindShield(temperatureVector);
 }
 
@@ -326,21 +299,30 @@ void Parabrisas::kill_leech() {
 	double middle_x = height / 2;
 	double middle_y = width / 2;
 	
-	double closestDistance = width * height;	//Esta distancia es mas grande que cualquier punto afectado al centro
+	// Elijo una distancia mayor a todas las distancias desde el punto crítico hacia un punto afectado.
+	double closestDistance = width * height;	
 	int leechToKillId = 0;
 	
 	
 	for (int i = 0 ; i < (int) leeches.size(); i++){
 		for (int j = 0; j < (int) leeches[i].leeched_points.size(); j++){
+			// Tomo un punto afectado
 			PointDiscr affectedPoint = leeches[i].leeched_points[j];
 			double real_affP_x = affectedPoint.i * discr_interval;
 			double real_affP_y = affectedPoint.j * discr_interval;
+			
+			// Calculo la distancia de este punto al punto crítico
 			double distanceToMiddle = get_norm_2(real_affP_x, real_affP_y, middle_x, middle_y);
 			
+			// Si encontré una distancia más chica al medio, indico a la sanguijuela i para ser asesinada
 			if ( distanceToMiddle < closestDistance ){
 				closestDistance = distanceToMiddle;
 				leechToKillId = i;
-			} else if ( abs(distanceToMiddle - closestDistance) < EPS){				// Si la distancia es la misma pero una tiene mas puntos afectados que la otra
+			
+			/* Criterio de desempate por distancias:
+			 * Si la distancia es la misma pero la sanguijuela actual tiene más puntos afectados que la anterior indicada a asesinar
+			 * entonces elijo la sanguijuela con más puntos afectados entre las dos*/
+			} else if ( abs(distanceToMiddle - closestDistance) < EPS){				
 				unsigned int leechToKillAmountOfPoints = leeches[leechToKillId].leeched_points.size();
 				unsigned int currentLeechAmountOfPoints = leeches[i].leeched_points.size();
 				if (currentLeechAmountOfPoints > leechToKillAmountOfPoints){
@@ -350,30 +332,14 @@ void Parabrisas::kill_leech() {
 		}
 	}
 	
-	// Hago los cambios necesarios en la matriz A y B
-	/*Leech& leechToKill = leeches[leechToKillId];
-	
-	for (int i = 0; i < (int) leechToKill.leeched_points.size(); i++){
-		PointDiscr affectedPoint = leechToKill.leeched_points[i];
-		int affP_i = (affectedPoint.i * discr_width) + affectedPoint.j;
-		int affP_j = affP_i;
-		if (bandImplementation)
-			affP_j = discr_width;		//Idem, elijo el elemento "diagonal" que se encuentra en el medio
-		
-		matrix_A[affP_i][affP_j] = -4;
-		matrix_A[affP_i][affP_j + discr_width]  = 1; // i-1 en la fila
-		matrix_A[affP_i][affP_j - discr_width] = 1; // i+1 en la fila
-		matrix_A[affP_i][affP_j-1] = 1;
-		matrix_A[affP_i][affP_j+1] = 1;
-		
-		matrix_B[affP_i] = 0;
-	}*/
 	
 	// Mato a la sanguijuela indicada en leechToKillId
 	leeches.erase(leeches.begin() + leechToKillId);	
+	
+	// Hago los cambios necesarios en la matriz A y B
 	clearMatrixA();
 	createMatrixB();
-	addLeechInfo();
+	addLeechAndBorderInfo();
 }
 
 void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate){
