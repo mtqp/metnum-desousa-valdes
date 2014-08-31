@@ -396,20 +396,29 @@ void Parabrisas::gaussianElimination() {
 		
 		for (int i = 0; i < (discr_height * discr_width) - 1; i++){
 			for (int j = i+1; j < discr_height * discr_width; j++){
+				// Checkeamos si hay un 0 en la diagonal (no debería suceder)
 				if(abs(matrix_A[i][i])  < EPS){
 					cout << "0 en la diagonal en la posición [" << i << "," << i << "]" << endl;
 					exit(1); 
 				}
+				
 				double i_j_multiplier = matrix_A[j][i] / matrix_A[i][i];
 				updateRowJ(i_j_multiplier, i, j);
 			}
 		}
 	} else {	
-		/* EG BANDA */
+		
+		// Para la implementación con matriz banda, modificamos la EG
+		
 		int n = discr_width;
 		int i_range = (discr_height * discr_width) - 1;
+		
 		for (int i = 0; i < i_range; i++){
+			
+			// Se define el rango para j: se recorre hacia abajo discr_width posiciones en el peor caso
 			int j_range = i + 1 + n;
+			
+			// Al llegar al final de la banda hay menos de discr_width filas por recorrer, luego se corrige:
 			if ( i >= (i_range + 1) - n )
 				j_range = i_range + 1;
 			
@@ -418,8 +427,9 @@ void Parabrisas::gaussianElimination() {
 					cout << "0 en la diagonal en la posición [" << i << "," << i << "]" << endl;
 					exit(1); 
 				}
-				double elemDiagonal = matrix_A[i][n];
+				
 				double elemBajoDiagonal = matrix_A[j][n-j+i];
+				double elemDiagonal = matrix_A[i][n];
 				double i_j_multiplier = elemBajoDiagonal / elemDiagonal;
 				updateRowJ(i_j_multiplier, i, j);
 			}
