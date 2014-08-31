@@ -83,8 +83,10 @@ Parabrisas::Parabrisas() {
 }
 
 Parabrisas :: Parabrisas(int bandImpl){
-	Parabrisas();
 	bandImplementation = bandImpl;
+	matrix_A = NULL;
+	matrix_B = NULL;
+	pb_matrix = NULL;	
 }
 
 Parabrisas::~Parabrisas() { 
