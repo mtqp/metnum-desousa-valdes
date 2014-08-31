@@ -81,10 +81,23 @@ struct PB_Matrix {
 	Temp get(const Point p){
 		double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
 		
-		if (modf(d_x, &intpart) <= 0.0 + EPS && modf(d_y, &intpart) <= 0.0 + EPS)	//Si da una cuenta entera. VER ERROR RELATIVO EPS
+		//Si da una cuenta entera devuelvo el punto existente
+		if (modf(d_x, &intpart) <= EPS && modf(d_y, &intpart) <= EPS)	
 			return matrix[(int)d_x][(int)d_y];
-		else
-			return ERROR_TEMPERATURE;
+			
+		//Si no existe el punto, tomo el promedio de los 4 más cercanos
+		else{
+			int fila_abajo = (int)ceil(d_x);
+			int fila_arriba = (int)floor(d_x);
+			int col_der = (int)ceil(d_y);
+			int col_izq = (int)floor(d_y);
+			
+			double sum = matrix[fila_arriba][col_izq] + matrix[fila_arriba][col_der] + matrix[fila_abajo][col_izq] + matrix[fila_abajo][col_der];
+			double average = sum / 4;
+			
+			return average;
+		}
+			
 	};
 };
 
