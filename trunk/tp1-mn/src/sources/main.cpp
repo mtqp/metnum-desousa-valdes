@@ -7,9 +7,7 @@ double get_norm_2(double a_x, double a_y, double b_x, double b_y){
 	return sqrt((a_x - b_x)*(a_x - b_x) + (a_y - b_y)*(a_y - b_y));
 }
 
-
-void imprimir(double** matrix, int i_range, int j_range)
-{  
+void imprimir(double** matrix, int i_range, int j_range){  
 	for(int i=0; i<  i_range; i++){
 		cout << endl;
 		for(int j=0; j< j_range; j++){
@@ -142,7 +140,7 @@ int Parabrisas::read_from_input(char* input_file) {
 }
 
 void Parabrisas::createPBMatrix(){
-	// Creación de la matriz que representa el parabrisas final
+	/// Creación de la matriz que representa el parabrisas final
 	
 	Temp** pb_discr_matrix= new Temp*[discr_height];
 	for (int j = 0; j < discr_height; j++){
@@ -157,6 +155,8 @@ void Parabrisas::createPBMatrix(){
 }
 
 void Parabrisas:: createMatrixA(){
+	/// Creación de la matriz A 
+	
 	int complete_grid_size = discr_width * discr_height;
 	int row_width = complete_grid_size;
 	
@@ -274,19 +274,27 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 			vectorX[i] /= matrix_A[i][i];	
 		}
 	} else {
+		
+		// Para la implementación con matriz banda, defino el rango para las j. Las i quedan igual
+		// La idea es utilizar solo los elementos de la banda, ya que esos son los relevantes
 		int j_range = 0;
 		for (int i = n - 1; i >= 0; i--){
 			vectorX[i] = matrix_B[i];
 			
+			// Si me encuentro en el principio de la matriz, hay columnas de la banda que no existen
+			// ya que la banda en ese punto de la matriz no es completa (solo la mitad hacia la derecha existe allí)
 			int j_start = 0;
 			if (i < discr_width)
 				j_start = discr_width-i;
 				
-			for (int j = j_start; j < j_range; j++)				
+			for (int j = j_start; j < j_range; j++)
+				// j+discr_width+1 --> representa al i+1 de la implementación normal (desde la mitad+1 en adelante para la nueva matriz A)
+				// i+j+1 --> representa a la j en el otro caso. El reemplazo es directo (j = i+1 en el otro caso y voy sumando de a 1)
 				vectorX[i] -= matrix_A[i][j+discr_width+1] * vectorX[i+j+1];
 			
 			if (j_range < discr_width) j_range++;
 
+			// matrix_A[i][discr_width] representa las diagonales de la matriz A completa
 			vectorX[i] /= matrix_A[i][discr_width];	
 		}
 	}
@@ -371,13 +379,22 @@ void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate
 			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j];
 		
 	} else {
-		/* UPDATEROWJ BANDA */
+		// Fj = Fj - Fi CON modificaciones
+		
 		int n = discr_width;
+		
+		// El offset está y es necesario porque en la matriz A en esta implementación, 
+		// si uno toma dos filas consecutivas, estas van a estar desfasadas en una columna
+		// en la matriz grande original A
 		int offset = rowToUpdate - rowToUse;
 	
-		//Defino rangos
+		// Defino rangos: j_range es "2n+1 - offset" ya que quiero actualizar solo los elementos
+		// que involucran la banda: si el offset entre la fila a updatear y la que se usa es muy grande,
+		// entonces los elementos que voy a poder actualizar en la fila de update serán pocos.
 		int j_range = 2*n + 1 - offset;
 		
+		// Utilizo toda la banda, salvo que esté al principio de la matriz original, en donde falta parte de
+		// la banda (por ejemplo, solo tengo la mitad de la banda hacia la derecha en la primera fila)
 		int j_start = 0;
 		if (rowToUpdate < n)
 			j_start = n-rowToUpdate;
@@ -386,6 +403,8 @@ void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate
 			matrix_A[rowToUpdate][j] = matrix_A[rowToUpdate][j] - i_j_multiplier * matrix_A[rowToUse][j+offset];
 
 	}
+	
+	// Hacer el update de la matriz B es independiente de la implementación
 	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
 } 
 
@@ -430,8 +449,13 @@ void Parabrisas::gaussianElimination() {
 					exit(1); 
 				}
 				
+				// Utilizo de indice de las columnas n-j+i para tener el elemento correspondiente bajo la diagonal
 				double elemBajoDiagonal = matrix_A[j][n-j+i];
+				
+				// La columna para los elementos de la diagonal en la matriz_A en esta implementacion
+				// está siempre en la columna n (ya que hay 2n+1 elementos)
 				double elemDiagonal = matrix_A[i][n];
+				
 				double i_j_multiplier = elemBajoDiagonal / elemDiagonal;
 				updateRowJ(i_j_multiplier, i, j);
 			}
@@ -440,6 +464,11 @@ void Parabrisas::gaussianElimination() {
 }
 
 double Parabrisas :: temperatureOnCriticalPoint(){
+	/** Tomo las coordenadas reales del punto crítico y busco la
+	 * temperatura allí. Si el punto existe en la discretización, lo
+	 * devuelvo, si no, devuelvo el promedio de los 4 puntos que lo
+	 * rodean */
+	 
 	double middle_x = height / 2;
 	double middle_y = width / 2;
 	Point criticalPoint = Point(middle_x, middle_y);
@@ -493,12 +522,10 @@ int main(int argc, char *argv[]) {
         
         if(shouldKillLeeches)
         {
-            //cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
             while (pb.temperatureOnCriticalPoint() >= 235.0 && !pb.freeOfLeeches()){
             
                 pb.kill_leech();
                 pb.calculate_temps();
-                //cout << "temperatura en punto critico: " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
             }
         }
     }    
