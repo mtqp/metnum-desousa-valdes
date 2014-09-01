@@ -207,6 +207,69 @@ Por otro lado, nuestra matriz $A$ tendrá dimensiones cuadradas de $((n+1) \time
 
 Tal como habíamos dicho, cada fila $i$ de esta matriz representa al elemento $i$ de la matriz del parabrisas (vista como un vector aplanado por filas). En la matriz del parabrisas, los elementos que pudimos completar con -100 representan a los bordes del parabrisas. Siguiendo la descripción que habíamos hecho de la matriz $A$, habrá un 1 en la posición $(i,i)$ para las filas que se correspondan con estos bordes, y el resto de las posiciones serán 0. Esto vale para toda la matriz salvo por el medio, en donde desconocemos la temperatura. Luego para la fila $4$ (empezando a contar desde 0), es decir la fila correspondiente al elemento del medio de la matriz del parabrisas, debemos llenar los casilleros con -4 y 1 según nos convenga para obtener luego de hacer $Ax$ la ecuación de la derivada parcial simplificada.
 
+Los vectores $x$ y $b$ entonces tiene la forma siguiente:
+
+\[ x =  \left( \begin{array}{c}
+t_{0,0} \\
+t_{0,1} \\
+t_{0,2} \\
+t_{1,0} \\
+t_{1,1} \\
+t_{1,2} \\
+t_{2,0} \\
+t_{2,1} \\
+t_{2,2} \\
+\end{array} \right), \  b = \left( \begin{array}{c}
+-100 \\
+-100 \\
+-100 \\
+-100 \\
+0 \\
+-100 \\
+-100 \\
+-100 \\
+-100 \\
+\end{array} \right)
+\] 
+
+Juntando todo nos queda entonces:
+
+\[ Ax = b
+
+
+\left( \begin{array}{ccccccccc}
+1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+0 & 1 & 0 & 1 & -4 & 1 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\ 
+0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 1
+\end{array} \right)	\left( \begin{array}{c}
+t_{0,0} \\
+t_{0,1} \\
+t_{0,2} \\
+t_{1,0} \\
+t_{1,1} \\
+t_{1,2} \\
+t_{2,0} \\
+t_{2,1} \\
+t_{2,2} \\
+\end{array} \right) = \left( \begin{array}{c}
+-100 \\
+-100 \\
+-100 \\
+-100 \\
+0 \\
+-100 \\
+-100 \\
+-100 \\
+-100 \\
+\end{array} \right)
+\] 
+
 \subsubsection{Ideas para la implementación con matriz A banda}
 
 \subsection{Implementación}
