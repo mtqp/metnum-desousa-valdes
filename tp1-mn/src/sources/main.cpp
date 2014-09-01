@@ -415,10 +415,12 @@ void Parabrisas::gaussianElimination() {
 		
 		for (int i = 0; i < i_range; i++){
 			
-			// Se define el rango para j: se recorre hacia abajo discr_width posiciones en el peor caso
-			int j_range = i + 1 + n;
+			// Se define el rango para j: se recorre hacia abajo discr_width (n) posiciones en el peor caso
+			// ---> luego j = i+1 hasta (i+1) + n. 
+			int j_range = (i+1) + n;
 			
-			// Al llegar al final de la banda hay menos de discr_width filas por recorrer, luego se corrige:
+			// Al llegar al final de la banda hay menos de discr_width filas por recorrer
+			// ---> luego va a hasta el final (discr_width * discr_height)
 			if ( i >= (i_range + 1) - n )
 				j_range = i_range + 1;
 			
@@ -482,7 +484,7 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-    //cout << "Temp(PuntoCritico): " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+    cout << "Temp(PuntoCritico): " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
     
     if(argc >= 5)
     {
