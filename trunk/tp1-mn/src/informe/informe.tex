@@ -132,18 +132,21 @@ donde $x$ representa el vector con todas las temperaturas punto a punto del para
 
 \section{Desarrollo}
 
-
 \subsection{Ideas y pseudocódigo}
+
+Como vimos en la introducción, resolver este problema es resolver el problema de $Ax = b$ siendo $x$ las temperaturas en todos los puntos que se hayan podido discretizar del parabrisas. Este vector $x$ tendrá un tamaño de $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas. Estos $n$ y $m$ se despejan de las ecuaciones $a = m \times h$ y $b = n \times h$, es decir, $m = \frac{a}{h}$ y $n = \frac{b}{h}$ donde $a$ es el ancho del parabrisas, $b$ el alto, y $h$ siendo la discretización elegida. Veremos ahora qué fue lo que pensamos para determinar $A$ y $b$.
+
+\vspace{\baselineskip}
 
  Teniendo en cuenta la siguiente fórmula para el cálculo de temperaturas
 
 \[
-0 \ \cong\ \frac{ t_{i-1,j} + t_{i+1,j} - 4t_{i,j} + t_{i,j-1} + t_{i,j+1}}{h^2}
+\frac{\partial^2T(x,y)}{\partial x^{2}}+\frac{\partial^2 T(x,y)}{\partial y^{2}} \ \cong \ \frac{ t_{i-1,j} + t_{i+1,j} - 4t_{i,j} + t_{i,j-1} + t_{i,j+1}}{h^2} = 0,
 \]
 
-(con $h$ siendo la discretización elegida), que los puntos de los bordes tienen temperatura fija -100${}^o$C y que los puntos afectados por el radio de ataque de las sanguijuelas valen otra temperatura fijada $t_{sang}$ en los parámetros del problema, podemos plantear a $b$ como el vector que sigue esta función partida para cada posición ($i,j$) de la matriz discreta del parabrisas:
+que los puntos de los bordes tienen temperatura fija -100${}^o$C y que los puntos afectados por el radio de ataque de las sanguijuelas valen otra temperatura fijada $t_{sang}$ en los parámetros del problema, podemos plantear a $b$ como el vector que sigue esta función partida para cada posición ($i,j$) de la matriz discreta del parabrisas:
 
-$$f(i,j) = \left\{
+$$f_{b}(i,j) = \left\{
 \begin{array}{c l}
  -100 & si \ la \ posicion  \ p_{i,j} \ es  \ un \ borde  \ del \ parabrisas\\
  t_{sang} & si \ la \ posicion  \ p_{i,j} \ es \ afectada \ por \ una \ sanguijuela \\
@@ -152,7 +155,19 @@ $$f(i,j) = \left\{
 \right.
 $$
 
-De esta forma, el vector $b$ tendrá un tamaño igual a la cantidad de elementos de la matriz que representa al parabrisas, es decir $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas.
+De esta forma, el vector $b$ tendrá un tamaño igual a la cantidad de elementos de la matriz que representa al parabrisas, es decir $(n+1) \times (m+1)$, al igual que el vector $x$.
+
+\vspace{\baselineskip}
+
+Nos queda definir entonces qué es la matriz $A$. En principio, necesitamos una matriz de alto $(n+1) \times (m+1)$ ya que si no \textit{no podríamos hacer la multiplicación $Ax$}. Decidimos entonces tener una matriz cuadrada de  $((n+1) \times (m+1)) \times  ((n+1) \times (m+1))$ en la cual cada fila representa un elemento de la matriz discreta del parabrisas. Por ejemplo, la primera fila representaría al elemento (0,0), la segunda al (0,1), la tercera al (0,2), hasta la última al (n-1,n-1). A su vez, hay una misma cantidad de columnas para poder multiplicar esta matriz por $x$.
+
+La idea atrás de esto es que, al hacer $Ax$, tengamos un sistema de ecuaciones que incluya la derivada parcial simplificada, que ya vimos cuando no conocemos la temperatura de un punto en particular, e igualdades directas como la temperatura en los bordes o en un punto afectado. Para lograr esto, esta matriz se va a componer principalmente de \textit{ceros y unos}.
+
+\vspace{\baselineskip}
+
+Este sería un ejemplo de lo que queremos llevar a cabo: si en la primera fila pongo el primer elemento en 1 y el resto en 0, al multiplicar por el vector de temperaturas-incógnitas estaria teniendo en mi ecuación el valor de $x_1$. Como este es un borde, en $b$ tendría, según la función ya presentada, un -100 indicando la temperatura fija adecuada. Luego mi ecuación sería $x_1 = -100$, y esto es justo lo que queremos. Si el ejemplo sirviera para encontrar la siguiente temperatura, me ubicaria en la segunda fila, y como este también es un borde, debería colocar un $1$ en la segunda posición de la fila, así al multiplicar obtendría el $x_2 = -100$. Luego, para cada fila, voy a mirar el elemento que pertenece a la diagonal de la matriz cuadrada ya que allí se encontrará la temperatura a calcular asociada a esa posición en $x$.
+
+En un caso más complicado como en el de temperatura desconocida, deberíamos poner $1$ en cada lugar correspondiente a $t_{i-1,j}$, $t_{i+1,j}$, $t_{i,j-1}$ y $t_{i,j+1}$ involucrado en la ecuación, y un -4 en $t_{i,j}$. Esos valores en $x$ se ubicarán de la siguiente forma: para $t_{i,j}$ miro el elemento perteneciente a la diagonal en esa fila tal como habíamos dicho y coloco allí un -4 ya que ese es su coeficiente asignado en la ecuación de la derivada parcial simplificada. Para $t_{i,j-1}$ y $t_{i,j+1}$, como solo se cambia una columna, estarán una posición menos o más en $x$, por lo tanto puedo poner un 1 a los costados del -4. Luego, los siguientes 1 estarán a $(n+1)$ ($t_{i-1,j}$) o $-(n+1)$ ($t_{i+1,j}$) espacios a los costados del -4, ya que $n+1$ es el ancho de la matriz del parabrisas discreto, y al cambiar una fila ($i-1$ o $i+1$ en las expresiones de $t$) voy a correrme exactamente $n+1$ espacios para la izquierda o la derecha.
 
 \subsection{Implementación}
 
