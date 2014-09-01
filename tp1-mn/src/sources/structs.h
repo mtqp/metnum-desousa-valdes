@@ -5,17 +5,9 @@
 #include <algorithm>
 #include <iomanip>
 
-#define DEBUG
-
 #define UNDEFINED_TEMPERATURE 2048.0
 #define ERROR_TEMPERATURE -2048.0
 #define EPS 1.0e-4
-
-#ifdef DEBUG
-#define DEBUGMSG(X)  cout << X << endl;
-#else
-#define DEBUGMSG(X)
-#endif
 
 using namespace std;
 
@@ -66,7 +58,7 @@ struct PB_Matrix {
 	}
 	
 	void set_borders(){
-		// Pongo los bordes en -100 (a revisar)
+		// Pongo los bordes en -100
 		for( int j = 0; j < discr_width; j++) {
 			matrix[0][j] = -100.0;
 			matrix[discr_height-1][j] = -100.0;
@@ -81,11 +73,11 @@ struct PB_Matrix {
 	Temp get(const Point p){
 		double intpart, d_x = p.x/discretization, d_y = p.y/discretization;
 		
-		//Si da una cuenta entera devuelvo el punto existente
+		// Si da una cuenta entera devuelvo el punto existente
 		if (modf(d_x, &intpart) <= EPS && modf(d_y, &intpart) <= EPS)	
 			return matrix[(int)d_x][(int)d_y];
 			
-		//Si no existe el punto, tomo el promedio de los 4 más cercanos
+		// Si no existe el punto, tomo el promedio de los 4 más cercanos
 		else{
 			int fila_abajo = (int)ceil(d_x);
 			int fila_arriba = (int)floor(d_x);
@@ -123,36 +115,23 @@ struct Leech {
 		y_high = p.y + radius;
 		int disc_x_low, disc_x_high, disc_y_low, disc_y_high;
 		
-		/*cout << "x_low: " << x_low << endl;
-		cout << "x_high: " << x_high << endl;
-		cout << "y_low: " << y_low << endl;
-		cout << "y_high: " << y_high << endl;*/
-		
 		// Defino los intervalos CERRADOS discretos
 		disc_x_low = (int)ceil(x_low / discretization);
 		disc_x_high = (int)floor( x_high / discretization);
 		disc_y_low = (int)ceil( y_low / discretization);
 		disc_y_high = (int)floor(y_high / discretization);
 		
-		/*cout << "disc_x_low: " << disc_x_low << endl;
-		cout << "disc_x_high: " << disc_x_high << endl;
-		cout << "disc_y_low: " << disc_y_low << endl;
-		cout << "disc_y_high: " << disc_y_high << endl;*/
-		//discr_height = (height / discr_interval) + 1;
 		for (int j = disc_x_low; j <= disc_x_high; j++){
 			double real_x = j*discretization;
 			
 			for (int i = disc_y_low; i <= disc_y_high; i++){
-				//cout << "i: " << i << "; j: "<< j << endl;
 				if (is_border(i,j)){
 					vector<PointDiscr> vacio;
 					return vacio;
 				}
 				double real_y = i*discretization;
-				//cout << "radius: " << radius << "; norma2: " << get_norm_2(p.x, p.y, real_x, real_y) << endl;
 				
-				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius){ //corregir borde mata sanguijuela
-					//cout << "estoy adentro" << endl;
+				if (get_norm_2(p.x, p.y, real_x, real_y) <= radius){
 					affected_points.push_back(PointDiscr(i,j));
 				}
 			}
