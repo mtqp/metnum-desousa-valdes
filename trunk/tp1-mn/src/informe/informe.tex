@@ -344,6 +344,14 @@ Veremos qué sucede ahora con la implementación la matriz A banda, discutiremos
 
 \subsubsection{Ideas para la implementación con matriz A banda}
 
+Antes que nada, la implementación con matriz banda se puede realizar por la naturaleza de la matriz A en el otro caso: al tener siempre unos en la diagonal y también algunos unos a $n+1$ espacios del centro (y todo el resto es 0), se nos forma una banda diagonal que podemos extraer de la matriz y trabajar únicamente con eso. En realidad, trabajar con todos los valores de la matriz $A$ cuadrada es ineficiente ya que la gran mayoría de los valores son 0 y por ejemplo todas las iteraciones de la \textit{eliminación gaussiana} que no tengan que ver con la banda \textit{no van a realizar ningún cambio en la matriz porque en esos lugares la matriz ya está triangulada} (son todos ceros).
+
+Ya que el pseudocódigo presentado se mantiene incluso para esta implementación, veremos únicamente los cambios a las principales funciones y en la estructura de la matriz $A$ para que esta forma de enfrentar el problema se realice adecuadamente.
+
+\vspace{\baselineksip}
+
+Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la matriz $A$ cuadrada. La banda tiene un tamaño de $2n+1$ elementos (desde la mitad hay $n$ elementos hacia ambos costados y además cuento aquel de la mitad), por lo cual la matriz $A$ modificada tendrá un tamaño de $(n+1) \times (m+1)$ filas por $2n+1$ columnas, lo cual \textit{a priori} sugiere mucho menos memoria necesaria para almacenar toda la matriz A. Sin embargo, con una matriz de este estilo estaríamos tomando \textit{casilleros de más}, ya que por ejemplo al principio y al final de la matriz, la banda tiene la mitad de su tamaño. De todas formas para no complicar esta parte de la implementación, vamos a seguir tomando estos elementos y solamente los evitaremos en el resto de las funciones de triangulación y resolución del sistema que nos vaya a quedar.
+
 \subsection{Implementación}
 
 \subsection{Experimentación}
