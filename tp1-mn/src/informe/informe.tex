@@ -114,11 +114,11 @@
 
 El problema que se nos presentó es el del capitán Guybrush Threepwood (un gran pirata) y su barco ``El Pepino Marino''. La existencia de las raras sanguijuelas mutantes ocasiona malestar a nuestro estimado capitán. Las mismas se adhieren al parabrisas de la nave y generan temperatura que pone en peligro la integridad del mismo. La transmisión del calor por parte de las sanguijuelas se produce de manera circular y la temperatura es idéntica para todas ellas. 
 \par 
-El parabrisas no es invencible: si la temperatura en su punto central supera los 235 grados centígrados, las sanguijuelas ganan y el parabrisas se rompe, dejando al capitán Guybrush Threepwood a merced de las alimañas mutantes. A este punto central se lo denominará \textit{punto crítco}.
+El parabrisas no es invencible: si la temperatura en su punto central supera los 235 grados centígrados, las sanguijuelas ganan y el parabrisas se rompe, dejando al capitán Guybrush Threepwood a la merced de las alimañas mutantes. A este punto central se lo denominará \textit{punto crítico}.
 \par 
-Sin embargo, el parabrisas posee un mecanismo de defensa ante las criaturas. Los bordes emiten temperaturas bajo cero, para permitir el enfriamiento y así vencer a las sanguijuelas. El sistema de refrigeramiento emite -100 grados centígrados en todo el borde del parabrisas, disminuyendo de esta forma la temperatura global de la superficie. 
+Sin embargo, el parabrisas posee un mecanismo de defensa ante las criaturas. Los bordes emiten temperaturas bajo cero, para permitir el enfriamiento y así vencer a las sanguijuelas. El sistema de refrigeramiento emite -100$^{o}$C en todo el borde del parabrisas, disminuyendo de esta forma la temperatura global de la superficie. 
 \par 
-A su vez, nuestro querido capitán Threepwood posee un pollo de hule (el arma más temible para las criaturas de los Siete Mares) con el cual puede destruir sanguijuelas. Sin embargo, el uso del "Gran Pollo" es agotador para Guybrush, por lo que debe intentar utilizarlo la menor cantidad de veces posibles para no comprometer el resultado de la misión. 
+A su vez, nuestro querido capitán Threepwood posee un pollo de hule (el arma más temible para las criaturas de los Siete Mares) con el cual puede destruir sanguijuelas. Sin embargo, el uso del ``Gran Pollo'' es agotador para Guybrush, por lo que debe intentar utilizarlo la menor cantidad de veces posibles para no comprometer el resultado de la misión. 
 
 \vspace{\baselineskip}
 \par 
@@ -128,7 +128,7 @@ Gracias a las fórmulas otorgadas por la cátedra para obtener la temperatura en
 
 \[ Ax = b \]
 
-donde $x$ representa el vector con todas las temperaturas punto a punto del parabrisas discretizado. Esto nos obliga entonces a pensar qué son la matriz $A$ y el vector $b$ en esta ecuación, lo cual será explicado en la sección \textbf{Desarrollo}. Para resolver este sistema se deberá aplicar \textbf{\textit{Eliminación Gaussiana}} a fin de obtener una matriz triangular superior. Luego, se aplicará un algoritmo de resolución llamado \textbf{\textit{backward substitution}} que se encargará de devolvernos todas las temperaturas de los puntos que hayamos podido discretizar.
+donde $x$ representa el vector con todas las temperaturas punto a punto del parabrisas discretizado. Esto nos obliga entonces a pensar qué son la matriz $A$ y el vector $b$ en esta ecuación, lo cual será explicado en la sección \textbf{Desarrollo}. Para resolver este sistema se deberá utilizar la técnica de \textbf{\textit{Eliminación Gaussiana}} a fin de obtener una matriz triangular superior. Luego, se aplicará un algoritmo de resolución llamado \textbf{\textit{backward substitution}} que se encargará de devolvernos todas las temperaturas de los puntos que hayamos podido discretizar, pudiendo así completar la misión del capitán.
 
 \section{Desarrollo}
 
@@ -161,23 +161,23 @@ De esta forma, el vector $b$ tendrá un tamaño igual a la cantidad de elementos
 
 \vspace{\baselineskip}
 
-Nos queda definir entonces qué es la matriz $A$. En principio, necesitamos una matriz de alto $(n+1) \times (m+1)$ ya que si no \textit{no podríamos hacer la multiplicación $Ax$}. Decidimos entonces tener una matriz cuadrada de  $((n+1) \times (m+1)) \times  ((n+1) \times (m+1))$ en la cual cada fila representa un elemento de la matriz discreta del parabrisas. Por ejemplo, la primera fila representaría al elemento (0,0), la segunda al (0,1), la tercera al (0,2), hasta la última al (n-1,n-1). A su vez, hay una misma cantidad de columnas para poder multiplicar esta matriz por $x$.
+Nos queda definir entonces qué es la matriz $A$. En principio, necesitamos una matriz de alto $(n+1) \times (m+1)$ ya que si no \textit{no podríamos hacer la multiplicación $Ax$}. Decidimos entonces tener una matriz cuadrada de  $((n+1) \times (m+1)) \times  ((n+1) \times (m+1))$ en la cual cada fila representa un elemento de la matriz discreta del parabrisas. Por ejemplo, la primera fila representaría al elemento (0,0), la segunda al (0,1), la tercera al (0,2), hasta la última que representa al elemento ($n-1,n-1$). A su vez, hay una misma cantidad de columnas para poder multiplicar esta matriz por $x$.
 
-La idea atrás de esto es que, al hacer $Ax$, tengamos un sistema de ecuaciones que incluya la derivada parcial simplificada, que ya vimos cuando no conocemos la temperatura de un punto en particular, e igualdades directas como la temperatura en los bordes o en un punto afectado. Para lograr esto, esta matriz se va a componer principalmente de \textit{ceros y unos}.
-
-\vspace{\baselineskip}
-
-Este sería un ejemplo de lo que queremos llevar a cabo: si en la primera fila pongo el primer elemento en 1 y el resto en 0, al multiplicar por el vector de temperaturas-incógnitas estaria teniendo en mi ecuación el valor de $x_1$. Como este es un borde, en $b$ tendría, según la función ya presentada, un -100 indicando la temperatura fija adecuada. Luego mi ecuación sería $x_1 = -100$, y esto es justo lo que queremos. Si el ejemplo sirviera para encontrar la siguiente temperatura, me ubicaria en la segunda fila, y como este también es un borde, debería colocar un $1$ en la segunda posición de la fila, así al multiplicar obtendría el $x_2 = -100$. Luego, para cada fila, voy a mirar el elemento que pertenece a la diagonal de la matriz cuadrada ya que allí se encontrará la temperatura a calcular asociada a esa posición en $x$.
-
-En un caso más complicado como en el de temperatura desconocida, deberíamos poner $1$ en cada lugar correspondiente a $t_{i-1,j}$, $t_{i+1,j}$, $t_{i,j-1}$ y $t_{i,j+1}$ involucrado en la ecuación, y un -4 en $t_{i,j}$. Esos valores en $x$ se ubicarán de la siguiente forma: para $t_{i,j}$ miro el elemento perteneciente a la diagonal en esa fila tal como habíamos dicho y coloco allí un -4 ya que ese es su coeficiente asignado en la ecuación de la derivada parcial simplificada. Para $t_{i,j-1}$ y $t_{i,j+1}$, como solo se cambia una columna, estarán una posición menos o más en $x$, por lo tanto puedo poner un 1 a los costados del -4. Luego, los siguientes 1 estarán a $(n+1)$ ($t_{i-1,j}$) o $-(n+1)$ ($t_{i+1,j}$) espacios a los costados del -4, ya que $n+1$ es el ancho de la matriz del parabrisas discreto, y al cambiar una fila ($i-1$ o $i+1$ en las expresiones de $t$) voy a correrme exactamente $n+1$ espacios para la izquierda o la derecha.
+La idea atrás de esto es que, al hacer $Ax$, tengamos un sistema de ecuaciones que incluya la derivada parcial simplificada (que aparecía cuando no se conoce la temperatura de un punto en particular) e igualdades directas como la temperatura en los bordes o en un punto afectado. Para lograr esto, esta matriz se va a componer principalmente de \textit{ceros y unos}.
 
 \vspace{\baselineskip}
 
-Veamos un ejemplo para una matriz pequeña como un parabrisas de $2 \times 2$ con discretización 1, sin sanguijuelas. Como habíamos dicho, la matriz discretizada del parabrisas será de tamaño $(n+1) \times (m+1)$, luego de $3 \times 3$ en este ejemplo. Así sería la matriz discreta del parabrisas: 
+Este sería un ejemplo de lo que queremos llevar a cabo: si en la primera fila pongo el primer elemento en 1 y el resto en 0, al multiplicar por el vector de temperaturas-incógnitas estaría teniendo en mi ecuación el valor de $x_1$. Como particularmente la primera posición de la matriz representa a un borde, en $b$ tendría según la función ya presentada un -100 indicando la temperatura fija adecuada. Luego mi ecuación sería $x_1 = -100$, y esto es justo lo que queremos. Para la siguiente temperatura me ubicaria en la segunda fila, y como esta también representa a un borde, debería colocar un $1$ en la segunda posición de la fila, así al multiplicar obtendría el $x_2 = -100$. Luego, para cada fila, voy a mirar el elemento que pertenece a la diagonal de la matriz cuadrada ya que allí se encontrará la temperatura a calcular asociada a esa posición en $x$.
+
+En un caso más complicado como en el de temperatura desconocida, deberíamos poner $1$ en cada lugar correspondiente a $t_{i-1,j}$, $t_{i+1,j}$, $t_{i,j-1}$ y $t_{i,j+1}$ involucrado en la ecuación, y un -4 en $t_{i,j}$. Para que esos valores de $x$ aparezcan en la ecuación, ubicamos los valores en la fila de la matriz A de la siguiente forma: para $t_{i,j}$ simplemente tomo la posición ($i,i$) y coloco allí un -4 (ya que ese es su coeficiente asignado en la ecuación de la derivada parcial simplificada). Para $t_{i,j-1}$ y $t_{i,j+1}$, como solo se cambia una columna, estarán una posición menos o más en $x$, por lo tanto debo poner un 1 a ambos costados del -4. Luego, los siguientes 1 estarán a $(n+1)$ (para tener $t_{i-1,j}$) o $-(n+1)$ (para tener $t_{i+1,j}$) espacios a los costados del -4, ya que $n+1$ es el ancho de la matriz del parabrisas discreto, y al cambiar una fila en la matriz discreta del parabrisas, voy a correrme exactamente $n+1$ espacios para la izquierda o la derecha en la fila de la matriz A.
 
 \vspace{\baselineskip}
 
-\[ \left( \begin{array}{ccc}
+Veamos un ejemplo para una matriz pequeña como un parabrisas de $2 \times 2$ con discretización 1, sin sanguijuelas. Como habíamos dicho, la matriz discretizada del parabrisas será de tamaño $(n+1) \times (m+1)$, luego de $3 \times 3$ en este ejemplo. Así sería la matriz discreta del parabrisas, la cual llamamos $pb\_matrix$: 
+
+\vspace{\baselineskip}
+
+\[ pb\_matrix = \left( \begin{array}{ccc}
 -100 & -100 & -100 \\
 -100 & ??? & -100 \\
 -100 & -100 & -100 
@@ -191,7 +191,7 @@ Por otro lado, nuestra matriz $A$ tendrá dimensiones cuadradas de $((n+1) \time
 
 \vspace{\baselineskip}
 
-\[ \left( \begin{array}{ccccccccc}
+\[A = \left( \begin{array}{ccccccccc}
 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
 0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\ 
