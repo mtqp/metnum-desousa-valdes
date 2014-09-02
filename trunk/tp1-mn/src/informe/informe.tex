@@ -295,12 +295,12 @@ Nos queda entonces este simple pseudocódigo para resolver el problema propuesto
 \vspace{\baselineskip}
 \begin{codebox}
 \Procname{$\proc{SavingPirateGuybrush}()$}
-\li matrix \id pb\_matrix = createPBMatrix()
+\li matrix \id{pb\_matrix} = createPBMatrix()
 \li matrix \id A = createMatrixA()
 \li vector \id b = createVectorB()
 \li matrix \id C = gaussianElimination(\id A, \id B)
-\li vector \id resolvedX = resolveUpperTriangularMatrix(C)
-\li recreatePBMatrix(\id pb\_matrix);
+\li vector \id{resolvedX} = resolveUpperTriangularMatrix(C)
+\li recreatePBMatrix(\id{pb\_matrix});
 \End
 \end{codebox} 
 \vspace{\baselineskip}
