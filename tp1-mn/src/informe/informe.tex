@@ -134,7 +134,7 @@ donde $x$ representa el vector con todas las temperaturas punto a punto del para
 
 \subsection{Ideas y pseudocódigo}
 
-\subsubsection{Ideas para la implementación con matriz A cuadrada}
+\subsubsection{Pseudocódigo y características generales del problema}
 
 Para comenzar a resolver este problema nos toca pensar un pseudocódigo muy simple que nos sirva de boceto general del problema; crear las matrices, resolver el sistema que queda y ubicar la información donde corresponda:
 
@@ -148,7 +148,29 @@ Para comenzar a resolver este problema nos toca pensar un pseudocódigo muy simp
 \end{codebox} 
 \vspace{\baselineskip}
 \par
-Como vimos en la introducción, resolver este problema es resolver el problema de $Ax = b$ siendo $x$ las temperaturas en todos los puntos que se hayan podido discretizar del parabrisas. Este vector $x$ tendrá un tamaño de $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas. Estos $n$ y $m$ se despejan de las ecuaciones $a = m \times h$ y $b = n \times h$, es decir, $m = \frac{a}{h}$ y $n = \frac{b}{h}$ donde $a$ es el ancho del parabrisas, $b$ el alto, y $h$ siendo la discretización elegida. Veremos ahora qué fue lo que pensamos para determinar $A$ y $b$.
+
+Podemos extender un poco este pseudocódigo, sabiendo que debemos crear la matriz del parabrisas, la matriz $A$ y el vector $b$ y la resolución del sistema que quede se realiza con \textit{eliminación gaussiana} y \textit{backward substitution}:
+
+\vspace{\baselineskip}
+\begin{codebox}
+\Procname{$\proc{SavingPirateGuybrush}()$}
+\li matrix \id{pb\_matrix} = createPBMatrix()
+\li matrix \id A = createMatrixA()
+\li vector \id b = createVectorB()
+\li matrix \id C = gaussianElimination(\id A, \id B)
+\li vector \id{resolvedX} = resolveUpperTriangularMatrix(C)
+\li recreatePBMatrix(\id{pb\_matrix});
+\End
+\end{codebox} 
+\vspace{\baselineskip}
+
+Asumimos aquí que en cada una de esas funciones tenemos acceso a los parámetros del problema para tener una lectura más simple del pseudicódigo. Básicamente, se crean las matrices y vectores necesarios definiendo sus dimensiones, agregando información de bordes, sanguijuelas, etc., y se resuelve el sistema triangulando con $gaussianElimination(A,B)$ (utiliza una matriz aumentada $A|B$) y con $resolveUpperTriangluarMatrix(C)$ la cual aplica \textit{backward substitution}. Luego se reconstruye la matriz del parabrisas. Pasemos ahora a detallar un poco las ideas para saber qué es $A$ y qué es $b$.
+
+\vspace{\baselineskip}
+
+Como vimos en la introducción, resolver este problema es resolver el problema de $Ax = b$ siendo $x$ las temperaturas en todos los puntos que se hayan podido discretizar del parabrisas. Este vector $x$ tendrá un tamaño de $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas. Estos $n$ y $m$ se despejan de las ecuaciones $a = m \times h$ y $b = n \times h$, es decir, $m = \frac{a}{h}$ y $n = \frac{b}{h}$ donde $a$ es el ancho del parabrisas, $b$ el alto, y $h$ siendo la discretización elegida. 
+
+Veremos ahora qué fue lo que pensamos para determinar $b$, y luego en dos secciones distantas explicaremos las ideas atrás de las dos posibles implementaciones de la matriz $A$. Igualmente para $A$ en ambas implementaciones, queremos que $Ax = b$ sea una multiplicación realizable, luego en principio necesitamos una matriz de alto $(n+1) \times (m+1)$  (el mismo que $x$) ya que si no \textit{no podríamos hacer la multiplicación $Ax$}.
 
 \vspace{\baselineskip}
 
@@ -177,21 +199,17 @@ $$
 
 De esta forma, el vector $b$ tendrá un tamaño igual a la cantidad de elementos de la matriz que representa al parabrisas, es decir $(n+1) \times (m+1)$, al igual que el vector $x$.
 
-\vspace{\baselineskip}
+\subsubsection{Ideas para la implementación con matriz A cuadrada}
 
-{\large \textbf{ $\rhd$ Matriz $A$:}}
+Nos queda definir entonces qué es la matriz $A$. Decidimos entonces tener una matriz cuadrada de  $((n+1) \times (m+1)) \times  ((n+1) \times (m+1))$ en la cual cada fila representa un elemento de la matriz discreta del parabrisas. Por ejemplo, la primera fila representaría al elemento (0,0), la segunda al (0,1), la tercera al (0,2), hasta la última que representa al elemento ($n-1,n-1$). A su vez, hay una misma cantidad de columnas para poder multiplicar esta matriz por $x$.
 
-\vspace{\baselineskip}
-
-Nos queda definir entonces qué es la matriz $A$. En principio, necesitamos una matriz de alto $(n+1) \times (m+1)$ ya que si no \textit{no podríamos hacer la multiplicación $Ax$}. Decidimos entonces tener una matriz cuadrada de  $((n+1) \times (m+1)) \times  ((n+1) \times (m+1))$ en la cual cada fila representa un elemento de la matriz discreta del parabrisas. Por ejemplo, la primera fila representaría al elemento (0,0), la segunda al (0,1), la tercera al (0,2), hasta la última que representa al elemento ($n-1,n-1$). A su vez, hay una misma cantidad de columnas para poder multiplicar esta matriz por $x$.
-
-La idea atrás de esto es que, al hacer $Ax$, tengamos un sistema de ecuaciones que incluya la derivada parcial simplificada (que aparecía cuando no se conoce la temperatura de un punto en particular) e igualdades directas como la temperatura en los bordes o en un punto afectado. Para lograr esto, esta matriz se va a componer principalmente de \textit{ceros y unos}.
+La idea atrás de esto es que, al hacer $Ax$, tengamos \textbf{un sistema de ecuaciones que incluya la derivada parcial simplificada} (que aparecía cuando no se conoce la temperatura de un punto en particular) e igualdades directas como la temperatura en los bordes o en un punto afectado. Para lograr esto, esta matriz se va a componer principalmente de \textit{ceros y unos}.
 
 \vspace{\baselineskip}
 
 Este sería un ejemplo de lo que queremos llevar a cabo: si en la primera fila pongo el primer elemento en 1 y el resto en 0, al multiplicar por el vector de temperaturas-incógnitas estaría teniendo en mi ecuación el valor de $x_1$. Como particularmente la primera posición de la matriz representa a un borde, en $b$ tendría según la función ya presentada un -100 indicando la temperatura fija adecuada. Luego mi ecuación sería $x_1 = -100$, y esto es justo lo que queremos. Para la siguiente temperatura me ubicaria en la segunda fila, y como esta también representa a un borde, debería colocar un $1$ en la segunda posición de la fila, así al multiplicar obtendría el $x_2 = -100$. Luego, para cada fila, voy a mirar el elemento que pertenece a la diagonal de la matriz cuadrada ya que allí se encontrará la temperatura a calcular asociada a esa posición en $x$.
 
-En un caso más complicado como en el de temperatura desconocida, deberíamos poner $1$ en cada lugar correspondiente a $t_{i-1,j}$, $t_{i+1,j}$, $t_{i,j-1}$ y $t_{i,j+1}$ involucrado en la ecuación, y un -4 en $t_{i,j}$. Para que esos valores de $x$ aparezcan en la ecuación, ubicamos los valores en la fila de la matriz A de la siguiente forma: para $t_{i,j}$ simplemente tomo la posición ($i,i$) y coloco allí un -4 (ya que ese es su coeficiente asignado en la ecuación de la derivada parcial simplificada). Para $t_{i,j-1}$ y $t_{i,j+1}$, como solo se cambia una columna, estarán una posición menos o más en $x$, por lo tanto debo poner un 1 a ambos costados del -4. Luego, los siguientes 1 estarán a $(n+1)$ (para tener $t_{i-1,j}$) o $-(n+1)$ (para tener $t_{i+1,j}$) espacios a los costados del -4, ya que $n+1$ es el ancho de la matriz del parabrisas discreto, y al cambiar una fila en la matriz discreta del parabrisas, voy a correrme exactamente $n+1$ espacios para la izquierda o la derecha en la fila de la matriz A.
+En un caso más complicado como en el de temperatura desconocida, deberíamos poner $1$ en cada lugar correspondiente a $t_{i-1,j}$, $t_{i+1,j}$, $t_{i,j-1}$ y $t_{i,j+1}$ involucrado en la ecuación de la derivada segunda simplificada, y un -4 en $t_{i,j}$. Para que esos valores de $x$ aparezcan en la ecuación, ubicamos los valores en la fila de la matriz A de la siguiente forma: para $t_{i,j}$ simplemente tomo la posición ($i,i$) y coloco allí un -4 (ya que ese es su coeficiente asignado en la ecuación de la derivada parcial simplificada). Para $t_{i,j-1}$ y $t_{i,j+1}$, como solo se cambia una columna, estarán una posición menos o más en $x$, por lo tanto debo poner un 1 a ambos costados del -4. Luego, los siguientes 1 estarán a $(n+1)$ (para tener $t_{i-1,j}$) o $-(n+1)$ (para tener $t_{i+1,j}$) espacios a los costados del -4, ya que $n+1$ es el ancho de la matriz del parabrisas discreto, y al cambiar una fila en la matriz discreta del parabrisas, voy a correrme exactamente $n+1$ espacios para la izquierda o la derecha en la fila de la matriz A.
 
 \vspace{\baselineskip}
 
@@ -319,28 +337,6 @@ $$
 Después de resolver este sistema, vamos a llenar la $pb\_matrix$ antes mencionada con los nuevos valores calculados y eso es todo.
 
 \vspace{\baselineskip}
-\vspace{\baselineskip}
-
-{\large \textbf{ $\rhd$ Puliendo el pseudocódigo:}}
-
-\vspace{\baselineskip}
-
-Nos queda entonces este simple pseudocódigo para resolver el problema propuesto:
-
-\vspace{\baselineskip}
-\begin{codebox}
-\Procname{$\proc{SavingPirateGuybrush}()$}
-\li matrix \id{pb\_matrix} = createPBMatrix()
-\li matrix \id A = createMatrixA()
-\li vector \id b = createVectorB()
-\li matrix \id C = gaussianElimination(\id A, \id B)
-\li vector \id{resolvedX} = resolveUpperTriangularMatrix(C)
-\li recreatePBMatrix(\id{pb\_matrix});
-\End
-\end{codebox} 
-\vspace{\baselineskip}
-
-Asumimos aquí que en cada una de esas funciones tenemos acceso a los parámetros del problema para que tener una lectura más simple del pseudicódigo. Básicamente, se crean las matrices y vectores necesarios tal como lo hemos descrito en los párrafos anteriores (definiendo sus dimensiones, agregando información de bordes, sanguijuelas, etc.), y se resuelve el sistema triangulando con $gaussianElimination(A,B)$ (utiliza una matriz aumentada $A|B$) y con $resolveUpperTriangluarMatrix(C)$ la cual aplica \textit{backward substitution}. Luego se reconstruye la matriz del parabrisas.
 
 \vspace{\baselineskip}
 \par
