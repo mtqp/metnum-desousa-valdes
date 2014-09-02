@@ -35,7 +35,7 @@ class Parabrisas {
 		void create_all_matrices();
 		void createPBMatrix();
 		void createMatrixA();
-		void createMatrixB();
+		void createVectorB();
 		
 		void addLeechAndBorderInfo();
 		void gaussianElimination();
@@ -55,7 +55,7 @@ class Parabrisas {
 		
 		PB_Matrix* pb_matrix;
 		double** matrix_A;
-		Temp* matrix_B;
+		Temp* vector_B;
 };
 
 void Parabrisas :: clearMatrixA(){
@@ -75,14 +75,14 @@ void Parabrisas :: clearMatrixA(){
 Parabrisas::Parabrisas() { 
 	bandImplementation = false;
 	matrix_A = NULL;
-	matrix_B = NULL;
+	vector_B = NULL;
 	pb_matrix = NULL;	
 }
 
 Parabrisas :: Parabrisas(int bandImpl){
 	bandImplementation = bandImpl;
 	matrix_A = NULL;
-	matrix_B = NULL;
+	vector_B = NULL;
 	pb_matrix = NULL;	
 }
 
@@ -94,8 +94,8 @@ Parabrisas::~Parabrisas() {
 			delete [] matrix_A[i];
 		delete [] matrix_A;
 	}
-	if (matrix_B != NULL)
-		delete [] matrix_B;
+	if (vector_B != NULL)
+		delete [] vector_B;
 	
 }
 
@@ -211,24 +211,24 @@ void Parabrisas::addLeechAndBorderInfo(){
 	}	
 }
 
-void Parabrisas::createMatrixB(){
+void Parabrisas::createVectorB(){
 	/** Aquí agrego la información de la función partida para la matriz B:
 	 *  - si es borde: -100
 	 *  - si está afectado por sanguijuela: temp_sanguijuela
 	 *  - si no es ninguno de ambas, no conocemos la temperatura: 0
 	 */
 	 
-	if (matrix_B == NULL) matrix_B = new Temp[discr_height * discr_width];
+	if (vector_B == NULL) vector_B = new Temp[discr_height * discr_width];
 	for (int i = 0; i < discr_height; i++){
 		for (int j = 0; j < discr_width; j++){
 			int index = (i * (discr_width)) + j;
 		
 			if (is_border(i,j))
-				matrix_B[index] = -100;
+				vector_B[index] = -100;
 			else if (is_affected(i,j))
-				matrix_B[index] = temp;
+				vector_B[index] = temp;
 			else
-				matrix_B[index] = 0;
+				vector_B[index] = 0;
 		}
 	}
 }
@@ -236,7 +236,7 @@ void Parabrisas::createMatrixB(){
 void Parabrisas::create_all_matrices(){
 	createPBMatrix();
 	createMatrixA();
-	createMatrixB();
+	createVectorB();
 }
 
 bool Parabrisas::is_affected(int ai, int aj){
@@ -266,7 +266,7 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 		// Para la implementación clásica, se utiliza un backward sustitution sin modificaciones
 		
 		for (int i = n - 1; i >= 0; i--){
-			vectorX[i] = matrix_B[i];
+			vectorX[i] = vector_B[i];
 			for (int j = i+1; j < n; j++){
 				vectorX[i] -= matrix_A[i][j] * vectorX[j];
 			}
@@ -279,7 +279,7 @@ vector<double> Parabrisas::resolveTriangularMatrix(){
 		// La idea es utilizar solo los elementos de la banda, ya que esos son los relevantes
 		int j_range = 0;
 		for (int i = n - 1; i >= 0; i--){
-			vectorX[i] = matrix_B[i];
+			vectorX[i] = vector_B[i];
 			
 			// Si me encuentro en el principio de la matriz, hay columnas de la banda que no existen
 			// ya que la banda en ese punto de la matriz no es completa (solo la mitad hacia la derecha existe allí)
@@ -367,7 +367,7 @@ void Parabrisas::kill_leech() {
 	
 	// Hago los cambios necesarios en la matriz A y B
 	clearMatrixA();
-	createMatrixB();
+	createVectorB();
 	addLeechAndBorderInfo();
 }
 
@@ -405,7 +405,7 @@ void Parabrisas::updateRowJ(double i_j_multiplier, int rowToUse, int rowToUpdate
 	}
 	
 	// Hacer el update de la matriz B es independiente de la implementación
-	matrix_B[rowToUpdate] = matrix_B[rowToUpdate] - i_j_multiplier * matrix_B[rowToUse];
+	vector_B[rowToUpdate] = vector_B[rowToUpdate] - i_j_multiplier * vector_B[rowToUse];
 } 
 
 void Parabrisas::gaussianElimination() {
