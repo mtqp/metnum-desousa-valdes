@@ -350,7 +350,21 @@ Ya que el pseudocódigo presentado se mantiene incluso para esta implementación
 
 \vspace{\baselineksip}
 
-Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la matriz $A$ cuadrada. La banda tiene un tamaño de $2n+1$ elementos (desde la mitad hay $n$ elementos hacia ambos costados y además cuento aquel de la mitad), por lo cual la matriz $A$ modificada tendrá un tamaño de $(n+1) \times (m+1)$ filas por $2n+1$ columnas, lo cual \textit{a priori} sugiere mucho menos memoria necesaria para almacenar toda la matriz A. Sin embargo, con una matriz de este estilo estaríamos tomando \textit{casilleros de más}, ya que por ejemplo al principio y al final de la matriz, la banda tiene la mitad de su tamaño. De todas formas para no complicar esta parte de la implementación, vamos a seguir tomando estos elementos y solamente los evitaremos en el resto de las funciones de triangulación y resolución del sistema que nos vaya a quedar.
+Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la matriz $A$ cuadrada. La banda tiene un tamaño de $2n+1$ elementos (desde la mitad hay $n$ elementos hacia ambos costados y además cuento aquel de la mitad), por lo cual la matriz $A$ modificada tendrá un tamaño de $(n+1) \times (m+1)$ filas por $2n+1$ columnas, lo cual \textit{a priori} sugiere mucho menos memoria necesaria para almacenar toda la matriz A. Sin embargo, con una matriz de este estilo estaríamos tomando \textit{casilleros de más}, ya que por ejemplo al principio y al final de la matriz, la banda tiene la mitad de su tamaño. De todas formas, para no complicar esta parte de la implementación, vamos a seguir tomando estos elementos de más y solamente los evitaremos en el resto de las funciones de triangulación y resolución del sistema que nos vaya a quedar.
+
+Ya que la idea es tomar toda la banda como una matriz, esta va a tener la particularidad de que entre dos filas consecutivas habrá una columna de diferencia en la matriz cuadrada. Por ejemplo, tomemos dos filas consecutivas $f_1$ y $f_2$ en las que sus $2n+1$ elementos existan en la matriz cuadrada. Lo que se puede destacar es que los elementos $f_1[0]$ y $f_2[0]$ en la matriz cuadrada \textit{no estarán en la misma columna}, ya que representan a alementos de la banda y la misma está inclinada diagonalmente. Mirando la matriz con las filas aumentando hacia abajo, si asumimos que $f_1$ está arriba de $f_2$, luego en nuestro modelo $f_2$ estará corrida de una fila hacia abajo y una columna hacia la derecha en la matriz cuadrada. Si tomara otra fila $f_3$, la fila consecutiva abajo de $f_2$, sabemos que entre $f_2$ y $f_3$ los elementos en la misma columna en la nueva matriz estarán corridos una columna hacia la derecha en la matriz cuadrada, y además entre $f_1$ y $f_3$ habrá \textit{dos} columnas de diferencia. He aquí un dibujo que ilustra la situación:
+
+\vspace{\baselineskip}
+
+\vspace{\baselineskip}
+\par
+
+Con esa estructura en mentes, pasamos a ver las ideas para las modificaciones de la \textit{eliminación gaussiana} y la \textit{backward substitution}. Básicamente, al aplicar \textit{eliminación gaussiana}, queremos obtener la matriz que representa a \textbf{la banda de la matriz cuadrada después de haberla triangulado}. Esto quiere decir que \textit{no queremos triangular la nueva matriz $A$}, sino obtener los mismos resultados de la banda en la matriz cuadrada después de triangularla. Para ello debemos lograr una correspondencia de índices que nos permita utilizar sin problemas la nueva estructura, simulando que tenemos la completa con todos los demás 0 fuera de la banda.
+
+Lo mismo sucede con la \textit{backward substitution}: si encontramos una correspondencia entre los índices de la matriz banda y la cuadrada que logre el mismo efecto que la otra implementación pero usando solamente esa porción de cada fila perteneciente a la banda, entonces el problema está resuelto.
+
+\vspace{\baselineskip}
+Esta es entonces la idea principal atrás de este tipo de implementación. Como se puede intuir, la complejidad espacial para esta solución es menor que la otra, y veremos también que temporalmente esta implementación supera claramente a la otra (ya que se realizarían muchísimas menos iteraciones para la \textit{eliminación gaussiana} y para resolver la matriz triangular). En la sección de \textbf{Implementación} se verá entonces en detalle como se pone en marcha esta solución.
 
 \subsection{Implementación}
 
