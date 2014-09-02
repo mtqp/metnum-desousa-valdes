@@ -270,6 +270,41 @@ t_{2,2} \\
 \end{array} \right)
 $$
 
+Dejando la matriz aumentada siguiente, a la cual luego le aplicaremos la técnica de \textit{eliminación gaussiana} para triangularla y después resolverla mediante \textit{backward substitution}:
+
+$$
+\left( \begin{array}{c | r}
+t_{0,0} & -100\\
+t_{0,1} & -100\\
+t_{0,2} & -100 \\
+t_{1,0} & -100\\
+t_{0,1} + t_{1,0} - 4t_{1,1} + t_{1,2} + t_{2,1} & 0\\
+t_{1,2} & -100\\
+t_{2,0} & -100\\
+t_{2,1} & -100\\
+t_{2,2} & -100\\
+\end{array} \right)
+$$
+
+\vspace{\baselineskip}
+
+Después de resolver este sistema, vamos a llenar la $pb_matrix$ antes mencionada con los nuevos valores calculados y eso es todo.
+\par 
+Nos queda entonces este simple pseudocódigo para resolver el problema propuesto:
+
+\vspace{\baselineskip}
+\begin{codebox}
+\Procname{$\proc{SavingPirateGuybrush}()$}
+\li matrix \id pb\_matrix = createPBMatrix()
+\li matrix \id A = createMatrixA()
+\li vector \id b = createVectorB()
+\li matrix \id C = gaussianElimination(\id A, \id B)
+\li vector \id resolvedX = resolveUpperTriangularMatrix(C)
+\li recreatePBMatrix(\id pb\_matrix);
+\End
+\end{codebox} 
+\vspace{\baselineskip}
+
 \subsubsection{Ideas para la implementación con matriz A banda}
 
 \subsection{Implementación}
