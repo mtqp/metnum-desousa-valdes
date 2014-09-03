@@ -348,7 +348,7 @@ Antes que nada, la implementación con matriz banda se puede realizar por la nat
 
 Ya que el pseudocódigo presentado se mantiene incluso para esta implementación, veremos únicamente los cambios a las principales funciones y en la estructura de la matriz $A$ para que esta forma de enfrentar el problema se realice adecuadamente.
 
-\vspace{\baselineksip}
+\vspace{\baselineskip}
 
 Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la matriz $A$ cuadrada. La banda tiene un tamaño de $2n+1$ elementos (desde la mitad hay $n$ elementos hacia ambos costados y además cuento aquel de la mitad), por lo cual la matriz $A$ modificada tendrá un tamaño de $(n+1) \times (m+1)$ filas por $2n+1$ columnas, lo cual \textit{a priori} sugiere mucho menos memoria necesaria para almacenar toda la matriz A. Sin embargo, con una matriz de este estilo estaríamos tomando \textit{casilleros de más}, ya que por ejemplo al principio y al final de la matriz, la banda tiene la mitad de su tamaño. De todas formas, para no complicar esta parte de la implementación, vamos a seguir tomando estos elementos de más y solamente los evitaremos en el resto de las funciones de triangulación y resolución del sistema que nos vaya a quedar.
 
@@ -375,11 +375,11 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	Utilizamos gráficos de temperatura para validar el funcionamiento de nuestro algoritmo heurístico de eliminación de sanguijuelas. A continuación vemos el resultado del algoritmo sin eliminación, y posteriormente, el resultado con ella.
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/test5_sinkill.png}
+		\includegraphics[scale=0.5]{./img/test5_sinkill.png}
 	\end{center}
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/test5_conkill.png}
+		\includegraphics[scale=0.5]{./img/test5_conkill.png}
 	\end{center}
 
 	Como ya mencionamos, la heurística consta de eliminar las sanguijuelas más cercanas al centro del parabrisas hasta que el punto crítico sea menor al umbral. En este ejemplo, se eliminaron 3 sanguijuelas para lograr el objetivo.
@@ -387,11 +387,11 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	Este algoritmo posee como caso borde que las sanguijuelas se encuentren equidistantes con el centro del parabrisa. Los siguientes dos gráficos muestras el algoritmo sin y con eliminación respectivamente. La desición sobre qué sanguijuela eliminar es arbitraria y depende de cómo fue instanciado.
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/test6_sinkill.png}
+		\includegraphics[scale=0.5]{./img/test6_sinkill.png}
 	\end{center}
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/test6_conkill.png}
+		\includegraphics[scale=0.5]{./img/test6_conkill.png}
 	\end{center}
 
 	En nuestro caso, la sanguijuela izquierda fue eliminada.
@@ -401,28 +401,28 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	Los tests anteriores poseen granularidad fija. Para vislumbrar cuál es el impacto de modificarla, utilizaremos nuevamente gráficos de temperatura. En todos los gráficos fijamos el tamaño del parabrisa (400 metros por 400 metros), la cantidad de sanguijuelas (una); y su temperatura (400 grados).
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/granularidad/g50_t400_sinkill.png}
+		\includegraphics[scale=0.5]{./img/granularidad/g50_t400_sinkill.png}
 	\end{center}
 
 	El valor de temperatura en cada cuadrado de 50 x 50 es marcado, la diferencia entre bloques contiguos es muy alta. Es difícil distinguir a la sanguijuela ya que su forma no es circular.
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/granularidad/g20_t400_sinkill.png}
+		\includegraphics[scale=0.5]{./img/granularidad/g20_t400_sinkill.png}
 	\end{center}
 
 	La sanguijuela comienza a identificarse y se forman anillos con temperaturas decrecientes alrededor de ella. La distribución de la temperatura parece más homogénea.
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/granularidad/g5_t400_sinkill.png}
+		\includegraphics[scale=0.5]{./img/granularidad/g5_t400_sinkill.png}
 	\end{center}
 
 	El círculo de la sanguijuela ahora sí es completamente distinguible. Exceptuando los valores saturados, la temperatura a nivel global (y en el centro del parabrisas) parece aumentar. Esto puede deberse a que al tener una mayor granularidad, el algoritmo puede dispersar mejor el calor, ajustándose mejor a la realidad.
 
 	\begin{center}
-		\includegraphics[width=\textwidth]{./img/granularidad/g1_t400_sinkill.png}
+		\includegraphics[scale=0.5]{./img/granularidad/g1_t400_sinkill.png}
 	\end{center}
 
-	La buena resolución de este gráfico permite tener una apreciación detallada sobre la dispersión de calor. Contribuye a la hipótesis: "Cuando más resolución, mejor dispersión de calor". Sin embargo, como se verá más adelante en este trabajo, existe una estrecha relación entre tiempo de cómputo y presición de los resultados. 
+	La buena resolución de este gráfico permite tener una apreciación detallada sobre la dispersión de calor. Contribuye a la hipótesis: ``Cuanta más resolución, mejor dispersión de calor''. Sin embargo, como se verá más adelante en este trabajo, existe una estrecha relación entre tiempo de cómputo y presición de los resultados. 
 
 	Veamos entonces cómo cambia la temperatura en el punto central a medida que se modifica la granularidad.
 
