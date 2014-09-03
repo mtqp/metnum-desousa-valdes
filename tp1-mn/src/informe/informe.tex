@@ -396,7 +396,7 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 
 	En nuestro caso, la sanguijuela izquierda fue eliminada.
 
-	Cabe destacar que no siempre el resultado es el óptimo, es decir, no siempre se minimiza la cantidad de sanguijuelas removidas. Si tenemos un caso donde las sanguijuelas están equidistantes al centro del parabrisa, no se contabiliza en la desición de remoción la distancía al borde del parabrisa. El frió que emana de los bordes influye significativamente en el impacto que la sanguijuela tiene en el centro.
+	Cabe destacar que no siempre el resultado es el óptimo, es decir, no siempre se minimiza la cantidad de sanguijuelas removidas. Si tenemos un caso donde las sanguijuelas están equidistantes al centro del parabrisa, no se contabiliza en la desición de remoción la distancia al borde del parabrisa. El friod que emana de los bordes influye significativamente en el impacto que la sanguijuela tiene en el centro.
 
 	Los tests anteriores poseen granularidad fija. Para vislumbrar cuál es el impacto de modificarla, utilizaremos nuevamente gráficos de temperatura. En todos los gráficos fijamos el tamaño del parabrisa (400 metros por 400 metros), la cantidad de sanguijuelas (una); y su temperatura (400 grados).
 
@@ -422,8 +422,8 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 		\includegraphics[scale=0.5]{./img/granularidad/g1_t400_sinkill.png}
 	\end{center}
 
-	La buena resolución de este gráfico permite tener una apreciación detallada sobre la dispersión de calor. Contribuye a la hipótesis: ``Cuanta más resolución, mejor dispersión de calor''. Sin embargo, como se verá más adelante en este trabajo, existe una estrecha relación entre tiempo de cómputo y presición de los resultados. 
-
+	La buena resolución de este gráfico permite tener una apreciación detallada sobre la dispersión de calor. Contribuye a la hipótesis: ``Cuanta más resolución, mejor dispersión de calor''. Sin embargo, como se verá posteriormente en este trabajo, existe una estrecha relación entre tiempo de cómputo y presición de los resultados. 
+	
 	Veamos entonces cómo cambia la temperatura en el punto central a medida que se modifica la granularidad.
 
 
@@ -433,6 +433,44 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
 	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
 
+
+\par 
+	Como se mencionó con anterioridad, existe una estrecha relación entre tiempo de computo y presición de los resultados. Es por esto, que se tomó el tiempo de ejecución del algoritmo para todos los casos que se mencionaron previamente, es decir, para el parabrisas de 400 metros por 400 metros, con una sola sanguijuela que posee 400 grados como temperatura. El parámetro que fue variando fue la granularidad, de igual forma a la realizada en los gráficos de temperatura que se expusieron. Estos valores fueron 50, 30, 5 y 1. 
+	\par 
+	La hipótesis planteada es que mientras menor es la granularidad para un mismo parabrisas, el tiempo de cómputo aumenta con creces. Es por esto, que se planteó correr cien iteraciones del algoritmo de resolución, con la intención de disminuir los outliers, para estos valores de granularidad  y obtener luego un promedio de la suma total de los mismos. Sin embargo, esto fue posible solo para los parabrisas con granularidad 50 y 30, ya que para aquellas granularidades menores, la resolución de cien instancias del problema contabilizaron más de 4 horas de cómputo para la matriz sin optimizar, es decir, sin aprovechar el uso de la matriz banda.
+	\par 
+	Es por esto, que con el objetivo de obtener más mediciones, se disminuyó la cantidad de iteraciones de resolución, disminuyendo también la precisión del experimento. Primero se intentó con 50 corridas del algoritmo, pero para la implementación con optimizaciones también demoró varias horas. De la misma manera, se redujo la cantidad de iteraciones nuevamente a 20 y posteriormente a 5 para el algoritmo que aprovecha el uso de la matriz banda. A pesar de que el algoritmo también demoró en el orden de horas para terminar, la implementación sin optimización alguna no pudo terminar \textit{una sola} corrida del algoritmo luego de más de 4 horas. 
+	\par 
+	Es por esto que a continuación se presenta el gráfico de granularidad respecto del tiempo con ambas implementaciones para granularidad 50 y 20, y solo la que usa la matriz banda para granularidad 5 y 1.
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/granularidad/granularidadrespectotiempo.png}
+	\end{center}
+	
+	\par 
+	Es necesario notar que el eje y, correspondiente a la cantidad de ciclos en promedio que demoró la resolución de las iteraciones, se encuentra en una escala logarítmica. 
+	\par 
+	Para ambos casos que se realizaron 100 iteraciones, es decir, para el test con granularidad 50 y el mismo con parámetro 20, la implementación que hace provecho de la matriz banda es extremadamente más rápida que aquella que no, sin siquiera tener en cuenta como disminuye la complejidad espacial. A su vez, se puede notar que a medida que disminuye la granularidad, la cantidad de ciclos por iteración del algoritmo aumenta al punto en el que no fue posible medirlo por restricciones temporales. 
+	\par 
+	De esta manera, la experimentación permite afirmar que la hipótesis respecto al aumento del tiempo respecto a la disminución de la granularidad es correcta y además queda explícito algo que damos por supuesto; la implementación que utiliza el hecho de ser matriz banda es mucho mejor a la implementación intuitiva de matriz, tanto espacial como temporalmente.
+	
+	\par 
+	
+	Por último, se realizaron experimentos para medir los tiempos del mismo test para el algoritmo que permite eliminar sanguijuelas y para aquel que no. 
+	Debido a la implementación realizada, el algoritmo que puede eliminar sanguijuelas simplemente repite la implementación del mismo que no permite matar a las alimañas. Es por esto que es fácil de deducir que la versión optimizada es la que va a demorar menos tiempo. 
+	\par 
+	Para mostrar esto, se utilizó el test3 brindado por la cátedra. A continuación se mostrará el gráfico de temperatura correspondiente al mismo sin realizar la eliminación de sanguijuelas:
+	
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/test3.png}
+	\end{center}
+	
+	Ahora, el gráfico de temperatura del mismo test con la eliminación de sanguijuelas:
+	
+	INSERTAR GRAFICO CORRESPONDIENTE Y EXPLICACIÓN SOBRE LO QUE MATO Y DEMAS
+	
+	\par 
+	
 \section{Conclusión}
 
 \section{Apéndice}
