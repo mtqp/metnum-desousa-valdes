@@ -352,8 +352,22 @@ Ya que el pseudocódigo presentado se mantiene incluso para esta implementación
 
 Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la matriz $A$ cuadrada. La banda tiene un tamaño de $2n+1$ elementos (desde la mitad hay $n$ elementos hacia ambos costados y además cuento aquel de la mitad), por lo cual la matriz $A$ modificada tendrá un tamaño de $(n+1) \times (m+1)$ filas por $2n+1$ columnas, lo cual \textit{a priori} sugiere mucho menos memoria necesaria para almacenar toda la matriz A. Sin embargo, con una matriz de este estilo estaríamos tomando \textit{casilleros de más}, ya que por ejemplo al principio y al final de la matriz, la banda tiene la mitad de su tamaño. De todas formas, para no complicar esta parte de la implementación, vamos a seguir tomando estos elementos de más y solamente los evitaremos en el resto de las funciones de triangulación y resolución del sistema que nos vaya a quedar.
 
+	\begin{center}
+		\includegraphics[scale=1]{./img/matriz_A_idea.png}
+		\vspace{1pt}
+		\footnotesize\textit{Aquí se puede observar la matriz A completa y la A' siendo la banda. Nótese que tanto al final como al principio de A' hay elementos que no pertenecen a la matriz cuadrada.}
+	\end{center}
+	
+	
 Ya que la idea es tomar toda la banda como una matriz, esta va a tener la particularidad de que entre dos filas consecutivas habrá una columna de diferencia en la matriz cuadrada. Por ejemplo, tomemos dos filas consecutivas $f_1$ y $f_2$ en las que sus $2n+1$ elementos existan en la matriz cuadrada. Lo que se puede destacar es que los elementos $f_1[0]$ y $f_2[0]$ en la matriz cuadrada \textit{no estarán en la misma columna}, ya que representan a alementos de la banda y la misma está inclinada diagonalmente. Mirando la matriz con las filas aumentando hacia abajo, si asumimos que $f_1$ está arriba de $f_2$, luego en nuestro modelo $f_2$ estará corrida de una fila hacia abajo y una columna hacia la derecha en la matriz cuadrada. Si tomara otra fila $f_3$, la fila consecutiva abajo de $f_2$, sabemos que entre $f_2$ y $f_3$ los elementos en la misma columna en la nueva matriz estarán corridos una columna hacia la derecha en la matriz cuadrada, y además entre $f_1$ y $f_3$ habrá \textit{dos} columnas de diferencia. He aquí un dibujo que ilustra la situación:
 
+
+	\begin{center}
+		\includegraphics[scale=1]{./img/matriz_A_offset.png}
+		\vspace{1pt}
+		\footnotesize\textit{Aquí se puede apreciar el offset real respecto a las columnas que existe entre 1 o más filas en la matriz banda A'.}
+	\end{center}
+	
 \vspace{\baselineskip}
 
 \vspace{\baselineskip}
