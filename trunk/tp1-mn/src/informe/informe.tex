@@ -502,6 +502,7 @@ Veamos entonces las particularidades de la implementación para cada tipo de mat
 	
 
 \par 
+	Los siguientes experimentos involucran tiempos. Los mismos se corrieron en una ultrabook Exo con procesador Intel Core i7-3517U CPU @ 1.90GHz-2.40GHz, con 8GB de memoria RAM.  
 	Como se mencionó con anterioridad, existe una estrecha relación entre tiempo de computo y presición de los resultados. Es por esto, que se tomó el tiempo de ejecución del algoritmo para todos los casos que se mencionaron previamente, es decir, para el parabrisas de 400 metros por 400 metros, con una sola sanguijuela que posee 400 grados como temperatura. El parámetro que fue variando fue la granularidad, de igual forma a la realizada en los gráficos de temperatura que se expusieron. Estos valores fueron 50, 30, 5 y 1. 
 	\par 
 	La hipótesis planteada es que mientras menor es la granularidad para un mismo parabrisas, el tiempo de cómputo aumenta con creces. Es por esto, que se planteó correr cien iteraciones del algoritmo de resolución, con la intención de disminuir los outliers, para estos valores de granularidad  y obtener luego un promedio de la suma total de los mismos. Sin embargo, esto fue posible solo para los parabrisas con granularidad 50 y 30, ya que para aquellas granularidades menores, la resolución de cien instancias del problema contabilizaron más de 4 horas de cómputo para la matriz sin optimizar, es decir, sin aprovechar el uso de la matriz banda.
