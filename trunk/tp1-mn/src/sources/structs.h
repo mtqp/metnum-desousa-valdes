@@ -87,6 +87,8 @@ struct PB_Matrix {
 			double sum = matrix[fila_arriba][col_izq] + matrix[fila_arriba][col_der] + matrix[fila_abajo][col_izq] + matrix[fila_abajo][col_der];
 			double average = sum / 4;
 			
+            cout << " - returning average ";
+            
 			return average;
 		}
 			
