@@ -54,6 +54,15 @@
 \usepackage[utf8]{inputenc} % para poder usar tildes en archivos UTF-8
 \usepackage[spanish]{babel} % para que comandos como \today den el resultado en castellano
 \usepackage{a4wide} % márgenes un poco más anchos que lo usual
+%\usepackage{geometry}
+
+%\usepackage{layout}
+
+%\geometry{
+%  includeheadfoot,
+%  margin=2.7cm
+%}
+
 \usepackage[conEntregas]{caratula}
 \usepackage{amssymb}
 \usepackage{fancybox}
@@ -354,7 +363,8 @@ Como ya dijimos, para esta implementación nos alcanza con tomar la banda de la 
 
 	\begin{center}
 		\includegraphics[scale=1]{./img/matriz_A_idea.png}
-		\vspace{1pt}
+		\vspace{2pt}
+		\par
 		\footnotesize\textit{Aquí se puede observar la matriz A completa y la A' siendo la banda. Nótese que tanto al final como al principio de A' hay elementos que no pertenecen a la matriz cuadrada.}
 	\end{center}
 	
@@ -364,7 +374,8 @@ Ya que la idea es tomar toda la banda como una matriz, esta va a tener la partic
 
 	\begin{center}
 		\includegraphics[scale=1]{./img/matriz_A_offset.png}
-		\vspace{1pt}
+		\vspace{2pt}
+		\par
 		\footnotesize\textit{Aquí se puede apreciar el offset real respecto a las columnas que existe entre 1 o más filas en la matriz banda A'.}
 	\end{center}
 	
@@ -373,7 +384,7 @@ Ya que la idea es tomar toda la banda como una matriz, esta va a tener la partic
 \vspace{\baselineskip}
 \par
 
-Con esa estructura en mente, pasamos a ver las ideas para las modificaciones de la \textit{eliminación gaussiana} y la \textit{backward substitution}. Básicamente, al aplicar \textit{eliminación gaussiana}, queremos obtener la matriz que representa a \textbf{la banda de la matriz cuadrada después de haberla triangulado}. Esto quiere decir que \textit{no queremos triangular la nueva matriz $A$}, sino obtener los mismos resultados de la banda en la matriz cuadrada después de triangularla. Para ello debemos lograr una correspondencia de índices que nos permita utilizar sin problemas la nueva estructura, simulando que tenemos la completa con todos los demás 0 fuera de la banda.
+Con esa estructura en mente, pasamos a ver las ideas para las modificaciones de la \textit{eliminación gaussiana} y la \textit{backward substitution}. Básicamente, al aplicar \textit{eliminación gaussiana}, queremos obtener la matriz que representa a \textbf{la banda de la matriz cuadrada después de haberla triangulado}. Esto quiere decir que \textit{no queremos triangular la nueva matriz banda $A$}, sino obtener los mismos resultados de la banda en la matriz cuadrada después de triangularla. Para ello debemos lograr una correspondencia de índices que nos permita utilizar sin problemas la nueva estructura, simulando que tenemos la completa con todos los demás 0 fuera de la banda.
 
 Lo mismo sucede con la \textit{backward substitution}: si encontramos una correspondencia entre los índices de la matriz banda y la cuadrada que logre el mismo efecto que la otra implementación pero usando solamente esa porción de cada fila perteneciente a la banda, entonces el problema está resuelto.
 
@@ -381,6 +392,22 @@ Lo mismo sucede con la \textit{backward substitution}: si encontramos una corres
 Esta es entonces la idea principal atrás de este tipo de implementación. Como se puede intuir, la complejidad espacial para esta solución es menor que la otra, y veremos también que temporalmente esta implementación supera claramente a la otra (ya que se realizarían muchísimas menos iteraciones para la \textit{eliminación gaussiana} y para resolver la matriz triangular). En la sección de \textbf{Implementación} se verá entonces en detalle como se pone en marcha esta solución.
 
 \subsection{Implementación}
+
+\subsubsection{Características comunes entre la resolución con matriz cuadrada y con matriz banda}
+
+El código gira entorno de una clase \texttt{Parabrisas} gracias a la cual podremos leer el input del problema para que este cree todas las matrices necesarias (método \texttt{read\_form\_input}). Una vez hecho esto, se podrán calcular las temperaturas correspondientes a los datos brindados (método \texttt{calculate\_temps}). Si quisiéramos eliminar alguna sanguijuela, basta con llamar al método \texttt{kill\_leech} y recalcular las temperaturas. También se cuenta con un método \texttt{freeOfLeeches} que indicará si quedan o no sanguijuelas en nuestro parabrisas y otro método \texttt{temperatureOnCriticalPoint} el cual nos informará la temperatura en el punto crítico. Combinando estos tres últimos métodos se puede crear entonces algún algoritmo para deshacerse de las alimañas mutantas de la mejor manera que nos parezca. Finalmente, podemos escribir el output (es decir, las temperaturas finales de nuestro parabrisas con la cantidad de sanguijuelas que hayamos dejado) a un archivo de output especificado por parámetro en el método \texttt{write\_output}.
+
+Al crear una instancia de la clase se le puede pasar un parámetro que indicará que tipo de implementación queremos: matriz cuadrada con \textit{eliminación gaussiana} clásica (0) o matriz banda (1). Por defecto se toma la implementación clásica.
+
+\vspace{\baselineskip}
+
+Estos son entonces los lineamientos generales de la clase que nos ayudará a resolver el problema propuesto. Veamos ahora la clase en mayor profundidad investigando los métodos y variables privados.
+
+Comencemos por los párametros del problema: nuestra clase va a guardar tanto qué tipo de implementación es la deseada, el ancho como el alto del parabrisas sin discretizar, la discretización elegida, el radio de ataque de las sanguijuelas y la temperatura con la cual afectan al sistema. Además se guardará un \texttt{vector} con todas las sanguijuelas si es que hay alguna. Por comodidad nos vamos a guardar también el alto y el ancho de la matriz discretizada en las variables \texttt{discr\_height} y \texttt{discr\_width} respectivamente (que se calcularán en el método \texttt{read\_input}). Luego guardaremos punteros a nuestras matrices: la matriz discreta del parabrisas \texttt{pb\_matrix} (en una estructura auxiliar), la matriz $A$ (sea banda o no) \texttt{matrix\_A} y el vector $b$ \texttt{vector\_B}.
+
+A fines de reducir el error númerico que aparecerá al calcular las temperaturas del sistema, tomaremos todos los datos no enteros como \texttt{double}. Estos datos sensibles son todos aquellos de las matrices y vectores que involucran al sistema, y los parámetros del problema que pertenecen al conjunto de los reales (ancho, alto, radio, temperatura, discretización y posiciones de las sanguijuelas).
+
+En nuestra implementación también se puede ver que hacemos uso de varias estructuras auxiliares que ayudarán a desenvolver mejor el código. Estas se encuentran declaradas en el archivo \texttt{structs.h}. Algunas estructuras simples como \texttt{Point} y \texttt{PointDiscr} existen más que nada por comodidad: se podrían fácilmente implementar pares de puntos con \texttt{pair} pero accederlos con $.first$ o $.second$ lo haría muy engorroso, y no habría distinción simple entre aquellos puntos con coordenadas enteras de los que tienen coordenadas reales. Además, cuentan con otras facilidades como definir operadores de igualdad (lo cual no es trivial para la estructura \texttt{Point}, ya que al tener coordenadas reales, la igualdad se cumple si dos coordenadas son iguales con un \textit{epsilon} (EPS en el código, en los \textit{defines}) de tolerancia) y operadores de representación en el output. Otras estructuras de más importancia son \texttt{Leech} y \texttt{PB\_Matrix}
 
 \subsection{Experimentación}
 
