@@ -447,7 +447,6 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
 	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
 
-
 \par 
 	Como se mencionó con anterioridad, existe una estrecha relación entre tiempo de computo y presición de los resultados. Es por esto, que se tomó el tiempo de ejecución del algoritmo para todos los casos que se mencionaron previamente, es decir, para el parabrisas de 400 metros por 400 metros, con una sola sanguijuela que posee 400 grados como temperatura. El parámetro que fue variando fue la granularidad, de igual forma a la realizada en los gráficos de temperatura que se expusieron. Estos valores fueron 50, 30, 5 y 1. 
 	\par 
@@ -481,9 +480,28 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	
 	Ahora, el gráfico de temperatura del mismo test con la eliminación de sanguijuelas:
 	
-	INSERTAR GRAFICO CORRESPONDIENTE Y EXPLICACIÓN SOBRE LO QUE MATO Y DEMAS
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/test3_con_kil.png}
+	\end{center}
 	
 	\par 
+	Como se puede ver, el algoritmo eliminó la sanguijuela ubicada en la parte inferior izquierda. Esto implica que la cantidad de veces que realizó dos veces el algoritmo(la primera vez para calcular el parabrisas obteniendo la imagen superior y posteriormente recalculando luego de eliminar una sanguijuela). 
+	\par 
+	A continuación, se presentará el gráfico de tiempos correspondiente al algoritmo con eliminación de sanguijuelas comparado con el que no:
+\par 	
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/comparacionkill.png}
+	\end{center}
+	
+	\par 
+	Como se mencionó previamente, el algoritmo que hace uso de la matriz banda realiza el algoritmo en cualquiera de los dos modos (con eliminación de sanguijuelas o sin) más rápido que la otra implementación. 
+	\par 
+	Teniendo en cuenta que el eje y representa la cantidad de ciclos de reloj en promedio de 50 iteraciones, la diferencia de tiempos entre el algoritmo con eliminación y sin no parece tan grande. Sin embargo, al estar en una escala logarítmica, la diferencia es más pronunciada. Por ejemplo, en este caos, el promedio para el algoritmo optimizado sin eliminación es de 143135130237 ciclos de reloj en promedio, mientras que el mismo algoritmo pero matando sanguijuelas es 283591663824, el cual es aproximadamente el doble.
+	
+	\par 
+	De esta manera, se ve que, como se dijo previamente, que el algoritmo con eliminación tarda más ciclos de reloj que el algoritmo que no se preocupa por la temperatura en el punto crítico. Además, se puede ver, tal como es esperado, que hay una relación entre cuántas sanguijuelas son eliminadas con el tiempo de ejecución del algoritmo. 
+	
+	
 	
 \section{Conclusión}
 
