@@ -170,7 +170,7 @@ Asumimos aquí que en cada una de esas funciones tenemos acceso a los parámetro
 
 Como vimos en la introducción, resolver este problema es resolver el problema de $Ax = b$ siendo $x$ las temperaturas en todos los puntos que se hayan podido discretizar del parabrisas. Este vector $x$ tendrá un tamaño de $(n+1) \times (m+1)$ siendo $n+1$ la cantidad de filas de esa matriz y $m+1$ la cantidad de columnas. Estos $n$ y $m$ se despejan de las ecuaciones $a = m \times h$ y $b = n \times h$, es decir, $m = \frac{a}{h}$ y $n = \frac{b}{h}$ donde $a$ es el ancho del parabrisas, $b$ el alto, y $h$ siendo la discretización elegida. 
 
-Veremos ahora qué fue lo que pensamos para determinar $b$, y luego en dos secciones distantas explicaremos las ideas atrás de las dos posibles implementaciones de la matriz $A$. Igualmente para $A$ en ambas implementaciones, queremos que $Ax = b$ sea una multiplicación realizable, luego en principio necesitamos una matriz de alto $(n+1) \times (m+1)$  (el mismo que $x$) ya que si no \textit{no podríamos hacer la multiplicación $Ax$}.
+Veremos ahora qué fue lo que pensamos para determinar $b$, y luego en dos secciones distintas explicaremos las ideas atrás de las dos posibles implementaciones de la matriz $A$. Igualmente para $A$ en ambas implementaciones, queremos que $Ax = b$ sea una multiplicación realizable, luego en principio necesitamos una matriz de alto $(n+1) \times (m+1)$  (el mismo que $x$) ya que si no \textit{no podríamos hacer la multiplicación $Ax$}.
 
 \vspace{\baselineskip}
 
@@ -441,11 +441,23 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	Veamos entonces cómo cambia la temperatura en el punto central a medida que se modifica la granularidad.
 
 
-	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
-	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
-	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
-	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
-	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD	PONER GRAFICO DE TEMPERATURA EN PUNTO CENTRAL A MEDIDA QUE CAMBIA GRANULARIDAD
+	\begin{center}
+		\includegraphics[scale=0.75]{./img/temp_punto_critico/temppuntocritico.png}
+	\end{center}
+
+	A medida que la granularidad es más fina la temperatura aumenta, reforzando nuestra hipóstesis. Existen granularidades como 80 y 16 los cuales no son múltiplos de 200 por lo tanto no tenemos el valor en el punto exacto. Optamos por devolver el promedio de los cuatro puntos más cercano. Esta desición modifica significativamente el valor de la temperatura en el punto crítico. 
+
+	Por otro lado, la información sobre la temperatura en el centro del parabrisas comienza a ser confiable a medida que la discretización contiene más puntos. Veamos mediante gráficos de temperatura la diferencia entre 25 y 40 metros de granularidad.
+
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/temp_punto_critico/granularidad25.png}
+		\includegraphics[scale=0.5]{./img/temp_punto_critico/granularidad40.png}
+	\end{center}
+
+	La definición con la que se muestra afecta directamente sobre el resultado final. Resulta entonces que utilizar definición baja cuando se desconoce la topología del problema (disposición espacial de las sanguijuelas en el parabrisa) puede llevarnos a tomar desiciones incorrectas.
+
+\newpage
+	
 
 \par 
 	Como se mencionó con anterioridad, existe una estrecha relación entre tiempo de computo y presición de los resultados. Es por esto, que se tomó el tiempo de ejecución del algoritmo para todos los casos que se mencionaron previamente, es decir, para el parabrisas de 400 metros por 400 metros, con una sola sanguijuela que posee 400 grados como temperatura. El parámetro que fue variando fue la granularidad, de igual forma a la realizada en los gráficos de temperatura que se expusieron. Estos valores fueron 50, 30, 5 y 1. 
@@ -457,7 +469,7 @@ Esta es entonces la idea principal atrás de este tipo de implementación. Como 
 	Es por esto que a continuación se presenta el gráfico de granularidad respecto del tiempo con ambas implementaciones para granularidad 50 y 20, y solo la que usa la matriz banda para granularidad 5 y 1.
 	\par 
 	\begin{center}
-		\includegraphics[scale=0.6]{./img/granularidad/granularidadrespectotiempo.png}
+		\includegraphics[scale=0.7]{./img/granularidad/granularidadrespectotiempo.png}
 	\end{center}
 	
 	\par 

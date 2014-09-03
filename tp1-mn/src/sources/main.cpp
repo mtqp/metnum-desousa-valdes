@@ -108,7 +108,8 @@ int Parabrisas::read_from_input(char* input_file) {
 		int amount_of_leeches;
 		file >> width >> height >> discr_interval >> radius >> temp >> amount_of_leeches;
 	
-	
+        cout << "Discretizacion: " << discr_interval;
+    
 		// En la creación de la estructura, guardo el n+1 m+1 reales resultantes de dividir el width y height por el intervalo.
 		discr_width = (width / discr_interval) + 1;
 		discr_height = (height / discr_interval) + 1;
@@ -513,7 +514,7 @@ int main(int argc, char *argv[]) {
 	
 	pb.calculate_temps();
 	
-    cout << "Temp(PuntoCritico): " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
+    cout << " - Temp(PuntoCritico): " << fixed << setprecision(5) << pb.temperatureOnCriticalPoint() << endl;
     
     if(argc >= 5)
     {
