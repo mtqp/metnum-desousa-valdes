@@ -445,7 +445,7 @@ A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la ho
 
 
 \subsection{Experimentación}
-
+\subsubsection{Funcionamiento de Eliminación de Sanguijuelas}
 	En esta sección utilizaremos distintos gráficos para detallar los experimentos realizados. 
 
 	Utilizamos gráficos de temperatura para validar el funcionamiento de nuestro algoritmo heurístico de eliminación de sanguijuelas. A continuación vemos el resultado del algoritmo sin eliminación, y posteriormente, el resultado con ella.
@@ -473,6 +473,8 @@ A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la ho
 	En nuestro caso, la sanguijuela izquierda fue eliminada.
 
 	Cabe destacar que no siempre el resultado es el óptimo, es decir, no siempre se minimiza la cantidad de sanguijuelas removidas. Si tenemos un caso donde las sanguijuelas están equidistantes al centro del parabrisa, no se contabiliza en la desición de remoción la distancia al borde del parabrisa. El frio que emana de los bordes influye significativamente en el impacto que la sanguijuela tiene en el centro.
+
+\subsubsection{Experimento de Granularidad y Temperatura}
 
 	Los tests anteriores poseen granularidad fija. Para vislumbrar cuál es el impacto de modificarla, utilizaremos nuevamente gráficos de temperatura. En todos los gráficos fijamos el tamaño del parabrisa (400 metros por 400 metros), la cantidad de sanguijuelas (una); y su temperatura (400 grados).
 
@@ -519,7 +521,7 @@ A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la ho
 	La definición con la que se muestra afecta directamente sobre el resultado final. Resulta entonces que utilizar definición baja cuando se desconoce la topología del problema (disposición espacial de las sanguijuelas en el parabrisa) puede llevarnos a tomar desiciones incorrectas.
 
 \newpage
-	
+\subsubsection{Experimentos de Granularidad y Tiempo}	
 
 \par 
 	Los siguientes experimentos involucran tiempos. Los mismos se corrieron en una ultrabook Exo con procesador Intel Core i7-3517U CPU @ 1.90GHz-2.40GHz, con 8GB de memoria RAM.  
@@ -544,6 +546,7 @@ A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la ho
 	
 	\par 
 	
+\subsubsection{Comparación de Algoritmos con y sin Eliminación}
 	Por último, se realizaron experimentos para medir los tiempos del mismo test para el algoritmo que permite eliminar sanguijuelas y para aquel que no. 
 	Debido a la implementación realizada, el algoritmo que puede eliminar sanguijuelas simplemente repite la implementación del mismo que no permite matar a las alimañas. Es por esto que es fácil de deducir que la versión optimizada es la que va a demorar menos tiempo. 
 	\par 
@@ -574,11 +577,26 @@ A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la ho
 	Teniendo en cuenta que el eje y representa la cantidad de ciclos de reloj en promedio de 50 iteraciones, la diferencia de tiempos entre el algoritmo con eliminación y sin no parece tan grande. Sin embargo, al estar en una escala logarítmica, la diferencia es más pronunciada. Por ejemplo, en este caso, el promedio para el algoritmo optimizado sin eliminación es de 143135130237 ciclos de reloj en promedio, mientras que el mismo algoritmo pero matando sanguijuelas es 283591663824, el cual es aproximadamente el doble.
 	
 	\par 
-	De esta manera, se ve que, como se dijo previamente, que el algoritmo con eliminación tarda más ciclos de reloj que el algoritmo que no se preocupa por la temperatura en el punto crítico. Además, se puede ver, tal como es esperado, que hay una relación entre cuántas sanguijuelas son eliminadas con el tiempo de ejecución del algoritmo. 
+	De esta manera, se ve que, como se dijo previamente, que el algoritmo con eliminación tarda más ciclos de reloj que el algoritmo que no se preocupa por la temperatura en el punto crítico. Además, se puede ver, tal como es esperado, que hay una relación entre cuántas sanguijuelas son eliminadas con el tiempo de ejecución del algoritmo. Es decir, cada sanguijuela que es matada corresponde aproximadamente a sumar una vez más el tiempo de ejecución del algoritmo  sin eliminación (no se puede asegurar que es el mismo tiempo, ya que se tienen que reiniciar algunas estructuras, pero si es aproximado).
 	
 	
 	
 \section{Conclusión}
+
+
+	La utilizacion de sistemas de ecuaciones lineales para resolver problemas del mundo real (o virtual como video juegos) resultan ser muy útiles. Para esto, resulta importante cultivar el proceso de abstracción. En este caso, el problema original de un parabrisas con sanguijuelas pudo ser abstraído a resolver un sistema de ecuaciones lineales. 
+
+	\par
+	Resulta también muy importante en este proceso, destacar las particularidades del problema a resolver. Conocer que la matriz que modela el problema es estrictamente diagonal dominante nos asegura (al menos teóricamente) que el algoritmo sin pivoteo funciona. Si bien no fue calculado empíricamente, el número de condición de la matriz también es bajo (debido a que prácticamente es una matriz diagonal) y por lo tanto, vamos a conseguir resultados confiables. Además de poder vislumbrar la calidad del resultado, entender el problema nos ayuda también a por ejemplo: diseñar mejores soluciones desde el punto de vista de complejidad espacial/temporal. Un claro ejemplo de esto fue la implementación de la matriz banda.
+
+	\par
+	Los tests realizados mostraron una marcada relación entre tiempo de cómputo y calidad de la solución. A mayor tiempo para procesar, mejores soluciones obtenemos. Es relevante denotar que en este caso, y dada la implementación utilizada, hacer un test muy rápido con resolución baja podía darnos resultados completamente disímiles a la solución asintótica. Por otro lado, las optimizaciones espaciales fueron cruciales: algunos tests consumieron más de un \textit{gigabyte}; otros directamente no pudieron ser corridos dado que el proceso consumía más memoria que la permitida por el sistema operativo (en Windows), granularidad menor a 1 con mapas de 400 metros cuadrados. Repetimos que las limitaciones temporales también pueden potencialmente ser un inconveniente y deben ser analizadas y tenidas en cuenta: dado que son algoritmos polinomiales, podemos descansar en que vamos a obtener una solución en una medida corta de tiempo, para alguna definición de \textit{medida corta de tiempo}. Con estas consideraciones, los gráficos muestran cómo crecen los órdenes de magnitud en cantidad de operaciones. Aún con una buena cota asintótica teórica, la resolución de algunos problemas tardaron horas, dimensiones que en contextos determinados, pueden ser inadmisibles.
+
+	\par
+	Consideramos al proceso de aprendizaje y desarrollo de software iterativo. La información relevada mediante gráficos y datos impresos en consola nos ayudó a: por un lado terminar de comprender el problema y por otro, pensar nuevas formas de optimizar los tiempos de cómputo y espacio, así como nuevos tests e intentar generar el nexo con la teoría de métodos numéricos. Resaltamos y catalogamos como \texttt{muy enriquecedor} el análisis empírico del algoritmo.
+
+	
+
 
 \section{Apéndice}
 
