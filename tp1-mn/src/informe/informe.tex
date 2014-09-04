@@ -465,7 +465,11 @@ Esto completa entonces la \textit{eliminación gaussiana}. Los próximos cambios
 Los cambios en el método \texttt{resolveTriangularMatrix} son de la misma índole que los de la \textit{eliminación gaussiana}. Sólo queremos utilizar los elementos de la banda por lo cual los índices cambiarán como corresponda. Para no seguir con las mismas argumentaciones, los invitamos a mirar el código, el cual está comentado para que se entiendan los índices que hemos colocado.
 \vspace{\baselineskip}
 
-FALTA COMPLEJIDAD DE ESTO (misma pero con muchas menos iteraciones y muchas menos cosas a guardar :) )
+Respecto a la complejidad teórica, la Eliminación Gaussiana aporta un orden cuadrado. Como se ve en el código, en este método se itera en $i$ desde 0 a \textit{$(discr\_width*discr\_height) -1$} (al cual llamaremos $p$, siendo $p=nm$, siendo $n$ \textit{$discr\_height$}) y $m$ \textit{$discr\_width$}, para luego hacerlo en $j$ siendo el peor caso(ESTA BIEN ESTO??), desde $i+1$ hasta $p$. Esto es de orden cuadrado respecto a $p$. Pero a su vez, se llama al método \textit{updateRowJ()}, el cual  agrega en peor caso un ciclo entre $0$ y $2n + 1$. Sin embargo, esto no llega a agregar a la complejidad de O($p^2$). Posteriormente, la funcion \textit{resolveTriangularMatrix()} aporta O($p$) (aproximadamente O($n*m*n$) para finalizar con otro factor $p$ en \textit{recreateWindShield()}. De esta manera, el algoritmo que utiliza el formato banda de la matriz tiene una complejidad temporal de O($p^2$) siendo $p = n*m$. 
+\par 
+Además de disminuir el orden temporal de complejidad, realiza lo mismo para el espacio. Esto se debe a que no se almacenan muchos datos que no son importantes ni aportan a la resolución del problema (como lo son los números cero por debajo y por encima de la banda). De esta manera se almacenan todos los elementos correspondientes a la banda disminuyendo el espacio ocupado en comparación con la otra implementación. 
+
+
 \subsubsection{Problemas en la Implementación}
 
 \par 
