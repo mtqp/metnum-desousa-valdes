@@ -434,6 +434,16 @@ Las consecuencias empíricas que tendrán estas complejidades se observarán bie
 
 \subsubsection{Implementando la matriz A banda}
 
+\subsubsection{Problemas en la Implementación}
+
+\par 
+Durante la realización de la implementación surgieron ciertos problemas y dificultades que hubo que sortear. Para empezar, se dificultó el diseño del código, el cual fue modificado en varias ocasiones a fin de obtener lo que realmente estabamos esperando. A su vez, realizamos la implementación intuitiva sin tener en cuenta la posterior adaptabilidad del código a la utilización de la matriz banda. Es por esto que, a pesar del correcto funcionamiento del programa, la implementación es desprolija y provocó dificultades a la hora de debuggear. Por cuestiones de tiempo, no pudimos mejorar el código para solucionar esta problemática utilizando una jerarquía de clasificación. Sin embargo, es un punto que se tendrá en cuenta para próximas implementaciones.
+\par 
+Por otro lado, a la hora de realizar la discretización de la posición de las sanguijuelas en el parabrisas a una posición en la matriz, invertimos el eje y, creyendo que de esta manera estabamos asignando correctamente los índices. Más tarde nos dimos cuenta que, por ejemplo, la posición (2,2) del parabrisas corresponde a la posición (2,2) de la matriz (en caso de que la granularidad sea la correspondiente). De esta forma, el eje y se ``invierte'' sin la necesidad de tenerlo que hacer nosotros. Debido a este problema, los resultados de la matriz daban completamente invertidos. Nos dimos cuenta al invertir los índices del método que escribe el archivo de salida, pero una vez arreglado este problema, el programa comenzó a funcionar bien (en el momento solo estaba implementado el algoritmo que no aprovecha la matriz banda).
+\par 
+A pesar de lo mencionado previamente, no tuvimos problemas de precisión a la hora de correr los tests brindados por la cátedra. Esto se debió a que desde un primer momento tuvimos cuidado de no cometer los errores presentados en clase. 
+
+
 \subsection{Experimentación}
 
 	En esta sección utilizaremos distintos gráficos para detallar los experimentos realizados. 
