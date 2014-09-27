@@ -12,6 +12,8 @@
 
 using namespace std;
 
+enum InstanceType { STANFORD, TORONTO }; // Stanford = 0, Toronto = 1
+enum AlgorithmType { PAGERANK, HITS, INDEG }; // PageRank = 0, HITS = 1, INDEG = 2
 
 class RealMatrix { //TODO: A good implementation would use templates
 
@@ -58,7 +60,7 @@ class WebPage {
         string _name;
 };
 
-class RankingAlgorithm { //should be create with a PerformanceAnalyzer object
+class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
     public:
         virtual void Rank(vector<WebPage> pages){} //i think this won't be void but a orderd list of ranked pages.
         
@@ -101,9 +103,48 @@ class LinkCountRank : public RankingAlgorithm { //it sure has a better name
 };
 */
 
-class FileParser{
-    //i still dont understand how the information is going to be given so i cannot create a structure for it
+class ParsingAlgorithm {
+    public:
+        virtual List<WebPage> ParseFile(string pathToFile){};
+        virtual void SaveRankTo(string savingFile, Rank aRank){};
+        
 };
+
+class TorontoParsing : ParsingAlgorithm{
+	public:
+		List<WebPage> ParseFile(string pathToFile){};
+        void SaveRankTo(string savingFile, Rank aRank){};	
+};
+
+class StanfordParsing : ParsingAlgorithm{
+	public:
+		List<WebPage> ParseFile(string pathToFile){};
+        void SaveRankTo(string savingFile, Rank aRank){};	
+};
+
+ParsingAlgorithm CreateParsingAlgorithmFromParameter(InstanceType instanceType){
+	switch (instanceType){
+		case STANFORD:
+		break;
+		
+		case TORONTO:
+		break;
+	}
+}
+
+RankingAlgorithm CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
+	switch (algorithmType){
+		case PAGERANK:
+		break;
+		
+		case HITS:
+		break;
+		
+		case INDEG:
+		break;
+	}
+}
+
 
 int main(int argc, char *argv[]) {	
 /*  --Pseudocodigo de pasos
