@@ -58,6 +58,9 @@ class WebPage {
         
     private:
         string _name;
+        int _id;
+        List<int> _listOfLinkedWebPagesIds;
+        Rank _ranking;
 };
 
 class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
@@ -91,43 +94,56 @@ void PageRank :: Rank(vector<WebPage> pages){
     */
 }
 
-/*
 class HITS : public RankingAlgorithm {
     public:
         void Rank(vector<WebPage> pages);
 };
 
-class LinkCountRank : public RankingAlgorithm { //it sure has a better name
+class InDegree : public RankingAlgorithm {
     public:
         void Rank(vector<WebPage> pages);
 };
-*/
+
 
 class ParsingAlgorithm {
     public:
-        virtual List<WebPage> ParseFile(string pathToFile){};
-        virtual void SaveRankTo(string savingFile, Rank aRank){};
+        virtual List<WebPage> ParseFile(string pathToFile) = 0;
+        virtual void SaveRankTo(string savingFile, Rank aRank) = 0;
         
 };
 
 class TorontoParsing : ParsingAlgorithm{
 	public:
-		List<WebPage> ParseFile(string pathToFile){};
-        void SaveRankTo(string savingFile, Rank aRank){};	
+		List<WebPage> ParseFile(string pathToFile);
+        void SaveRankTo(string savingFile, Rank aRank);	
 };
+
+List<WebPage> :: TorontoParsing ParseFile(string pathToFile){
+	List<WebPage> dummy;
+	return dummy;
+}
 
 class StanfordParsing : ParsingAlgorithm{
 	public:
-		List<WebPage> ParseFile(string pathToFile){};
-        void SaveRankTo(string savingFile, Rank aRank){};	
+		List<WebPage> ParseFile(string pathToFile);
+        void SaveRankTo(string savingFile, Rank aRank);	
 };
+
+List<WebPage> :: StanfordParsing ParseFile(string pathToFile){
+	List<WebPage> dummy;
+	return dummy;
+}
 
 ParsingAlgorithm CreateParsingAlgorithmFromParameter(InstanceType instanceType){
 	switch (instanceType){
 		case STANFORD:
+			ParsingAlgorithm stanfordParsingAlgorithm = StanfordParsing();
+			return stanfordParsingAlgorithm;
 		break;
 		
 		case TORONTO:
+			ParsingAlgorithm torontoParsingAlgorithm = TorontoParsing();
+			return torontoParsingAlgorithm;
 		break;
 	}
 }
@@ -135,12 +151,18 @@ ParsingAlgorithm CreateParsingAlgorithmFromParameter(InstanceType instanceType){
 RankingAlgorithm CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
 	switch (algorithmType){
 		case PAGERANK:
+			RankingAlgorithm pageRankAlgorithm = PageRank();
+			return pageRankAlgorithm;
 		break;
 		
 		case HITS:
+			RankingAlgorithm HITSAlgorithm = HITS();
+			return HITSAlgorithm;
 		break;
 		
 		case INDEG:
+			RankingAlgorithm InDegAlgorithm = InDegree();
+			return InDegAlgorithm;
 		break;
 	}
 }
