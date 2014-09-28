@@ -1,6 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <list>
 #include <vector>
 #include <algorithm>
 #include <iomanip>
@@ -13,7 +14,7 @@
 using namespace std;
 
 enum InstanceType { STANFORD, TORONTO }; // Stanford = 0, Toronto = 1
-enum AlgorithmType { PAGERANK, HITS, INDEG }; // PageRank = 0, HITS = 1, INDEG = 2
+enum AlgorithmType { PAGERANK, HITSALG, INDEG }; // PageRank = 0, HITSALG = 1, INDEG = 2
 
 class RealMatrix { //TODO: A good implementation would use templates
 
@@ -30,16 +31,6 @@ class RealMatrix { //TODO: A good implementation would use templates
 RealMatrix :: RealMatrix(int n, int m){
     _n = n;
     _m = m;
-}
-
-class WebNet{
-	public: 
-		WebNet(); 
-	
-	private: 
-		int amountOfNodes;
-		int amountOfEdges;
-		list<WebPage> webpages; 
 }
 
 class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
@@ -60,22 +51,37 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
 
 CSCMatrix :: CSCMatrix(int n, int m)/*: RealMatrix(n, m)*/{}
 
+class Rank {
+	
+};
+
 class WebPage {
     public:
-        WebPage(string pageName) { _name = pageName;} //add other relevant information
+        WebPage(int nodeId, list<int> listOfLinkedWebPagesIds) : _id(nodeId), _listOfLinkedWebPagesIds(listOfLinkedWebPagesIds) {}
         
-        string PageName(){ return _name;}
+        const char* PageName(){ return _name;}
         
     private:
-        string _name;
+        const char* _name;
         int _id;
         list<int> _listOfLinkedWebPagesIds;
         Rank _ranking;
 };
 
+class WebNet{
+	public:
+		WebNet(int amountOfNodes, int amountOfEdges, list<WebPage> webPages) : _amountOfNodes(amountOfNodes), _amountOfEdges(amountOfEdges), _webPages(webPages) {}; 
+	
+	private: 
+		int _amountOfNodes;
+		int _amountOfEdges;
+		list<WebPage> _webPages; 
+};
+
 class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
     public:
         virtual void Rank(vector<WebPage> pages){} //i think this won't be void but a orderd list of ranked pages.
+        ~RankingAlgorithm(){};
         
 };
 
@@ -83,6 +89,7 @@ class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
 class PageRank : public RankingAlgorithm {
     public:
         void Rank(vector<WebPage> pages);
+        ~PageRank(){};
 };
 
 void PageRank :: Rank(vector<WebPage> pages){
@@ -106,133 +113,148 @@ void PageRank :: Rank(vector<WebPage> pages){
 
 class HITS : public RankingAlgorithm {
     public:
-        void Rank(vector<WebPage> pages);
+        void Rank(vector<WebPage> pages){};
+        ~HITS(){};
 };
 
 class InDegree : public RankingAlgorithm {
     public:
-        void Rank(vector<WebPage> pages);
+        void Rank(vector<WebPage> pages){};
+        ~InDegree(){};
 };
 
 
 class ParsingAlgorithm {
     public:
-        virtual list<WebPage> ParseFile(string pathToFile) = 0;
-        virtual void SaveRankTo(string savingFile, Rank aRank) = 0;
+        virtual WebNet ParseFile(const char* pathToFile){};
+        virtual void SaveRankTo(const char* savingFile, Rank aRank, AlgorithmType algorithmType){};
+        virtual ~ParsingAlgorithm(){};
         
 };
 
-class TorontoParsing : ParsingAlgorithm{
+class TorontoParsing : public ParsingAlgorithm{
 	public:
-		WebNet ParseFile(string pathToFile);
-        void SaveRankTo(string savingFile, Rank aRank);	
+		WebNet ParseFile(const char* pathToFile);
+        void SaveRankTo(const char* savingFile, Rank aRank, AlgorithmType algorithmType){};
+		~TorontoParsing(){};
 };
 
-WebNet :: TorontoParsing ParseFile(string pathToFile){
-	WebNet net; 
+WebNet TorontoParsing ::  ParseFile(const char* pathToFile){
+	int amountOfNodes, amountOfEdges = 0;
+	list<WebPage> webPages;
 	ifstream file;
 	file.open(pathToFile);
 	
 	if (file.is_open()){
-		list<WebPage> webPages;
+		int fromNodeId;
 		while( !file.eof() )
 		{
-			WebPage node;  	//ver
-			int fromNodeId;
 			file >> fromNodeId ;
-			node._id = fromNodeId;
+			int nodeId = fromNodeId;
 			file.ignore(); 				// ignora el :
 			int toNodeId;
 			file >> toNodeId; 
+			
+			list<int> listOfLinkedWebPagesIds;
 			while(toNodeId != -1){
-				node._listOfLinkedWebPagesIds.push_back(toNodeId);
+				listOfLinkedWebPagesIds.push_back(toNodeId);
 				file >> toNodeId;
-			}
-			if(!node._listOfLinkedWebPagesIds.empty()){
+				if (toNodeId != -1){
+					amountOfEdges++;
+				}
+			}	
+			WebPage node(nodeId, listOfLinkedWebPagesIds);  	//ver
+			if(!listOfLinkedWebPagesIds.empty()){
 				webPages.push_back(node);
 			}
 		}
-		net.amountOfNodes = fromNodeId;
-		//net.amountOfEdges = -1;
-		net.webpages = webPages; 
+		amountOfNodes = fromNodeId;
 		file.close();	
-	}else{
+	} else{
 		cout << "Unable to open input file" << endl;		
 		exit(1);
 	}
+	WebNet net(amountOfNodes, amountOfEdges, webPages);
 	return net;
 }
 
-class StanfordParsing : ParsingAlgorithm{
+class StanfordParsing : public ParsingAlgorithm{
 	public:
-		WebNet ParseFile(string pathToFile);
-        void SaveRankTo(string savingFile, Rank aRank);	
+		WebNet ParseFile(const char* pathToFile);
+        void SaveRankTo(const char* savingFile, Rank aRank, AlgorithmType algorithmType){};
+        ~StanfordParsing(){};
 };
 
-WebNet :: StanfordParsing ParseFile(string pathToFile){
-	WebNet net; 
+WebNet StanfordParsing :: ParseFile(const char* pathToFile){
+	int amountOfNodes, amountOfEdges;
+	list<WebPage> webPages;
 	ifstream file;
 	file.open(pathToFile);
 	
 	if (file.is_open()){
 		list<WebPage> webPages;
-		int nodes, edges;
-		file >> nodes >> edges;
+		file >> amountOfNodes >> amountOfEdges;
 		while( !file.eof() )
 		{
-			WebPage node;  	//ver
 			int fromNodeId;
 			file >> fromNodeId ;
-			node._id = fromNodeId;
-			do{
+			int nodeId = fromNodeId;
+			
+			list<int> listOfLinkedWebPagesIds;
+			do {
 				int toNodeId;
 				file >> toNodeId;
-				node._listOfLinkedWebPagesIds.push_back(toNodeId);
+				listOfLinkedWebPagesIds.push_back(toNodeId);
 				fromNodeId = file.peek();
-			} while(fromNodeId == node._id);
+			} while(fromNodeId == nodeId);
+			
+			WebPage node(nodeId, listOfLinkedWebPagesIds);
 			webPages.push_back(node);
 		}
-		net.amountOfNodes = nodes;
-		net.amountOfEdges = edges;
-		net.webpages = webPages; 
 		file.close();	
 	}else{
 		cout << "Unable to open input file" << endl;		
 		exit(1);
 	}
+	WebNet net(amountOfNodes, amountOfEdges, webPages);
 	return net;
 }
 
 ParsingAlgorithm CreateParsingAlgorithmFromParameter(InstanceType instanceType){
 	switch (instanceType){
-		case STANFORD:
+		case STANFORD:{
 			ParsingAlgorithm stanfordParsingAlgorithm = StanfordParsing();
 			return stanfordParsingAlgorithm;
-		break;
+			break;
+		}
 		
-		case TORONTO:
+		case TORONTO:{
 			ParsingAlgorithm torontoParsingAlgorithm = TorontoParsing();
 			return torontoParsingAlgorithm;
-		break;
+			break;
+		}
 	}
 }
 
 RankingAlgorithm CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
 	switch (algorithmType){
-		case PAGERANK:
+		case PAGERANK:{
 			RankingAlgorithm pageRankAlgorithm = PageRank();
 			return pageRankAlgorithm;
-		break;
+			break;
+		}
 		
-		case HITS:
+		case HITSALG:{
 			RankingAlgorithm HITSAlgorithm = HITS();
 			return HITSAlgorithm;
-		break;
+			break;
+		}
 		
-		case INDEG:
+		case INDEG:{
 			RankingAlgorithm InDegAlgorithm = InDegree();
 			return InDegAlgorithm;
-		break;
+			break;
+		}
 	}
 }
 
