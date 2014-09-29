@@ -52,15 +52,16 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
 CSCMatrix :: CSCMatrix(int n, int m)/*: RealMatrix(n, m)*/{}
 
 class Rank {
-	
+	public:
+		Rank(){};
+		~Rank(){};
 };
 
 class WebPage {
     public:
         WebPage(int nodeId, list<int>* listOfLinkedWebPagesIds) : _id(nodeId), _listOfLinkedWebPagesIds(listOfLinkedWebPagesIds) {}
-        
+        ~WebPage();
         const char* PageName(){ return _name;}
-        int getId(){ return _id; }
         
     private:
         const char* _name;
@@ -69,15 +70,27 @@ class WebPage {
         Rank _ranking;
 };
 
+WebPage :: ~WebPage(){
+	delete _listOfLinkedWebPagesIds;
+}
+
 class WebNet{
 	public:
 		WebNet(int amountOfNodes, int amountOfEdges, list<WebPage*>* webPages) : _amountOfNodes(amountOfNodes), _amountOfEdges(amountOfEdges), _webPages(webPages) {}; 
+		~WebNet();
 	
 	private: 
 		int _amountOfNodes;
 		int _amountOfEdges;
 		list<WebPage*>* _webPages; 
 };
+
+WebNet :: ~WebNet(){
+	for (list<WebPage*>::iterator it = _webPages->begin(); it != _webPages->end(); ++it){
+		delete *it;
+	}
+	delete _webPages;
+}
 
 class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
     public:
@@ -127,7 +140,7 @@ class InDegree : public RankingAlgorithm {
 
 class ParsingAlgorithm {
     public:
-        virtual WebNet ParseFile(const char* pathToFile) = 0;//{ cout << "TU VIEJA EN PARSING ALGORITHM"  << endl;};
+        virtual WebNet ParseFile(const char* pathToFile) = 0;
         virtual void SaveRankTo(const char* savingFile, Rank aRank, AlgorithmType algorithmType){};
         virtual ~ParsingAlgorithm(){};
         
@@ -277,7 +290,6 @@ int main(int argc, char *argv[]) {
 	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(STANFORD);
 	WebNet net = parsingAlgorithm->ParseFile("../graph.out");	
 	
-
 /*	char* input_file = argv[1];
 	char* output_file = argv[2];
 	int bandImplementation = atoi(argv[3]);
@@ -285,5 +297,6 @@ int main(int argc, char *argv[]) {
 /*    CSCMatrix* matrix = new CSCMatrix(5,5);
     cout << "A dummy implementation that returns: " << matrix->ElementAt(0,0) << endl;
 */
+	delete parsingAlgorithm;
 	return 0;
 }
