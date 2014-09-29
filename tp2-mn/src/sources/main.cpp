@@ -274,7 +274,7 @@ RankingAlgorithm CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType
 }
 
 
-int main(int argc, char *argv[]) {	
+int main(int argc, char* argv[]) {	
 /*  --Pseudocodigo de pasos
 	TeletransportingValue c = GetTeletransportingValue(second argument)
 	double tolerance = RetrieveToleranceFrom(fifth argument)
@@ -287,8 +287,14 @@ int main(int argc, char *argv[]) {
 	Rank aRank = rankingAlgorithm.rank(pages);
 	
 	parsingAlgorithm.SaveRankTo(savingFile, aRank);*/
-	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(STANFORD);
-	WebNet net = parsingAlgorithm->ParseFile("../graph.out");	
+	AlgorithmType algorithmToRun = (AlgorithmType)atoi(argv[1]);
+	double teletransportingValue = atof(argv[2]);
+	InstanceType instanceType = (InstanceType)atoi(argv[3]);
+	char* webDefinitionPathFile = argv[4];
+	double toleranceValue = atof(argv[5]);
+	
+	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(instanceType);
+	WebNet net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
 	
 /*	char* input_file = argv[1];
 	char* output_file = argv[2];
