@@ -57,25 +57,26 @@ class Rank {
 
 class WebPage {
     public:
-        WebPage(int nodeId, list<int> listOfLinkedWebPagesIds) : _id(nodeId), _listOfLinkedWebPagesIds(listOfLinkedWebPagesIds) {}
+        WebPage(int nodeId, list<int>* listOfLinkedWebPagesIds) : _id(nodeId), _listOfLinkedWebPagesIds(listOfLinkedWebPagesIds) {}
         
         const char* PageName(){ return _name;}
+        int getId(){ return _id; }
         
     private:
         const char* _name;
         int _id;
-        list<int> _listOfLinkedWebPagesIds;
+        list<int>* _listOfLinkedWebPagesIds;
         Rank _ranking;
 };
 
 class WebNet{
 	public:
-		WebNet(int amountOfNodes, int amountOfEdges, list<WebPage> webPages) : _amountOfNodes(amountOfNodes), _amountOfEdges(amountOfEdges), _webPages(webPages) {}; 
+		WebNet(int amountOfNodes, int amountOfEdges, list<WebPage*>* webPages) : _amountOfNodes(amountOfNodes), _amountOfEdges(amountOfEdges), _webPages(webPages) {}; 
 	
 	private: 
 		int _amountOfNodes;
 		int _amountOfEdges;
-		list<WebPage> _webPages; 
+		list<WebPage*>* _webPages; 
 };
 
 class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
@@ -126,7 +127,7 @@ class InDegree : public RankingAlgorithm {
 
 class ParsingAlgorithm {
     public:
-        virtual WebNet ParseFile(const char* pathToFile){};
+        virtual WebNet ParseFile(const char* pathToFile) = 0;//{ cout << "TU VIEJA EN PARSING ALGORITHM"  << endl;};
         virtual void SaveRankTo(const char* savingFile, Rank aRank, AlgorithmType algorithmType){};
         virtual ~ParsingAlgorithm(){};
         
@@ -141,7 +142,7 @@ class TorontoParsing : public ParsingAlgorithm{
 
 WebNet TorontoParsing ::  ParseFile(const char* pathToFile){
 	int amountOfNodes, amountOfEdges = 0;
-	list<WebPage> webPages;
+	list<WebPage*>* webPages = new list<WebPage*>();
 	ifstream file;
 	file.open(pathToFile);
 	
@@ -155,17 +156,17 @@ WebNet TorontoParsing ::  ParseFile(const char* pathToFile){
 			int toNodeId;
 			file >> toNodeId; 
 			
-			list<int> listOfLinkedWebPagesIds;
+			list<int>* listOfLinkedWebPagesIds = new list<int>();
 			while(toNodeId != -1){
-				listOfLinkedWebPagesIds.push_back(toNodeId);
+				listOfLinkedWebPagesIds->push_back(toNodeId);
 				file >> toNodeId;
 				if (toNodeId != -1){
 					amountOfEdges++;
 				}
 			}	
-			WebPage node(nodeId, listOfLinkedWebPagesIds);  	//ver
-			if(!listOfLinkedWebPagesIds.empty()){
-				webPages.push_back(node);
+			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);  	//ver
+			if(!listOfLinkedWebPagesIds->empty()){
+				webPages->push_back(node);
 			}
 		}
 		amountOfNodes = fromNodeId;
@@ -174,6 +175,7 @@ WebNet TorontoParsing ::  ParseFile(const char* pathToFile){
 		cout << "Unable to open input file" << endl;		
 		exit(1);
 	}
+	
 	WebNet net(amountOfNodes, amountOfEdges, webPages);
 	return net;
 }
@@ -187,12 +189,12 @@ class StanfordParsing : public ParsingAlgorithm{
 
 WebNet StanfordParsing :: ParseFile(const char* pathToFile){
 	int amountOfNodes, amountOfEdges;
-	list<WebPage> webPages;
+	list<WebPage*>* webPages = new list<WebPage*>();
 	ifstream file;
 	file.open(pathToFile);
 	
 	if (file.is_open()){
-		list<WebPage> webPages;
+		list<WebPage*>* webPages = new list<WebPage*>();
 		file >> amountOfNodes >> amountOfEdges;
 		while( !file.eof() )
 		{
@@ -200,16 +202,16 @@ WebNet StanfordParsing :: ParseFile(const char* pathToFile){
 			file >> fromNodeId ;
 			int nodeId = fromNodeId;
 			
-			list<int> listOfLinkedWebPagesIds;
+			list<int>* listOfLinkedWebPagesIds = new list<int>();
 			do {
 				int toNodeId;
 				file >> toNodeId;
-				listOfLinkedWebPagesIds.push_back(toNodeId);
+				listOfLinkedWebPagesIds->push_back(toNodeId);
 				fromNodeId = file.peek();
 			} while(fromNodeId == nodeId);
 			
-			WebPage node(nodeId, listOfLinkedWebPagesIds);
-			webPages.push_back(node);
+			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);
+			webPages->push_back(node);
 		}
 		file.close();	
 	}else{
@@ -220,17 +222,17 @@ WebNet StanfordParsing :: ParseFile(const char* pathToFile){
 	return net;
 }
 
-ParsingAlgorithm CreateParsingAlgorithmFromParameter(InstanceType instanceType){
+ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType){
 	switch (instanceType){
 		case STANFORD:{
-			ParsingAlgorithm stanfordParsingAlgorithm = StanfordParsing();
-			return stanfordParsingAlgorithm;
+			StanfordParsing* stanfordParsingAlgorithm = new StanfordParsing();
+			return (ParsingAlgorithm*)stanfordParsingAlgorithm;
 			break;
 		}
 		
 		case TORONTO:{
-			ParsingAlgorithm torontoParsingAlgorithm = TorontoParsing();
-			return torontoParsingAlgorithm;
+			TorontoParsing* torontoParsingAlgorithm = new TorontoParsing();
+			return (ParsingAlgorithm*)torontoParsingAlgorithm;
 			break;
 		}
 	}
@@ -271,8 +273,9 @@ int main(int argc, char *argv[]) {
 	
 	Rank aRank = rankingAlgorithm.rank(pages);
 	
-	parsingAlgorithm.SaveRankTo(savingFile, aRank);
-	
+	parsingAlgorithm.SaveRankTo(savingFile, aRank);*/
+	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(STANFORD);
+	WebNet net = parsingAlgorithm->ParseFile("../graph.out");	
 	
 
 /*	char* input_file = argv[1];
