@@ -5,13 +5,17 @@
 #include <algorithm>
 #include <iomanip>
 #include <string>
+#include <stdlib.h>
+#include <stdio.h>
 
 using namespace std;
 
+double EPS = 0.0001;
+int NO_ROW = -1;
 
-class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
+class CRSMatrix {//: public RealMatrix{ //Compressed sparse column
     public:
-        CSCMatrix(int n, int m, vector<int> colIndexes, vector<int> rowPointers, vector<double> values){
+        CRSMatrix(int n, int m, vector<int> colIndexes, vector<int> rowPointers, vector<double> values){
             _n = n;
             _m = m;
 
@@ -20,15 +24,44 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
             _values = values;
         }
         
-        ~CSCMatrix(){ //todo: complete!
+        ~CRSMatrix(){ //todo: complete!
             
         }
-        
-        vector<double>& Multiply(vector<double> aVector){ 
-			//c*A +  (1-c/N)
+
+        vector<double> Multiply(vector<double> aVector){ 
+			//c*A +  (1-c/N) remember to do this on he crazy page rank algorithm
    			//multiply knowing that if element i.j is zero, we should user (1-c)/n
-            vector<double> dummy;
-            return dummy;
+            vector<double> multiplication;
+
+            for(int row=0; row<_n; row++){
+                bool isRowEmpty = _rowPointers[row] == NO_ROW;
+                if(isRowEmpty){ //any vector multiplying a zero vector equals zero.
+                    multiplication.push_back(0.0);
+                    continue;
+                }
+                
+                int colLowerBound = _rowPointers[row];
+                int colUpperBound = UpperBoundFromRow(row);
+                
+                double rowValue = 0;
+                
+                for(int index=colLowerBound; index<colUpperBound; index++){
+                    int column = _colIndexes[index];
+                    double matrixValue = _values[index];
+                    double vectorValue = aVector[column];
+                    
+                    bool vectorValueIsZero = abs(vectorValue) < EPS;
+                
+                    if(!vectorValueIsZero){
+                        double i_jTimesVector = vectorValue * matrixValue;
+                        rowValue += i_jTimesVector;
+                    }
+                }
+                
+                multiplication.push_back(rowValue);
+            }
+
+            return multiplication;
         }
 
         void PrintItSelf(){ //esto es malisimo!, solo para debuggear, borrar antes de entregar
@@ -53,6 +86,7 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
             }
             cout << endl;
             
+            
             cout << "Whole matrix: " << endl;
             
             for(int i=0; i<_n; i++)
@@ -67,23 +101,15 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
         double ElementAt(int i, int j) { 
             CheckRanges(i, j);
             
-            int NO_ROW = -1;
-            int colIndex = _rowPointers[j];
+            int colIndex = _rowPointers[i];
             
             if(colIndex != NO_ROW){
-                bool isLastColumn = j == (_m-1);
-                
                 int lowerSearchBound = colIndex;
-                int upperSearchBound;
-                
-                if(!isLastColumn)
-                    upperSearchBound = _rowPointers[j+1];
-                else
-                    upperSearchBound = _colIndexes.size();
+                int upperSearchBound = UpperBoundFromRow(i);
                 
                 for(int index=lowerSearchBound; index<upperSearchBound; index++)
                 {
-                    bool rowWasFound = _colIndexes[index] == i;
+                    bool rowWasFound = _colIndexes[index] == j;
                     if(rowWasFound)
                         return _values[index];
                 }
@@ -104,25 +130,49 @@ class CSCMatrix {//: public RealMatrix{ //Compressed sparse column
             if(j>=_m)
                 cout << "ElementAt - j: " << j << " is out of range" << endl;
         }
+         
+        int UpperBoundFromRow(int row)
+        {
+            bool isLastColumn = row == (_n-1);
+            int upperSearchBound;
+            
+            if(!isLastColumn){
+                int firstNonZeroRow = row;
+                bool nextPointerIsNoRow;
+                do
+                {
+                    firstNonZeroRow++;
+                    nextPointerIsNoRow = _rowPointers[firstNonZeroRow] == NO_ROW;
+                }
+                while(nextPointerIsNoRow && firstNonZeroRow < _rowPointers.size());
+                
+                upperSearchBound = _rowPointers[firstNonZeroRow];
+            }
+            else
+                upperSearchBound = _colIndexes.size();
 
+            return upperSearchBound;
+        }
 };
 
-class CSCBuilder{
+class CRSBuilder{
     public:
         void AddElementAt(int i, int j, double value)
         {
+            //insert element as transpose matrix cause we actually need CSRMatrix
             MatrixElement element(i, j, value);
+            
             _elements.push_back(element);
         }
         
-        CSCMatrix Build(int n, int m){
+        CRSMatrix Build(int n, int m){
             sort(_elements.begin(), _elements.end(), SortingFunction);
         
             vector<int> colIndexes = CollectIndexes();
             vector<int> rowPointers = CollectPointers();
             vector<double> values = CollectValues();
             
-            CSCMatrix matrix(n, m, colIndexes, rowPointers, values);
+            CRSMatrix matrix(n, m, colIndexes, rowPointers, values);
             return matrix;
         }
 
@@ -148,29 +198,28 @@ class CSCBuilder{
 
         struct Sorter {
             bool operator() (MatrixElement left, MatrixElement right) {
-                if(left.column != right.column)
-                    return left.column < right.column;
+                if(left.row != right.row)
+                    return left.row < right.row;
                 
-                //Columns are equal, we must untie by row
-                return left.row < right.row;
+                //Rows are equal, we must untie by column
+                return left.column < right.column;
             }
         } SortingFunction;
         
         vector<int> CollectIndexes(){
             vector<int> indexes;
             for(int i=0; i<_elements.size(); i++){
-                indexes.push_back(_elements[i].row);
+                indexes.push_back(_elements[i].column);
             }
             return indexes;
         }
         
         vector<int> CollectPointers(){
             vector<int> pointers;
-            int NO_ROW = -1;
             int actualRow = -1;
             
             for(int nextPointer=0; nextPointer<_elements.size(); nextPointer++){
-                int elementRow = _elements[nextPointer].column;
+                int elementRow = _elements[nextPointer].row;
                 
                 int mustMoveToNextRow = (elementRow - actualRow) >= 1;
                 int rowLeap = elementRow - actualRow;
@@ -198,7 +247,7 @@ class CSCBuilder{
 
 
 int main(int argc, char *argv[]) {	
-    CSCBuilder builder;
+    CRSBuilder builder;
     builder.AddElementAt(0, 0, 1.01);
     builder.AddElementAt(0, 2, 2.0);
     builder.AddElementAt(1, 0, 10.0);
@@ -206,9 +255,20 @@ int main(int argc, char *argv[]) {
     builder.AddElementAt(2, 2, 22.0);
     builder.AddElementAt(2, 1, 21.0);
     
-    CSCMatrix matrix = builder.Build(3,3);
+    CRSMatrix matrix = builder.Build(3,3);
     
     matrix.PrintItSelf();
+    
+    vector<double> multiplyingVector;
+    multiplyingVector.push_back(-1.0);
+    multiplyingVector.push_back(1.0);
+    multiplyingVector.push_back(0.0);
+    vector<double> multiplication = matrix.Multiply(multiplyingVector);
 
+    cout << "Multiplication result: "; 
+    for(int i=0;i<multiplication.size();i++)
+        cout << multiplication[i] << ", " ;
+    cout << endl;
+    
 	return 0;
 }
