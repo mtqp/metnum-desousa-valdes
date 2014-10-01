@@ -30,11 +30,9 @@ class HITSRank : public Rank {
 		HITSRank(double authRank, double hubRank) : _authorityRank(authRank), _hubRank(hubRank) {};
 		~HITSRank(){};
 		
-		double authorityRank(){ return _authorityRank; }
-		double hubRank(){ return _hubRank; }
-		void printItSelf(ostream& os) const{
-			os << "Authority rank: " << _authorityRank << "; Hub rank: " << _hubRank << ";" << endl;
-		}
+		double authorityRank();
+		double hubRank();
+		void printItSelf(ostream& os) const;
 		
 	private:
 		double _authorityRank;
@@ -42,20 +40,27 @@ class HITSRank : public Rank {
 		
 };
 
+double HITSRank :: authorityRank(){ return _authorityRank; }
+double HITSRank :: hubRank(){ return _hubRank; }
+void HITSRank :: printItSelf(ostream& os) const {
+    os << "Authority rank: " << _authorityRank << "; Hub rank: " << _hubRank << ";" << endl;
+}
+
 class PageRankInDegreeRank : public Rank {
 	public:
 		PageRankInDegreeRank(double rankValue) : _rankValue(rankValue) {};
 		~PageRankInDegreeRank(){};
 		
-		double rankValue(){ return _rankValue; }
-		void printItSelf(ostream& os) const{
-			os << _rankValue << endl;
-		}
+		double rankValue();
+		void printItSelf(ostream& os) const;
 		
 	private:
 		double _rankValue;
 		
 };
+
+double PageRankInDegreeRank :: rankValue(){ return _rankValue; }
+void PageRankInDegreeRank :: printItSelf(ostream& os) const{ os << _rankValue << endl; }
 
 class WebPage {
     public:

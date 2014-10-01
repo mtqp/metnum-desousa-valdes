@@ -122,7 +122,7 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
 		}
 	}
     
-    CRSMatrix adjacencyMatrix = builder.Build(net->amountOfNodes(),net->amountOfNodes());
+    CRSMatrix adjacencyMatrix = builder.Build(net->amountOfNodes(), net->amountOfNodes());
     
     /** Find weights (hub & authority) **/
 	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, amountOfIterations);
@@ -143,8 +143,26 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
 
 class InDegree : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations){};
+        void RankPage(WebNet* net, int amountOfIterations);
         ~InDegree(){};
 };
+
+void InDegree :: RankPage(WebNet* net, int amountOfIterations){
+	
+	/** Calculate In-Degree for each page in a separate array **/
+	vector<int> inDegreeForAllPages = vector<int>(net->amountOfNodes(), 0);
+	
+	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
+		for (list<int>::iterator itIdLinkedPages = ((*itNetPages)->listOfLinkedWebPagesIds())->begin(); itIdLinkedPages != ((*itNetPages)->listOfLinkedWebPagesIds())->end(); ++itIdLinkedPages){
+			inDegreeForAllPages[*itIdLinkedPages]++;
+		}
+	}
+	
+	/** Rank WebPages **/ 	
+	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
+		PageRankInDegreeRank* webPageRanking = new PageRankInDegreeRank(inDegreeForAllPages[(*itNetPages)->pageId()]);
+		(*itNetPages)->rankWebPage( (Rank*)webPageRanking );
+	}
+}
 
 #endif
