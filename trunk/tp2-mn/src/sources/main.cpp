@@ -32,23 +32,23 @@ ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType)
 	}
 }
 
-RankingAlgorithm CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
+RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
 	switch (algorithmType){
 		case PAGERANK:{
-			RankingAlgorithm pageRankAlgorithm = PageRank();
-			return pageRankAlgorithm;
+			PageRank* pageRankAlgorithm = new PageRank();
+			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
 		
 		case HITSALG:{
-			RankingAlgorithm HITSAlgorithm = HITS();
-			return HITSAlgorithm;
+			HITS* HITSAlgorithm = new HITS();
+			return (RankingAlgorithm*)HITSAlgorithm;
 			break;
 		}
 		
 		case INDEG:{
-			RankingAlgorithm InDegAlgorithm = InDegree();
-			return InDegAlgorithm;
+			InDegree* InDegAlgorithm = new InDegree();
+			return (RankingAlgorithm*)InDegAlgorithm;
 			break;
 		}
 	}
@@ -74,9 +74,22 @@ int main(int argc, char* argv[]) {
 	char* webDefinitionPathFile = argv[4];
 	double toleranceValue = atof(argv[5]);
 	
+	char* savingFile;// = "ranking.out";
+	if (argc == 7)
+		savingFile = argv[6];
+	
 	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(instanceType);
-	WebNet net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
+	WebNet* net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
+	
+	int amountOfIterations = 50;
+	int amountOfResultsToShow = 10;
+	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter(algorithmToRun);
+	rankingAlgorithm->RankPage(net, amountOfIterations, amountOfResultsToShow);
+	
+	parsingAlgorithm->SaveRankTo(savingFile, net, algorithmToRun);
 	
 	delete parsingAlgorithm;
+	delete rankingAlgorithm;
+	delete net;
 	return 0;
 }
