@@ -23,36 +23,38 @@ enum AlgorithmType { PAGERANK, HITSALG, INDEG }; // PageRank = 0, HITSALG = 1, I
 class ParsingAlgorithm {
     public:
         virtual WebNet* ParseFile(const char* pathToFile) = 0;
-        void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType){
-			ofstream file;
-			file.open(pathToSavingFile);
-			
-			if (file.is_open()){
-				if (algorithmType != HITSALG){
-					for (list<WebPage*>::iterator itNetPages = (aNet->webPages())->begin(); itNetPages != (aNet->webPages())->end(); ++itNetPages){
-						Rank* rankingOfPage = (*itNetPages)->ranking();
-						file << *rankingOfPage;
-					}
-				} else {
-					for (list<WebPage*>::iterator itNetPages = (aNet->webPages())->begin(); itNetPages != (aNet->webPages())->end(); ++itNetPages){
-						HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
-						file << rankingOfPage->authorityRank() << endl;
-					}
-					for (list<WebPage*>::iterator itNetPages = (aNet->webPages())->begin(); itNetPages != (aNet->webPages())->end(); ++itNetPages){
-						HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
-						file << rankingOfPage->hubRank() << endl;
-					}
-				}
-							
-			} else{
-				cout << "Unable to open output file" << endl;		
-				exit(1);
-			}
-		};
+        void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
         virtual ~ParsingAlgorithm(){};
         
 };
 
+void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType){
+	ofstream file;
+	file.open(pathToSavingFile);
+	if (file.is_open()){
+		list<WebPage*>* webPages = aNet->webPages();
+		if (algorithmType != HITSALG){
+			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
+				Rank* rankingOfPage = (*itNetPages)->ranking();
+				file << *rankingOfPage;
+			}
+		} else {
+			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
+				HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
+				file << rankingOfPage->authorityRank() << endl;
+			}
+			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
+				HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
+				file << rankingOfPage->hubRank() << endl;
+			}
+		}
+					
+	} else{
+		cout << "Unable to open output file" << endl;		
+		exit(1);
+	}
+}
+		
 class TorontoParsing : public ParsingAlgorithm{
 	public:
 		WebNet* ParseFile(const char* pathToFile);
@@ -60,7 +62,7 @@ class TorontoParsing : public ParsingAlgorithm{
 		~TorontoParsing(){};
 };
 
-WebNet* TorontoParsing ::  ParseFile(const char* pathToFile){
+WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 	int amountOfNodes, amountOfEdges = 0;
 	list<WebPage*>* webPages = new list<WebPage*>();
 	ifstream file;
@@ -114,22 +116,21 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	file.open(pathToFile);
 	
 	if (file.is_open()){
-		list<WebPage*>* webPages = new list<WebPage*>();
+		
 		file >> amountOfNodes >> amountOfEdges;
+		int fromNodeId;
+		file >> fromNodeId ;
 		while( !file.eof() )
 		{
-			int fromNodeId;
-			file >> fromNodeId ;
 			int nodeId = fromNodeId;
-			
 			list<int>* listOfLinkedWebPagesIds = new list<int>();
-			do {
+			while(fromNodeId == nodeId && !file.eof()) {
 				int toNodeId;
 				file >> toNodeId;
 				listOfLinkedWebPagesIds->push_back(toNodeId);
-				fromNodeId = file.peek();
-			} while(fromNodeId == nodeId);
-			
+				file >> fromNodeId;
+			}
+			 			
 			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);
 			webPages->push_back(node);
 		}
