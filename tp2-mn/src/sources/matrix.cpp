@@ -24,6 +24,14 @@ class CRSMatrix {//: public RealMatrix{ //Compressed sparse column
             _values = values;
         }
         
+        int amountOfRows(){
+			return _m;
+		}
+		
+		int amountOfColumns(){
+			return _m;
+		}
+        
         ~CRSMatrix(){ //todo: complete!
             
         }
@@ -246,29 +254,29 @@ class CRSBuilder{
 };
 
 
-int main(int argc, char *argv[]) {	
-    CRSBuilder builder;
-    builder.AddElementAt(0, 0, 1.01);
-    builder.AddElementAt(0, 2, 2.0);
-    builder.AddElementAt(1, 0, 10.0);
-    builder.AddElementAt(1, 1, 11.0);
-    builder.AddElementAt(2, 2, 22.0);
-    builder.AddElementAt(2, 1, 21.0);
-    
-    CRSMatrix matrix = builder.Build(3,3);
-    
-    matrix.PrintItSelf();
-    
-    vector<double> multiplyingVector;
-    multiplyingVector.push_back(-1.0);
-    multiplyingVector.push_back(1.0);
-    multiplyingVector.push_back(0.0);
-    vector<double> multiplication = matrix.Multiply(multiplyingVector);
-
-    cout << "Multiplication result: "; 
-    for(int i=0;i<multiplication.size();i++)
-        cout << multiplication[i] << ", " ;
-    cout << endl;
-    
-	return 0;
-}
+//~ int main(int argc, char *argv[]) {	
+    //~ CRSBuilder builder;
+    //~ builder.AddElementAt(0, 0, 1.01);
+    //~ builder.AddElementAt(0, 2, 2.0);
+    //~ builder.AddElementAt(1, 0, 10.0);
+    //~ builder.AddElementAt(1, 1, 11.0);
+    //~ builder.AddElementAt(2, 2, 22.0);
+    //~ builder.AddElementAt(2, 1, 21.0);
+    //~ 
+    //~ CRSMatrix matrix = builder.Build(3,3);
+    //~ 
+    //~ matrix.PrintItSelf();
+    //~ 
+    //~ vector<double> multiplyingVector;
+    //~ multiplyingVector.push_back(-1.0);
+    //~ multiplyingVector.push_back(1.0);
+    //~ multiplyingVector.push_back(0.0);
+    //~ vector<double> multiplication = matrix.Multiply(multiplyingVector);
+//~ 
+    //~ cout << "Multiplication result: "; 
+    //~ for(int i=0;i<multiplication.size();i++)
+        //~ cout << multiplication[i] << ", " ;
+    //~ cout << endl;
+    //~ 
+	//~ return 0;
+//~ }

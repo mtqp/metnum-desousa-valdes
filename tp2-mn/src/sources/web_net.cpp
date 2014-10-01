@@ -20,6 +20,9 @@ class WebNet{
 	public:
 		WebNet(int amountOfNodes, int amountOfEdges, list<WebPage*>* webPages) : _amountOfNodes(amountOfNodes), _amountOfEdges(amountOfEdges), _webPages(webPages) {}; 
 		~WebNet();
+		list<WebPage*>* webPages(){ return _webPages; }
+		int amountOfNodes(){ return _amountOfNodes; }
+		int amountOfEdges(){ return _amountOfEdges; }
 	
 	private: 
 		int _amountOfNodes;
