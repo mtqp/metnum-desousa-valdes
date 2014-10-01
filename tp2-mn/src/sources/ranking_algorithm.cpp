@@ -17,19 +17,18 @@ using namespace std;
 
 class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
     public:
-        virtual void RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow) = 0; //i think this won't be void but a orderd list of ranked pages.
-        ~RankingAlgorithm(){};
+        virtual void RankPage(WebNet* net, int amountOfIterations) = 0; //i think this won't be void but a orderd list of ranked pages.
+        virtual ~RankingAlgorithm(){};
         
 };
 
-
 class PageRank : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow);
+        void RankPage(WebNet* net, int amountOfIterations);
         ~PageRank(){};
 };
 
-void PageRank :: RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow){
+void PageRank :: RankPage(WebNet* net, int amountOfIterations){
     /*
     Matrix matrix = CreateMatrixWith(pages);
     foreach page in pages
@@ -71,7 +70,7 @@ void normalizeVector(vector<double>& aVector){
 
 class HITS : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow);
+        void RankPage(WebNet* net, int amountOfIterations);
         ~HITS(){};
     private:
 		class AuthorityHubWeightVectors {
@@ -113,7 +112,7 @@ class HITS : public RankingAlgorithm {
 		}
 };
 
-void HITS :: RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow){
+void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	
 	/** Create adjacency matrix **/
 	CRSBuilder builder;
@@ -144,7 +143,7 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations, int amountOfResultsTo
 
 class InDegree : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations, int amountOfResultsToShow){};
+        void RankPage(WebNet* net, int amountOfIterations){};
         ~InDegree(){};
 };
 

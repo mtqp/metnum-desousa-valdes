@@ -29,6 +29,12 @@ ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType)
 			return (ParsingAlgorithm*)torontoParsingAlgorithm;
 			break;
 		}
+		
+		default:{
+			cout << "Haven't specified instance type: impossible to parse input file." << endl;
+			exit(1);
+			break;
+		}
 	}
 }
 
@@ -49,6 +55,12 @@ RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmTyp
 		case INDEG:{
 			InDegree* InDegAlgorithm = new InDegree();
 			return (RankingAlgorithm*)InDegAlgorithm;
+			break;
+		}
+		
+		default:{
+			PageRank* pageRankAlgorithm = new PageRank();
+			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
 	}
@@ -82,9 +94,9 @@ int main(int argc, char* argv[]) {
 	WebNet* net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
 	
 	int amountOfIterations = 50;
-	int amountOfResultsToShow = 10;
+	//int amountOfResultsToShow = 10;
 	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter(algorithmToRun);
-	rankingAlgorithm->RankPage(net, amountOfIterations, amountOfResultsToShow);
+	rankingAlgorithm->RankPage(net, amountOfIterations);
 	
 	parsingAlgorithm->SaveRankTo(savingFile, net, algorithmToRun);
 	

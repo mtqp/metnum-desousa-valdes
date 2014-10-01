@@ -74,21 +74,21 @@ class CRSMatrix {//: public RealMatrix{ //Compressed sparse column
 
         void PrintItSelf(){ //esto es malisimo!, solo para debuggear, borrar antes de entregar
             cout << "colIndex: " << _colIndexes.size() << endl;
-            for(int i=0; i<_colIndexes.size(); i++)
+            for(int i=0; i < (int)_colIndexes.size(); i++)
             {
                 cout << _colIndexes[i] << ", ";
             }
             cout << endl;
             
             cout << "rowPointers: " << _rowPointers.size() << endl;
-            for(int i=0; i<_rowPointers.size(); i++)
+            for(int i=0; i < (int)_rowPointers.size(); i++)
             {
                 cout << _rowPointers[i] << ", ";
             }
             cout << endl;
             
             cout << "values: " << _values.size() << endl;
-            for(int i=0; i<_values.size(); i++)
+            for(int i=0; i < (int)_values.size(); i++)
             {
                 cout << _values[i] << ", ";
             }
@@ -152,7 +152,7 @@ class CRSMatrix {//: public RealMatrix{ //Compressed sparse column
                     firstNonZeroRow++;
                     nextPointerIsNoRow = _rowPointers[firstNonZeroRow] == NO_ROW;
                 }
-                while(nextPointerIsNoRow && firstNonZeroRow < _rowPointers.size());
+                while(nextPointerIsNoRow && firstNonZeroRow < (int)_rowPointers.size());
                 
                 upperSearchBound = _rowPointers[firstNonZeroRow];
             }
@@ -216,7 +216,7 @@ class CRSBuilder{
         
         vector<int> CollectIndexes(){
             vector<int> indexes;
-            for(int i=0; i<_elements.size(); i++){
+            for(int i=0; i < (int)_elements.size(); i++){
                 indexes.push_back(_elements[i].column);
             }
             return indexes;
@@ -226,7 +226,7 @@ class CRSBuilder{
             vector<int> pointers;
             int actualRow = -1;
             
-            for(int nextPointer=0; nextPointer<_elements.size(); nextPointer++){
+            for(int nextPointer=0; nextPointer < (int)_elements.size(); nextPointer++){
                 int elementRow = _elements[nextPointer].row;
                 
                 int mustMoveToNextRow = (elementRow - actualRow) >= 1;
@@ -246,7 +246,7 @@ class CRSBuilder{
         
         vector<double> CollectValues(){
             vector<double> values;
-            for(int i=0; i<_elements.size(); i++){
+            for(int i=0; i < (int)_elements.size(); i++){
                 values.push_back(_elements[i].value);
             }
             return values;

@@ -22,7 +22,7 @@ class Rank {
             return os;
         }
         
-		~Rank(){};
+		virtual ~Rank(){};
 };
 
 class HITSRank : public Rank {
@@ -39,6 +39,21 @@ class HITSRank : public Rank {
 	private:
 		double _authorityRank;
 		double _hubRank;
+		
+};
+
+class PageRankInDegreeRank : public Rank {
+	public:
+		PageRankInDegreeRank(double rankValue) : _rankValue(rankValue) {};
+		~PageRankInDegreeRank(){};
+		
+		double rankValue(){ return _rankValue; }
+		void printItSelf(ostream& os) const{
+			os << _rankValue << endl;
+		}
+		
+	private:
+		double _rankValue;
 		
 };
 
