@@ -13,7 +13,7 @@ using namespace std;
 double EPS = 0.0001;
 int NO_ROW = -1;
 
-class CRSMatrix {//: public RealMatrix{ //Compressed sparse column
+class CRSMatrix {//: public RealMatrix{ //Compressed sparse row
     public:
         CRSMatrix(int n, int m, vector<int> colIndexes, vector<int> rowPointers, vector<double> values){
             _n = n;
@@ -167,7 +167,9 @@ class CRSBuilder{
     public:
         void AddElementAt(int i, int j, double value)
         {
-            //insert element as transpose matrix cause we actually need CSRMatrix
+            if(abs(value) < EPS)
+                return;
+                
             MatrixElement element(i, j, value);
             
             _elements.push_back(element);
