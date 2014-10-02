@@ -34,18 +34,42 @@ void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, 
 	if (file.is_open()){
 		list<WebPage*>* webPages = aNet->webPages();
 		if (algorithmType != HITSALG){
-			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
-				Rank* rankingOfPage = (*itNetPages)->ranking();
-				file << *rankingOfPage;
+			list<WebPage*>::iterator itNetPages = webPages->begin();
+			
+			for (int webPageId = 1; webPageId <= aNet->amountOfNodes(); webPageId++){
+				//~ if (itNetPages != webPages->end() && webPageId == (*itNetPages)->pageId()){
+					PageRankInDegreeRank* rankingOfPage = (PageRankInDegreeRank*)((*itNetPages)->ranking());
+					file << *rankingOfPage;
+					itNetPages++;
+				//~ } else {
+					//~ file << "0" << endl;
+					//~ cout << webPageId << endl;
+				//~ }
 			}
 		} else {
-			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
-				HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
-				file << rankingOfPage->authorityRank() << endl;
+			list<WebPage*>::iterator itNetPages = webPages->begin();
+			
+			for (int webPageId = 1; webPageId <= aNet->amountOfNodes(); webPageId++){
+				//~ if (itNetPages != webPages->end() && webPageId == (*itNetPages)->pageId()){
+					HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
+					file << rankingOfPage->authorityRank() << endl;
+					itNetPages++;
+				//~ } else {
+					//~ file << "0" << endl;
+					//~ cout << webPageId << endl;
+				//~ }
 			}
-			for (list<WebPage*>::iterator itNetPages = webPages->begin(); itNetPages != webPages->end(); ++itNetPages){
-				HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
-				file << rankingOfPage->hubRank() << endl;
+			
+			itNetPages = webPages->begin();
+			for (int webPageId = 1; webPageId <= aNet->amountOfNodes(); webPageId++){
+				//~ if (itNetPages != webPages->end() && webPageId == (*itNetPages)->pageId()){
+					HITSRank* rankingOfPage = (HITSRank*)((*itNetPages)->ranking());
+					file << rankingOfPage->hubRank() << endl;
+					itNetPages++;
+				//~ } else {
+					//~ file << "0" << endl;
+					//~ cout << webPageId << endl;
+				//~ }
 			}
 		}
 					
@@ -118,21 +142,26 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	if (file.is_open()){
 		
 		file >> amountOfNodes >> amountOfEdges;
+		
+		for (int i = 1; i <= amountOfNodes; i++){
+			list<int>* listOfLinkedWebPagesIds = new list<int>();
+			WebPage* node = new WebPage(i, listOfLinkedWebPagesIds);
+			webPages->push_back(node);
+		}
+		
 		int fromNodeId;
 		file >> fromNodeId ;
 		while( !file.eof() )
 		{
-			int nodeId = fromNodeId;
-			list<int>* listOfLinkedWebPagesIds = new list<int>();
+			int nodeId = fromNodeId;			
 			while(fromNodeId == nodeId && !file.eof()) {
+				list<WebPage*>::iterator webPagesIt = webPages->begin();
+				advance(webPagesIt,nodeId-1);
 				int toNodeId;
 				file >> toNodeId;
-				listOfLinkedWebPagesIds->push_back(toNodeId);
+				(*webPagesIt)->addToLinkedIdList(toNodeId);
 				file >> fromNodeId;
 			}
-			 			
-			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);
-			webPages->push_back(node);
 		}
 		file.close();	
 	}else{

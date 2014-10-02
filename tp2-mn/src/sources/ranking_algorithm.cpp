@@ -97,13 +97,13 @@ class HITS : public RankingAlgorithm {
 				}*/
 		};
 		
-		AuthorityHubWeightVectors Iterate(CRSMatrix adjacencyMatrix, int amountOfIterations){
+		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations){
 			vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
 			vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
 			AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
 			
 			for (int i = 1; i <= amountOfIterations; i++){
-				authorityHubWeightVectors.authorityWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector); // Falta hacer la traspuesta de adjacencyMatrix!!
+				authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector); // Falta hacer la traspuesta de adjacencyMatrix!!
 				authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
 				authorityHubWeightVectors.normalizeVectors();
 			}
@@ -115,17 +115,20 @@ class HITS : public RankingAlgorithm {
 void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	
 	/** Create adjacency matrix **/
-	CRSBuilder builder;
+	CRSBuilder builder, builderTransposed;
 	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
 		for (list<int>::iterator itIdLinkedPages = ((*itNetPages)->listOfLinkedWebPagesIds())->begin(); itIdLinkedPages != ((*itNetPages)->listOfLinkedWebPagesIds())->end(); ++itIdLinkedPages){
 			builder.AddElementAt((*itNetPages)->pageId(), *itIdLinkedPages, 1.0);
+			builderTransposed.AddElementAt(*itIdLinkedPages, (*itNetPages)->pageId(), 1.0);
 		}
 	}
     
-    CRSMatrix adjacencyMatrix = builder.Build(net->amountOfNodes(), net->amountOfNodes());
+    int adjMatrixSize = net->amountOfNodes();
+    CRSMatrix adjacencyMatrix = builder.Build(adjMatrixSize, adjMatrixSize);
+    CRSMatrix transposedAdjacencyMatrix = builderTransposed.Build(adjMatrixSize, adjMatrixSize);
     
     /** Find weights (hub & authority) **/
-	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, amountOfIterations);
+	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix, amountOfIterations);
 	
 	
 	/** Rank WebPages **/ 
