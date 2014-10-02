@@ -15,36 +15,23 @@ using namespace std;
 #ifndef __RANKING_ALGORITHMS__
 #define __RANKING_ALGORITHMS__
 
-class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
-    public:
-        virtual void RankPage(WebNet* net, int amountOfIterations) = 0; //i think this won't be void but a orderd list of ranked pages.
-        virtual ~RankingAlgorithm(){};
-        
-};
+/*TODO: 
+    this should be in a class linked to vectors... 
+    maybe we shouldnt have used vectors but our own implementation
+*/
 
-class PageRank : public RankingAlgorithm {
-    public:
-        void RankPage(WebNet* net, int amountOfIterations);
-        ~PageRank(){};
-};
+void scaleBy(double aScalingFactor, vector<double>& aVector){
+    for (int i = 0; i < (int)aVector.size(); i++)
+	{
+		aVector[i] = aVector[i]*aScalingFactor;
+	}
+}
 
-void PageRank :: RankPage(WebNet* net, int amountOfIterations){
-    /*
-    Matrix matrix = CreateMatrixWith(pages);
-    foreach page in pages
-    {
-    	if(no se autorankea la page)
-	     	matrix.AddElementA(page.I, page.J, page.value);
-    }
-    
-       
-    while(!decidedToStop)
-    {
-        perform cA * ((1-c)/n)TODOS_UNOS x= x
-    }
-    
-    return OrderPages() might need the matrix and the pages
-    */
+vector<double> createRandomVectorOfSize(int n){
+    vector<double> randomVector;
+    for(int i=0;i<n;i++)
+        randomVector.push_back(0.0); //TODO: this should be random!!!!
+    return randomVector;
 }
 
 double calculateNorm2(vector<double>& aVector){
@@ -60,11 +47,117 @@ double calculateNorm2(vector<double>& aVector){
 void normalizeVector(vector<double>& aVector){
 	double aVectorNorm2 = calculateNorm2(aVector);
 	
+    scaleBy(1.0/aVectorNorm2, aVector);
+}
+
+double sumElements(vector<double>& aVector){
+//TODO: CHECK - SHOULD WE NORMALIZE?
+	double sum = 0;
+    
 	for (int i = 0; i < (int)aVector.size(); i++)
 	{
-		aVector[i] = aVector[i]/aVectorNorm2;
+		sum += aVector[i];
+	}
+    
+    return sum;
+}
+
+void addConstantToEachElement(double aConstant, vector<double>& aVector){
+    for (int i = 0; i < (int)aVector.size(); i++)
+	{
+		aVector[i] += aConstant;
 	}
 }
+
+class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
+    public:
+        virtual void RankPage(WebNet* net, int amountOfIterations) = 0; //i think this won't be void but a orderd list of ranked pages.
+        virtual ~RankingAlgorithm(){};
+        
+};
+
+class PageRank : public RankingAlgorithm {
+    public:
+        PageRank(double teletransportingProbability) : _teletransporting(teletransportingProbability) {}
+        ~PageRank(){};
+    
+        void RankPage(WebNet* net, int amountOfIterations);
+        
+    private:
+        CRSMatrix createAdjacencyMatrix(WebNet* net);
+        void updateNetWithRanks(vector<double> eigenvector, WebNet* net);
+        
+        double _teletransporting;
+};
+
+void PageRank :: RankPage(WebNet* net, int amountOfIterations){
+    
+    CRSMatrix adjacencyMatrix = createAdjacencyMatrix(net); 
+    
+    int pageCount = net->amountOfNodes();
+    vector<double> lambdaOneEigenvector = createRandomVectorOfSize(pageCount);
+    
+    for(int iteration=0; iteration<amountOfIterations; iteration++)
+    {
+        /*  We need to solve Ax=x
+            Ax=x with model enrichment <==> 
+            [cA + (1-c)E]x = x <==>
+            c(Ax) + (1-c)Ex = x <==>
+            c(Ax) + (1-c)(v_1/n)(v_1^t)x = x (v_1/n is a vector of 1/n, v_1 is a vector of ones) <==> 
+            c(Ax) + (v_(1-c)/n)(v_1^t)x = x  <==> 
+            c(Ax) + [((1-c)/n).sum(x_i) foreach row] = x
+            
+            Remembering to normalize x on each iteration.
+        */
+        
+        normalizeVector(lambdaOneEigenvector);
+        
+        double proportion = (1.0 - _teletransporting)/(double)pageCount;
+        double proportionalEigenvectorSum = sumElements(lambdaOneEigenvector) * proportion;
+        
+        lambdaOneEigenvector = adjacencyMatrix.Multiply(lambdaOneEigenvector);      // performs Ax
+        scaleBy(_teletransporting, lambdaOneEigenvector);                           // performs c(Ax)
+        addConstantToEachElement(proportionalEigenvectorSum, lambdaOneEigenvector); // adds [((1-c)/n).sum(x_i) foreach row]
+        
+    }
+    
+    updateNetWithRanks(lambdaOneEigenvector, net);
+}
+
+void PageRank :: updateNetWithRanks(vector<double> eigenvector, WebNet* net)
+{
+    list<WebPage*>* webPages = net->webPages();
+    list<WebPage*>::iterator itNetPages = webPages->begin();
+	for (itNetPages; itNetPages != webPages->end(); ++itNetPages){
+		int pageId = (*itNetPages)->pageId();
+        double rank = eigenvector[pageId];
+        
+        PageRankInDegreeRank* ranking = new PageRankInDegreeRank(rank);
+		(*itNetPages)->rankWebPage( (Rank*)ranking );
+	}
+}
+
+CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
+{
+    CRSBuilder builder;
+    list<WebPage*>::iterator itNetPages = (net->webPages())->begin();
+    
+	for (itNetPages; itNetPages != (net->webPages())->end(); ++itNetPages){
+        list<int>* linkedPageIds = ((*itNetPages)->listOfLinkedWebPagesIds());
+        list<int>::iterator itIdLinkedPages = linkedPageIds->begin();
+        
+        double pageCount = (double)linkedPageIds->size();
+		
+        for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
+			int referencedPage = (*itNetPages)->pageId();
+            int page = *itIdLinkedPages;
+            builder.AddElementAt(page, referencedPage, 1.0/pageCount);
+		}
+	}
+    
+    return  builder.Build(net->amountOfNodes(), net->amountOfNodes());
+}
+
 
 //bool orderMostImportantFirst (int i,int j) { return (i>j); }
 
