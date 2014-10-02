@@ -30,7 +30,7 @@ void scaleBy(double aScalingFactor, vector<double>& aVector){
 vector<double> createRandomVectorOfSize(int n){
     vector<double> randomVector;
     for(int i=0;i<n;i++)
-        randomVector.push_back(0.0); //TODO: this should be random!!!!
+        randomVector.push_back(1.0); //TODO: this should be random!!!!
     return randomVector;
 }
 
@@ -129,7 +129,7 @@ void PageRank :: updateNetWithRanks(vector<double> eigenvector, WebNet* net)
     list<WebPage*>* webPages = net->webPages();
     list<WebPage*>::iterator itNetPages = webPages->begin();
 	for (itNetPages; itNetPages != webPages->end(); ++itNetPages){
-		int pageId = (*itNetPages)->pageId();
+		int pageId = (*itNetPages)->pageId() - 1;
         double rank = eigenvector[pageId];
         
         PageRankInDegreeRank* ranking = new PageRankInDegreeRank(rank);
@@ -149,8 +149,8 @@ CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
         double pageCount = (double)linkedPageIds->size();
 		
         for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
-			int referencedPage = (*itNetPages)->pageId();
-            int page = *itIdLinkedPages;
+			int referencedPage = (*itNetPages)->pageId() - 1;
+            int page = *itIdLinkedPages - 1;
             builder.AddElementAt(page, referencedPage, 1.0/pageCount);
 		}
 	}
@@ -194,11 +194,13 @@ class HITS : public RankingAlgorithm {
 			vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
 			vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
 			AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
-			
+
 			for (int i = 1; i <= amountOfIterations; i++){
-				authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector); // Falta hacer la traspuesta de adjacencyMatrix!!
+				authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector);
+				cout << "puta" << endl;
 				authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
 				authorityHubWeightVectors.normalizeVectors();
+					
 			}
 			
 			return authorityHubWeightVectors;
@@ -211,22 +213,22 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	CRSBuilder builder, builderTransposed;
 	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
 		for (list<int>::iterator itIdLinkedPages = ((*itNetPages)->listOfLinkedWebPagesIds())->begin(); itIdLinkedPages != ((*itNetPages)->listOfLinkedWebPagesIds())->end(); ++itIdLinkedPages){
-			builder.AddElementAt((*itNetPages)->pageId(), *itIdLinkedPages, 1.0);
-			builderTransposed.AddElementAt(*itIdLinkedPages, (*itNetPages)->pageId(), 1.0);
+			builder.AddElementAt((*itNetPages)->pageId()-1, *itIdLinkedPages - 1, 1.0);
+			builderTransposed.AddElementAt(*itIdLinkedPages -1, (*itNetPages)->pageId()-1, 1.0);
 		}
 	}
     
     int adjMatrixSize = net->amountOfNodes();
     CRSMatrix adjacencyMatrix = builder.Build(adjMatrixSize, adjMatrixSize);
     CRSMatrix transposedAdjacencyMatrix = builderTransposed.Build(adjMatrixSize, adjMatrixSize);
-    
+
     /** Find weights (hub & authority) **/
 	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix, amountOfIterations);
-	
+
 	
 	/** Rank WebPages **/ 
 	for (list<WebPage*>::iterator itNetPages = net->webPages()->begin(); itNetPages != net->webPages()->end(); ++itNetPages){
-		HITSRank* webPageRanking = new HITSRank(authorityHubWeightVectors.authorityWeightVector[(*itNetPages)->pageId()], authorityHubWeightVectors.hubWeightVector[(*itNetPages)->pageId()]);
+		HITSRank* webPageRanking = new HITSRank(authorityHubWeightVectors.authorityWeightVector[(*itNetPages)->pageId()-1], authorityHubWeightVectors.hubWeightVector[(*itNetPages)->pageId()-1]);
 		(*itNetPages)->rankWebPage( (Rank*)webPageRanking );
 	}
 	
@@ -250,13 +252,13 @@ void InDegree :: RankPage(WebNet* net, int amountOfIterations){
 	
 	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
 		for (list<int>::iterator itIdLinkedPages = ((*itNetPages)->listOfLinkedWebPagesIds())->begin(); itIdLinkedPages != ((*itNetPages)->listOfLinkedWebPagesIds())->end(); ++itIdLinkedPages){
-			inDegreeForAllPages[*itIdLinkedPages]++;
+			inDegreeForAllPages[*itIdLinkedPages - 1]++;
 		}
 	}
 	
 	/** Rank WebPages **/ 	
 	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
-		PageRankInDegreeRank* webPageRanking = new PageRankInDegreeRank(inDegreeForAllPages[(*itNetPages)->pageId()]);
+		PageRankInDegreeRank* webPageRanking = new PageRankInDegreeRank(inDegreeForAllPages[(*itNetPages)->pageId()-1]);
 		(*itNetPages)->rankWebPage( (Rank*)webPageRanking );
 	}
 }

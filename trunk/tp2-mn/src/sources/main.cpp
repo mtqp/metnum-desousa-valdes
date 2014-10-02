@@ -41,7 +41,7 @@ ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType)
 RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
 	switch (algorithmType){
 		case PAGERANK:{
-			PageRank* pageRankAlgorithm = new PageRank(0.15); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
+			PageRank* pageRankAlgorithm = new PageRank(0.85); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
 			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
@@ -59,7 +59,7 @@ RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmTyp
 		}
 		
 		default:{
-			PageRank* pageRankAlgorithm = new PageRank(0.15); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
+			PageRank* pageRankAlgorithm = new PageRank(0.85); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
 			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
