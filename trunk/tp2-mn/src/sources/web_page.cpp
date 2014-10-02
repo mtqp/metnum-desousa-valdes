@@ -70,6 +70,7 @@ class WebPage {
         int pageId(){ return _id; }
         list<int>* listOfLinkedWebPagesIds(){ return _listOfLinkedWebPagesIds; }
         Rank* ranking(){ return _ranking; }
+        void addToLinkedIdList(int linkedId){ _listOfLinkedWebPagesIds->push_back(linkedId); }
         void rankWebPage(Rank* ranking){ _ranking = ranking; }
         
     private:
