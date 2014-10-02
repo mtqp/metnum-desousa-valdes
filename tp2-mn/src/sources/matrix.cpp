@@ -47,13 +47,14 @@ class CRSMatrix {//: public RealMatrix{ //Compressed sparse row
                     multiplication.push_back(0.0);
                     continue;
                 }
-                
+
                 int colLowerBound = _rowPointers[row];
                 int colUpperBound = UpperBoundFromRow(row);
                 
                 double rowValue = 0;
                 
                 for(int index=colLowerBound; index<colUpperBound; index++){
+					
                     int column = _colIndexes[index];
                     double matrixValue = _values[index];
                     double vectorValue = aVector[column];
