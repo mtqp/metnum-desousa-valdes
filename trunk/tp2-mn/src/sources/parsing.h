@@ -31,14 +31,12 @@ class ParsingAlgorithm {
 class TorontoParsing : public ParsingAlgorithm{
 	public:
 		WebNet* ParseFile(const char* pathToFile);
-        //void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
 		~TorontoParsing(){};
 };
 
 class StanfordParsing : public ParsingAlgorithm{
 	public:
 		WebNet* ParseFile(const char* pathToFile);
-       // void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
         ~StanfordParsing(){};
 };
 
