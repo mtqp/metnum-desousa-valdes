@@ -128,6 +128,20 @@ CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
 
 
 //bool orderMostImportantFirst (int i,int j) { return (i>j); }
+HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations){
+	vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
+	vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
+	HITS::AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
+
+	for (int i = 1; i <= amountOfIterations; i++){
+		authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector);
+		authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
+		authorityHubWeightVectors.normalizeVectors();
+			
+	}
+	
+	return authorityHubWeightVectors;
+}
 
 void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	
