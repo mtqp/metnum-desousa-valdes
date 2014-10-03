@@ -78,8 +78,8 @@ class HITS : public RankingAlgorithm {
 		};
 		
 		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations){
-			vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
-			vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
+			vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
+			vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
 			AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
 
 			for (int i = 1; i <= amountOfIterations; i++){
