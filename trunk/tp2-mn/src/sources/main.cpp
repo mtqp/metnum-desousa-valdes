@@ -1,15 +1,5 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <list>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include <string>
-#include "ranking_algorithm.cpp"
-#include "web_page.cpp"
-#include "web_net.cpp"
-#include "parsing.cpp"
+#include "main.h"
+
 //TODO DELETE WHAT WE ARE NOT USING
 
 //TODO: REFACTOR INTO MULTIPLE FILES!

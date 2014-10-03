@@ -1,32 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <list>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include <string>
-#include "web_page.cpp"
-#include "web_net.cpp"
-//TODO DELETE WHAT WE ARE NOT USING
-
-//TODO: REFACTOR INTO MULTIPLE FILES!
+#include "parsing.h"
 
 using namespace std;
-
-#ifndef __PARSING__
-#define __PARSING__
-
-enum InstanceType { STANFORD, TORONTO }; // Stanford = 0, Toronto = 1
-enum AlgorithmType { PAGERANK, HITSALG, INDEG }; // PageRank = 0, HITSALG = 1, INDEG = 2
-
-class ParsingAlgorithm {
-    public:
-        virtual WebNet* ParseFile(const char* pathToFile) = 0;
-        void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
-        virtual ~ParsingAlgorithm(){};
-        
-};
 
 void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType){
 	ofstream file;
@@ -78,13 +52,6 @@ void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, 
 		exit(1);
 	}
 }
-		
-class TorontoParsing : public ParsingAlgorithm{
-	public:
-		WebNet* ParseFile(const char* pathToFile);
-        //void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
-		~TorontoParsing(){};
-};
 
 WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 	int amountOfNodes, amountOfEdges = 0;
@@ -126,13 +93,6 @@ WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 	return net;
 }
 
-class StanfordParsing : public ParsingAlgorithm{
-	public:
-		WebNet* ParseFile(const char* pathToFile);
-       // void SaveRankTo(const char* pathToSavingFile, WebNet* aNet, AlgorithmType algorithmType);
-        ~StanfordParsing(){};
-};
-
 WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	int amountOfNodes, amountOfEdges;
 	list<WebPage*>* webPages = new list<WebPage*>();
@@ -171,5 +131,3 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	WebNet* net = new WebNet(amountOfNodes, amountOfEdges, webPages);
 	return net;
 }
-
-#endif

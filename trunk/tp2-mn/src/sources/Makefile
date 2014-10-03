@@ -4,6 +4,4 @@ main:
 clean:
 	rm main
 
-all:
-	make clean
-	make main
+all: clean main
