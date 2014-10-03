@@ -51,8 +51,8 @@ vector<double> CRSMatrix::Multiply(vector<double> aVector){
 		cout << "row: " << row << endl;*/
 		for (int j = _rowPointers[row]; j < _rowPointers[row+1]; j++){
 			rowValue += _values[j] * aVector[_colIndexes[j]]; 
-			multiplication.push_back(rowValue);
 		}
+		multiplication.push_back(rowValue);
 		
 		
 	}
@@ -196,7 +196,7 @@ vector<int> CRSBuilder::CollectPointers(int amountOfRows){
 	pointers.push_back(actualRow);
 	for (int i = 0; i < (int)_elements.size(); i++){
 		int elementRow = _elements[i].row;
-		cout << "i:" << i << "; elementRow: " << elementRow << "; actualRow: " << actualRow << endl;
+
 		if (actualRow != elementRow ){
 			int amountOfRowsLeaped =  elementRow-actualRow;
 			

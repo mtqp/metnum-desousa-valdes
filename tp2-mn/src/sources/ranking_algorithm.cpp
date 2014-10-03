@@ -146,8 +146,6 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
     int adjMatrixSize = net->amountOfNodes();
     CRSMatrix adjacencyMatrix = builder.Build(adjMatrixSize, adjMatrixSize);
     CRSMatrix transposedAdjacencyMatrix = builderTransposed.Build(adjMatrixSize, adjMatrixSize);
-    
-    adjacencyMatrix.PrintItSelf();
 
     /** Find weights (hub & authority) **/
 	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix, amountOfIterations);
