@@ -1,19 +1,6 @@
-#include <iostream>
-#include <fstream>
-#include <cmath>
-#include <list>
-#include <vector>
-#include <algorithm>
-#include <iomanip>
-#include <string>
-#include "web_page.cpp"
-#include "web_net.cpp"
-#include "matrix.cpp"
+#include "ranking_algorithm.h"
 
 using namespace std;
-
-#ifndef __RANKING_ALGORITHMS__
-#define __RANKING_ALGORITHMS__
 
 /*TODO: 
     this should be in a class linked to vectors... 
@@ -69,26 +56,7 @@ void addConstantToEachElement(double aConstant, vector<double>& aVector){
 	}
 }
 
-class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
-    public:
-        virtual void RankPage(WebNet* net, int amountOfIterations) = 0; //i think this won't be void but a orderd list of ranked pages.
-        virtual ~RankingAlgorithm(){};
-        
-};
-
-class PageRank : public RankingAlgorithm {
-    public:
-        PageRank(double teletransportingProbability) : _teletransporting(teletransportingProbability) {}
-        ~PageRank(){};
-    
-        void RankPage(WebNet* net, int amountOfIterations);
-        
-    private:
-        CRSMatrix createAdjacencyMatrix(WebNet* net);
-        void updateNetWithRanks(vector<double> eigenvector, WebNet* net);
-        
-        double _teletransporting;
-};
+PageRank :: ~PageRank(){}
 
 void PageRank :: RankPage(WebNet* net, int amountOfIterations){
     
@@ -161,66 +129,25 @@ CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
 
 //bool orderMostImportantFirst (int i,int j) { return (i>j); }
 
-class HITS : public RankingAlgorithm {
-    public:
-        void RankPage(WebNet* net, int amountOfIterations);
-        ~HITS(){};
-    private:
-		class AuthorityHubWeightVectors {
-			public:
-				AuthorityHubWeightVectors(vector<double>& authWVector, vector<double>& hubWVector) : authorityWeightVector(authWVector), hubWeightVector(hubWVector) {}
-				~AuthorityHubWeightVectors(){
-					/*
-					delete _authorityWeightVector;
-					delete _hubWeightVector;
-					*/
-				};
-				
-				vector<double> authorityWeightVector;
-				vector<double> hubWeightVector;
-				
-				void normalizeVectors(){
-					normalizeVector(authorityWeightVector);
-					normalizeVector(hubWeightVector);
-				}
-				
-				/*void sortVectorsMostImportantFirst(){
-					sort(authorityWeightVector.begin(), authorityWeightVector.end(), orderMostImportantFirst);
-					sort(hubWeightVector.begin(), hubWeightVector.end(), orderMostImportantFirst);
-				}*/
-		};
-		
-		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations){
-			vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
-			vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1);
-			AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
-
-			for (int i = 1; i <= amountOfIterations; i++){
-				authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector);
-				cout << "puta" << endl;
-				authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
-				authorityHubWeightVectors.normalizeVectors();
-					
-			}
-			
-			return authorityHubWeightVectors;
-		}
-};
-
 void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	
 	/** Create adjacency matrix **/
 	CRSBuilder builder, builderTransposed;
 	for (list<WebPage*>::iterator itNetPages = (net->webPages())->begin(); itNetPages != (net->webPages())->end(); ++itNetPages){
 		for (list<int>::iterator itIdLinkedPages = ((*itNetPages)->listOfLinkedWebPagesIds())->begin(); itIdLinkedPages != ((*itNetPages)->listOfLinkedWebPagesIds())->end(); ++itIdLinkedPages){
-			builder.AddElementAt((*itNetPages)->pageId()-1, *itIdLinkedPages - 1, 1.0);
-			builderTransposed.AddElementAt(*itIdLinkedPages -1, (*itNetPages)->pageId()-1, 1.0);
+			int fromPageId = (*itNetPages)->pageId();
+			int toPageId = *itIdLinkedPages;
+			fromPageId--; toPageId--;
+			builder.AddElementAt(fromPageId, toPageId, 1.0);
+			builderTransposed.AddElementAt(toPageId, fromPageId, 1.0);
 		}
 	}
     
     int adjMatrixSize = net->amountOfNodes();
     CRSMatrix adjacencyMatrix = builder.Build(adjMatrixSize, adjMatrixSize);
     CRSMatrix transposedAdjacencyMatrix = builderTransposed.Build(adjMatrixSize, adjMatrixSize);
+    
+    adjacencyMatrix.PrintItSelf();
 
     /** Find weights (hub & authority) **/
 	AuthorityHubWeightVectors authorityHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix, amountOfIterations);
@@ -239,12 +166,6 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	}*/
 }
 
-class InDegree : public RankingAlgorithm {
-    public:
-        void RankPage(WebNet* net, int amountOfIterations);
-        ~InDegree(){};
-};
-
 void InDegree :: RankPage(WebNet* net, int amountOfIterations){
 	
 	/** Calculate In-Degree for each page in a separate array **/
@@ -262,5 +183,3 @@ void InDegree :: RankPage(WebNet* net, int amountOfIterations){
 		(*itNetPages)->rankWebPage( (Rank*)webPageRanking );
 	}
 }
-
-#endif
