@@ -58,12 +58,35 @@ void addConstantToEachElement(double aConstant, vector<double>& aVector){
 
 PageRank :: ~PageRank(){}
 
+CRSMatrix createMatrixD(WebNet* net)
+{
+    CRSBuilder builder;
+    list<WebPage*>::iterator itNetPages = (net->webPages())->begin();
+    
+	for (itNetPages; itNetPages != (net->webPages())->end(); ++itNetPages){
+        list<int>* linkedPageIds = ((*itNetPages)->listOfLinkedWebPagesIds());
+        list<int>::iterator itIdLinkedPages = linkedPageIds->begin();
+        
+        double pageCount = (double)linkedPageIds->size();
+		
+        for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
+			int referencedPage = (*itNetPages)->pageId() - 1;
+            int page = *itIdLinkedPages - 1;
+            builder.AddElementAt(page, referencedPage, 1.0/net->amountOfNodes());
+		}
+	}
+    
+    return  builder.Build(net->amountOfNodes(), net->amountOfNodes());
+}
+
 void PageRank :: RankPage(WebNet* net, int amountOfIterations){
     
     CRSMatrix adjacencyMatrix = createAdjacencyMatrix(net); 
     
     int pageCount = net->amountOfNodes();
     vector<double> lambdaOneEigenvector = createRandomVectorOfSize(pageCount);
+    
+	CRSMatrix matrixD = createMatrixD(net);
     
     for(int iteration=0; iteration<amountOfIterations; iteration++)
     {
@@ -119,7 +142,7 @@ CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
         for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
 			int referencedPage = (*itNetPages)->pageId() - 1;
             int page = *itIdLinkedPages - 1;
-            builder.AddElementAt(page, referencedPage, 1.0/pageCount);
+            builder.AddElementAt(page, referencedPage, 1.0/net->amountOfNodes());
 		}
 	}
     

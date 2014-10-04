@@ -78,15 +78,10 @@ int main(int argc, char* argv[]) {
 	
 	if (inputFile.is_open()){
 		inputFile >> algorithmToRun;
-		cout << "algoRun: " << algorithmToRun << endl;
 		inputFile >> teletransportingValue;
-				cout << "teletransportingValue: " << teletransportingValue << endl;
 		inputFile >> instanceType;
-				cout << "instanceType: " << instanceType << endl;
 		inputFile >> webDefinitionPathFile;
-				cout << "webDefinitionPathFile: " << webDefinitionPathFile << endl;
 		inputFile >> toleranceValue;
-				cout << "toleranceValue: " << toleranceValue << endl;
 		inputFile.close();	
 	} else{
 		cout << "Unable to open input file" << endl;		

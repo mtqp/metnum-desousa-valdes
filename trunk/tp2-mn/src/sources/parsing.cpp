@@ -100,8 +100,22 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	file.open(pathToFile);
 	
 	if (file.is_open()){
+		//ignoro lineas
+		file.ignore(1000,'\n');
+		file.ignore(1000,'\n');
 		
-		file >> amountOfNodes >> amountOfEdges;
+		//ignoro hasta : 
+		
+		file.ignore(200, ':');
+		file >> amountOfNodes;
+		
+		//ignoro hasta : 
+		file.ignore(200, ':');
+		file >> amountOfEdges;
+		
+		// ignoro lineas
+		file.ignore(1000,'\n');
+		file.ignore(1000,'\n');
 		
 		for (int i = 1; i <= amountOfNodes; i++){
 			list<int>* listOfLinkedWebPagesIds = new list<int>();
@@ -114,6 +128,7 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 		while( !file.eof() )
 		{
 			int nodeId = fromNodeId;			
+			
 			while(fromNodeId == nodeId && !file.eof()) {
 				list<WebPage*>::iterator webPagesIt = webPages->begin();
 				advance(webPagesIt,nodeId-1);
