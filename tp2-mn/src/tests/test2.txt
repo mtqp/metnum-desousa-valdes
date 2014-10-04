@@ -1,5 +1,5 @@
 # Directed graph (each unordered pair of nodes is saved once): web-Stanford.txt 
-# Example from presentation.
+# Example shown in the Bryan and Leise.
 # Nodes: 4 Edges: 6 
 # FromNodeId	ToNodeId
 1 2
