@@ -1,9 +1,5 @@
 #include "main.h"
 
-//TODO DELETE WHAT WE ARE NOT USING
-
-//TODO: REFACTOR INTO MULTIPLE FILES!
-
 using namespace std;
 
 ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType){
@@ -70,25 +66,45 @@ int main(int argc, char* argv[]) {
 	Rank aRank = rankingAlgorithm.rank(pages);
 	
 	parsingAlgorithm.SaveRankTo(savingFile, aRank);*/
-	AlgorithmType algorithmToRun = (AlgorithmType)atoi(argv[1]);
-	double teletransportingValue = atof(argv[2]);
-	InstanceType instanceType = (InstanceType)atoi(argv[3]);
-	char* webDefinitionPathFile = argv[4];
-	double toleranceValue = atof(argv[5]);
+	ifstream inputFile;
 	
-	char* savingFile;// = "ranking.out";
-	if (argc == 7)
-		savingFile = argv[6];
+	inputFile.open(argv[1]);
 	
-	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter(instanceType);
+	int algorithmToRun;
+	double teletransportingValue;
+	int instanceType;
+	char webDefinitionPathFile[256];
+	double toleranceValue;
+	
+	if (inputFile.is_open()){
+		inputFile >> algorithmToRun;
+		cout << "algoRun: " << algorithmToRun << endl;
+		inputFile >> teletransportingValue;
+				cout << "teletransportingValue: " << teletransportingValue << endl;
+		inputFile >> instanceType;
+				cout << "instanceType: " << instanceType << endl;
+		inputFile >> webDefinitionPathFile;
+				cout << "webDefinitionPathFile: " << webDefinitionPathFile << endl;
+		inputFile >> toleranceValue;
+				cout << "toleranceValue: " << toleranceValue << endl;
+		inputFile.close();	
+	} else{
+		cout << "Unable to open input file" << endl;		
+		exit(1);
+	}
+	
+	string savingFile(argv[2]);
+	
+	
+	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter((InstanceType)instanceType);
 	WebNet* net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
 	
 	int amountOfIterations = 50;
 	//int amountOfResultsToShow = 10;
-	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter(algorithmToRun);
+	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun);
 	rankingAlgorithm->RankPage(net, amountOfIterations);
 	
-	parsingAlgorithm->SaveRankTo(savingFile, net, algorithmToRun);
+	parsingAlgorithm->SaveRankTo(savingFile.c_str(), net, (AlgorithmType)algorithmToRun);
 	
 	delete parsingAlgorithm;
 	delete rankingAlgorithm;
