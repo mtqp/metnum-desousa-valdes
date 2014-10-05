@@ -9,52 +9,14 @@ int CRSMatrix::amountOfColumns(){ return _n; }
 CRSMatrix :: ~CRSMatrix(){};
 
 vector<double> CRSMatrix::Multiply(vector<double> aVector){ 
-/*		
-	for (i = 0; i < M; i++)
-		for (j = row_start[i]; j < row_start[i+1]; j++)
-		{
-			y[i] += values[j] * x[col_idx[j]];
-		}*/
-
-	//c*A +  (1-c/N) remember to do this on he crazy page rank algorithm
-	//multiply knowing that if element i.j is zero, we should user (1-c)/n
 	vector<double> multiplication;
 
 	for(int row=0; row<_m; row++){
-	  /*  bool isRowEmpty = _rowPointers[row] == NO_ROW;
-		if(isRowEmpty){ //any vector multiplying a zero vector equals zero.
-			multiplication.push_back(0.0);
-			continue;
-		}*/
-
-	  /*  int colLowerBound = _rowPointers[row];
-		int colUpperBound = UpperBoundFromRow(row);
-		
 		double rowValue = 0;
-		
-		for(int index=colLowerBound; index<colUpperBound; index++){
-			
-			int column = _colIndexes[index];
-			double matrixValue = _values[index];
-			double vectorValue = aVector[column];
-			
-			bool vectorValueIsZero = abs(vectorValue) < EPS;
-		
-			if(!vectorValueIsZero){
-				double i_jTimesVector = vectorValue * matrixValue;
-				rowValue += i_jTimesVector;
-			}
-		}*/
-		
-		double rowValue = 0;
-	   /* cout << "_rowPointers size: " << _rowPointers.size() << endl;
-		cout << "row: " << row << endl;*/
 		for (int j = _rowPointers[row]; j < _rowPointers[row+1]; j++){
 			rowValue += _values[j] * aVector[_colIndexes[j]]; 
 		}
 		multiplication.push_back(rowValue);
-		
-		
 	}
 
 	return multiplication;
@@ -174,24 +136,7 @@ CRSMatrix CRSBuilder::Build(int n, int m){
 
 vector<int> CRSBuilder::CollectPointers(int amountOfRows){
 	vector<int> pointers;
-  /*  int actualRow = -1;
-	
-	for(int nextPointer=0; nextPointer < (int)_elements.size(); nextPointer++){
-		int elementRow = _elements[nextPointer].row;
 		
-		int mustMoveToNextRow = (elementRow - actualRow) >= 1;
-		int rowLeap = elementRow - actualRow;
-		if(mustMoveToNextRow)
-		{
-			while(rowLeap > 1){
-				pointers.push_back(NO_ROW);    
-				rowLeap--;
-			}
-			pointers.push_back(nextPointer);    
-			actualRow = elementRow;
-		}
-	}*/
-	
 	int actualRow = 0;
 	pointers.push_back(actualRow);
 	for (int i = 0; i < (int)_elements.size(); i++){

@@ -16,7 +16,7 @@
 
 using namespace std;
 
-class CRSMatrix {//: public RealMatrix{ //Compressed sparse row
+class CRSMatrix {
     public:
         CRSMatrix(int n, int m, vector<int> colIndexes, vector<int> rowPointers, vector<double> values) : _n(n), _m(m), _colIndexes(colIndexes), _rowPointers(rowPointers), _values(values){}
         int amountOfRows();

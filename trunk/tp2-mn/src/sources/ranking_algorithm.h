@@ -15,9 +15,11 @@
 
 using namespace std;
 
+typedef list<int>::iterator list_iterator;
+
 void scaleBy(double aScalingFactor, vector<double>& aVector);
 
-vector<double> createRandomVectorOfSize(int n);
+vector<double> createRandomVectorOfSize(int n, unsigned int srand_seed);
 
 double calculateNorm2(vector<double>& aVector);
 
@@ -27,9 +29,13 @@ double sumElements(vector<double>& aVector);
 
 void addConstantToEachElement(double aConstant, vector<double>& aVector);
 
-class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
+vector<double> substractVectors(vector<double>& v1, vector<double>& v2);
+
+vector<double> sumVectors(vector<double>& v1, vector<double>& v2);
+
+class RankingAlgorithm {
     public:
-        virtual void RankPage(WebNet* net, int amountOfIterations) = 0; //i think this won't be void but a orderd list of ranked pages.
+        virtual void RankPage(WebNet* net, int amountOfIterations) = 0;
         virtual ~RankingAlgorithm(){};
         
 };
@@ -42,7 +48,8 @@ class PageRank : public RankingAlgorithm {
         void RankPage(WebNet* net, int amountOfIterations);
         
     private:
-        CRSMatrix createAdjacencyMatrix(WebNet* net);
+		void prepareBuildersForPDMatrices(WebNet* net, CRSBuilder& builderP, CRSBuilder& builderD);
+		double differenceBetweenSolutions(vector<double>& x, vector<double>& old_x);
         void updateNetWithRanks(vector<double> eigenvector, WebNet* net);
         
         double _teletransporting;
@@ -57,12 +64,7 @@ class HITS : public RankingAlgorithm {
 		class AuthorityHubWeightVectors {
 			public:
 				AuthorityHubWeightVectors(vector<double>& authWVector, vector<double>& hubWVector) : authorityWeightVector(authWVector), hubWeightVector(hubWVector) {}
-				~AuthorityHubWeightVectors(){
-					/*
-					delete _authorityWeightVector;
-					delete _hubWeightVector;
-					*/
-				};
+				~AuthorityHubWeightVectors(){};
 				
 				vector<double> authorityWeightVector;
 				vector<double> hubWeightVector;
@@ -71,14 +73,10 @@ class HITS : public RankingAlgorithm {
 					normalizeVector(authorityWeightVector);
 					normalizeVector(hubWeightVector);
 				}
-				
-				/*void sortVectorsMostImportantFirst(){
-					sort(authorityWeightVector.begin(), authorityWeightVector.end(), orderMostImportantFirst);
-					sort(hubWeightVector.begin(), hubWeightVector.end(), orderMostImportantFirst);
-				}*/
 		};
 		
 		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations);
+		
 };
 
 class InDegree : public RankingAlgorithm {
