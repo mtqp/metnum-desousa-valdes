@@ -164,6 +164,31 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 
 
 \subsection{Implementación}
+
+	En la implementación, decidimos utilizar herencia y polimorfismo para simplificar el código. Este trabajo práctico es significativamente más grande que el anterior; una implementación descuidada necesariamente nos conduciría a muchos errores, complejos de encontrar y corregir. 
+
+	Las abstracciones que encontramos fueron: 
+	\begin{itemize}
+		\item \textbf{Algoritmos}: Debemos implementar tres algoritmos distintos para buscar prácticamente la misma información: \textit{Page Rank, HITS, In Degree}
+		\item \textbf{Parsing}: El parseo de los archivos de inputs deben ser distintos dependiendo de su instancia: \textit{Standford, Toronto}
+		\item \textbf{Declaratividad}: Nos es más fácil pensar el problema si tenemos una \texttt{WebNet} y un conjunto de \texttt{WebPage} para aplicar los algoritmos, las cuales poseen a su vez \texttt{Rank} . En el único momento que efectivamente necesitamos sus valores (por ejemplo cantidad de nodos con los que se conecta) es para aplicar el método de la potencia. De esta manera la implementación de las operaciones de matriz quedan ocultas dentro de cada algoritmo de \textit{ranking}.
+	\end{itemize}
+
+	Escribiendo un pseudo-código, el punto de entrada \textit{(main)} de nuestra aplicación es muy similar al siguiente:
+
+	\vspace{\baselineskip}
+	\begin{codebox}
+	\Procname{$\proc{PageRanking}()$}
+	\li ParsingAlgorithm \id{parsingAlgorithm} = createParsingAlgorithmFromParameters(entryPointParameters)
+	\li WebNet \id{net} = parsingAlgorithm.parseFile(webDefinitionFile)
+	\li RankingAlgorithm \id{rankingAlgorithm} = createRankingAlgorithmFromParameters(entryPointParameters)
+	\li rankingAlgorithm.RankPages(net)
+	\li parsingAlgorithm.SaveRank(net)
+	\End
+	\end{codebox} 
+	\vspace{\baselineskip}
+
+
 \subsubsection{Implementación con matriz Column Row Sparse (CRS)}
 
 \subsubsection{Problemas en la Implementación}
