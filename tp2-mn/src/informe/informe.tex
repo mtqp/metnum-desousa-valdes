@@ -167,7 +167,8 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 
 	En la implementación, decidimos utilizar herencia y polimorfismo para simplificar el código. Este trabajo práctico es significativamente más grande que el anterior; una implementación descuidada necesariamente nos conduciría a muchos errores, complejos de encontrar y corregir. 
 
-	Las abstracciones que encontramos fueron: 
+	Los puntos centrales tenidos en cuenta para el desarrollo fueron:
+
 	\begin{itemize}
 		\item \textbf{Algoritmos}: Debemos implementar tres algoritmos distintos para buscar prácticamente la misma información: \textit{Page Rank, HITS, In Degree}
 		\item \textbf{Parsing}: El parseo de los archivos de inputs deben ser distintos dependiendo de su instancia: \textit{Standford, Toronto}
@@ -188,8 +189,41 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	\end{codebox} 
 	\vspace{\baselineskip}
 
+	Como se comentó anteriormente, es necesario para \textit{Page Rank} y \textit{HITS} aplicar un método iterativo para obtener el \textit{ranking} que buscamos. En este trabajo, utilizamos el método de la potencia. 
 
-\subsubsection{Implementación con matriz Column Row Sparse (CRS)}
+	Por otro lado, sabemos que la red generada por la interconexión entre páginas genera un grafo donde el grado de cada nodo rara vez es \textit{n} (siendo \textit{n} la cantidad de páginas). Por lo tanto, generar la matriz de adyacencia no parece ser una buena solución: tendríamos muchos elementos cuyo valor es cero. La cátedra sugirió tres posibles implementaciones de matrices esparsas: \textit{Dictionary of keys (DOK)}, \textit{Compressed Sparse Row (CSR)} y \textit{Compressed Sparse Column (CSC)}. Nosotros optamos por \textit{CSR}, y la justificación la detallamos a continuación.
+
+\subsubsection{Implementación con matriz Column Sparse Row (CSR)}
+
+	Definamos como \textit{n} a la cantidad de columnas y filas de la matriz, \textit{CSR} la almacena utilizando únicamente tres arreglos (sean: \textit{rowPointers, colIndexes y values}), la dimensión de ellos son: \textit{n} para \textit{rowPointers}, cantidad de elementos no nulos para \textit{colIndexes} e igual cantidad para \textit{values}.
+
+	La semántica de estos arreglos es la siguiente, suponiendo que \textit{i} hace referencia a filas y \textit{j} a columnas:
+
+	\begin{itemize}
+		\item \texttt{rowPointers}: El valor de la i-ésima posición referencia el índice de colIndexes a partir del cual se encuentran los elementos de la i-ésima fila. En caso de no haber elementos en la i-ésima fila de la matriz, esta posición se completa con el mismo valor que la i-1 (simplemente por cuestiones implementativas).
+		\item \texttt{colIndexes}: El valor contenido dentro de cada posición representa a \textit{j}
+		\item \texttt{values}: Contiene los valores de la matriz, cada posición se relaciona uno a uno con \textit{colIndexes}.
+	\end{itemize}
+
+	Si queremos obtener el elemento $a_ij$ podemos definir el siguiente pseudo-codigo:
+
+	\vspace{\baselineskip}
+	\begin{codebox}
+	\Procname{$\proc{Element}(i, j)$}
+	\li int \id{colIndexLower} = rowPointers[i]
+	\li int \id{colIndexUpper} = rowPointers[i+1]
+	\li foreach col : colIndexLower to colIndexUpper
+	\li .	if  colIndexes[col] == j
+	\li .	.	return values[col]
+	\End
+	\end{codebox} 
+	\vspace{\baselineskip}
+
+	De esta manera resulta muy sencillo efectuar una multiplicación entre la matriz y un vector: Iterando las filas multiplicamos solo las posiciones \textit{j} del vector que tengamos en colIndexes por el valor almacenado en values. Si ninguna multiplicación es efectuada, el valor el cero. Por la naturaleza de la multiplicación de matriz por vector, resulta poco útil utilizar la estructura \textit{CSC}. \textit{CSC} es conveniente si necesitamos multiplicar por la traspuesta de una matriz, ya que el mismo algoritmo la recorrería de manera traspuesta. En el algoritmo de \textit{HITS} necesitamos la traspuesta, sin embargo, utilizamos la misma estructura, cargando los índices de manera inversa.
+
+	Tanto \textit{CSR} como \textit{CSC} son complejos de crear si los datos no son suministrados de manera ordenada. Para eso, generamos una clase \textit{CSRBuilder} al cual se le pasan los datos de manera desordenada y una vez que la carga de datos se completa, se encarga de ordenarlos, crear los índices e instanciar una \textit{CSRMatrix}. Si bien no es idéntico, preserva el espíritu de un \textit{DOK}, ya que termina utilizando de cláve \textit{i, j} por la cual ordena la información antes de generar la matriz esparsa por filas. 
+
+	Por la modularización generada, no sería complejo modificar el programa para incluir las dos implementaciones faltantes y hacer pruebas de \textit{performance}. Lamentablemente por falta de tiempo, esto no fue posible.
 
 \subsubsection{Problemas en la Implementación}
 
