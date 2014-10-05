@@ -95,7 +95,7 @@ int main(int argc, char* argv[]) {
 	WebNet* net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
 	
 	int amountOfIterations = 50;
-	//int amountOfResultsToShow = 10;
+
 	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun, teletransportingValue, toleranceValue);
 	rankingAlgorithm->RankPage(net, amountOfIterations);
 	

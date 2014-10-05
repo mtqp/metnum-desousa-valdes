@@ -12,9 +12,6 @@
 #include "ranking_algorithm.h"
 #include "web_net.h"
 #include "parsing.h"
-//TODO DELETE WHAT WE ARE NOT USING
-
-//TODO: REFACTOR INTO MULTIPLE FILES!
 
 using namespace std;
 

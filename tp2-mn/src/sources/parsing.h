@@ -11,9 +11,6 @@
 #include <string>
 #include "web_page.h"
 #include "web_net.h"
-//TODO DELETE WHAT WE ARE NOT USING
-
-//TODO: REFACTOR INTO MULTIPLE FILES!
 
 using namespace std;
 
