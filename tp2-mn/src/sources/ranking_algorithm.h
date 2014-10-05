@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include <cmath>
 #include <list>
 #include <vector>
@@ -26,6 +27,8 @@ double calculateNorm2(vector<double>& aVector);
 void normalizeVector(vector<double>& aVector);
 
 double sumElements(vector<double>& aVector);
+
+double manhattanNorm(vector<double>& aVector);
 
 void addConstantToEachElement(double aConstant, vector<double>& aVector);
 

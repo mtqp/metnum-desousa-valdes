@@ -43,6 +43,18 @@ double sumElements(vector<double>& aVector){
     return sum;
 }
 
+double manhattanNorm(vector<double>& aVector)
+{
+	double sum = 0;
+    
+	for (int i = 0; i < (int)aVector.size(); i++)
+	{
+		sum += abs(aVector[i]);
+	}
+    
+    return sum;
+}
+
 vector<double> substractVectors(vector<double>& v1, vector<double>& v2){
 	vector<double> substraction = vector<double>(v1.size(), 0);
 	for (int i =0; i < (int)v1.size(); i++)
@@ -74,6 +86,56 @@ vector<double> createRandomVectorOfSize(int n, unsigned int srand_seed){
     return randomVector;
 }
 
+//////////STATISTICS/////////////
+class PageRankRunStatistic {
+    public:
+    PageRankRunStatistic(int amountOfNodes, double tolerance, double teletransporting) : _amountOfNodes(amountOfNodes), _tolerance(tolerance), _teletransporting(teletransporting) {}
+
+    void add(int iteration, double manhattanDifference, double norm2Difference);
+    void save();
+    
+    private:
+    int _amountOfNodes;
+    double _tolerance;
+    double _teletransporting;
+    vector<int> _iterations;
+    vector<double> _manhattanDifference;
+    vector<double> _norm2Difference;
+    
+};
+
+void PageRankRunStatistic :: add(int iteration, double manhattanDifference, double norm2Difference)
+{
+    _iterations.push_back(iteration);
+    _manhattanDifference.push_back(manhattanDifference);
+    _norm2Difference.push_back(norm2Difference);
+}
+
+void PageRankRunStatistic :: save()
+{
+    std::ostringstream fileName;
+    fileName << "tests/page_rank_statistics/tol" << _tolerance << "_teletrans" << _teletransporting << "_nAmount" << _amountOfNodes << ".stat";
+    const std::string tmp = fileName.str();
+    const char* cFileName = tmp.c_str();
+    cout << "Saving statistics file: " << fileName.str() << endl;
+
+    ofstream file;
+	file.open(cFileName);
+
+	if (file.is_open()){
+        file << _amountOfNodes << endl;
+        file << _tolerance << endl;
+        file << _teletransporting << endl;
+        
+        for(int i=0;i<_iterations.size();i++) {
+            file << _iterations[i] << " " << _manhattanDifference[i] << " " << _norm2Difference[i] << endl;
+        }
+    }
+    
+    file.close();
+    
+    cout << "Statistics saved" << endl;
+}
 
 /******* PAGERANK *******/ 
 
@@ -130,6 +192,11 @@ void PageRank :: RankPage(WebNet* net, int notUsed){
     // We keep an old solution to keep track of the cutTolerance
     vector<double> old_x = x;
     
+    //This is not correct OOP, we should create an Observer pattern
+    PageRankRunStatistic statistics(net->amountOfNodes(), _cutTolerance, _teletransporting);
+    
+    int iteration = 0;
+    
     do {
         /*  We need to solve Ax=x
             Ax=x with model enrichment <==> 
@@ -149,8 +216,23 @@ void PageRank :: RankPage(WebNet* net, int notUsed){
         x = sumVectors(Px,Dx);
         scaleBy(_teletransporting, x);                           // performs c(Px+Dx)
         addConstantToEachElement(proportionalEigenvectorSum, x); // adds [((1-c)/n).sum(x_i) foreach row]
-    } while(differenceBetweenSolutions(x, old_x) >= _cutTolerance);
+        
+        vector<double> vectorDifference = substractVectors(x, old_x);
+        double norm2Difference = differenceBetweenSolutions(x, old_x);
+        double manhattanDifference = manhattanNorm(vectorDifference);
+        statistics.add(iteration, manhattanDifference, norm2Difference);
+
+        iteration++;
+    } while(differenceBetweenSolutions(x, old_x) >= _cutTolerance && iteration < 5000); //It could not end due to numerical error
     
+    if(iteration >= 5000) {
+        cout << "Run out of iterations - Teletransporting value: " 
+             << _teletransporting << " - Cut tolerance: " 
+             << _cutTolerance << endl;
+    }
+    
+    statistics.save();
+   
     // Set rankings in webPages
     updateNetWithRanks(x, net);
 }
