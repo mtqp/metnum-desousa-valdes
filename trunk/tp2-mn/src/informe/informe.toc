@@ -1,0 +1,16 @@
+\select@language {spanish}
+\contentsline {section}{Introducci\IeC {\'o}n}{2}{section*.2}
+\contentsline {section}{\numberline {1}Desarrollo}{2}{section.1}
+\contentsline {subsection}{\numberline {1.1}Ideas sobre la Implementaci\IeC {\'o}n}{2}{subsection.1.1}
+\contentsline {subsubsection}{\numberline {1.1.1}Caracter\IeC {\'\i }sticas generales del problema}{2}{subsubsection.1.1.1}
+\contentsline {subsection}{\numberline {1.2}Implementaci\IeC {\'o}n}{2}{subsection.1.2}
+\contentsline {subsubsection}{\numberline {1.2.1}Implementaci\IeC {\'o}n con matriz Column Row Sparse (CRS)}{2}{subsubsection.1.2.1}
+\contentsline {subsubsection}{\numberline {1.2.2}Problemas en la Implementaci\IeC {\'o}n}{2}{subsubsection.1.2.2}
+\contentsline {subsection}{\numberline {1.3}Experimentaci\IeC {\'o}n}{2}{subsection.1.3}
+\contentsline {subsubsection}{\numberline {1.3.1}Convergencia de PageRank}{2}{subsubsection.1.3.1}
+\contentsline {subsubsection}{\numberline {1.3.2}Convergencia de HITS}{2}{subsubsection.1.3.2}
+\contentsline {subsubsection}{\numberline {1.3.3}Tiempo de C\IeC {\'o}mputo}{2}{subsubsection.1.3.3}
+\contentsline {subsubsection}{\numberline {1.3.4}An\IeC {\'a}lisis Cualitativo}{2}{subsubsection.1.3.4}
+\contentsline {subsubsection}{\numberline {1.3.5}Casos de Ejemplo}{2}{subsubsection.1.3.5}
+\contentsline {section}{\numberline {2}Conclusi\IeC {\'o}n}{2}{section.2}
+\contentsline {section}{\numberline {3}Bibliograf\IeC {\'\i }a y referencias}{2}{section.3}
