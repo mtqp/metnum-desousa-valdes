@@ -9,9 +9,11 @@ void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, 
 		list<WebPage*>* webPages = aNet->webPages();
 		if (algorithmType != HITSALG){
 			list<WebPage*>::iterator itNetPages = webPages->begin();
-			
+			//cout << "List size: " << webPages->size() << endl;
+            //cout << "Amount of nodes: " << aNet->amountOfNodes() << endl;
+            
 			for (int webPageId = 1; webPageId <= aNet->amountOfNodes(); webPageId++){
-				PageRankInDegreeRank* rankingOfPage = (PageRankInDegreeRank*)((*itNetPages)->ranking());
+                PageRankInDegreeRank* rankingOfPage = (PageRankInDegreeRank*)((*itNetPages)->ranking());
 				file << *rankingOfPage;
 				itNetPages++;
 			}
@@ -63,11 +65,9 @@ WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 				}
 			}	
 			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);  	//ver
-			if(!listOfLinkedWebPagesIds->empty()){
-				webPages->push_back(node);
-			}
+			webPages->push_back(node);
 		}
-		amountOfNodes = fromNodeId;
+		amountOfNodes = fromNodeId + 1; //'cause it's zero based
 		file.close();	
 	} else{
 		cout << "Unable to open input file" << endl;		
