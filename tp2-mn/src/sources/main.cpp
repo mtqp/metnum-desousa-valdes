@@ -24,10 +24,10 @@ ParsingAlgorithm* CreateParsingAlgorithmFromParameter(InstanceType instanceType)
 	}
 }
 
-RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType){
+RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmType, double teletransportingValue, double toleranceValue){
 	switch (algorithmType){
 		case PAGERANK:{
-			PageRank* pageRankAlgorithm = new PageRank(0.85); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
+			PageRank* pageRankAlgorithm = new PageRank(teletransportingValue,toleranceValue);
 			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
@@ -45,7 +45,7 @@ RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmTyp
 		}
 		
 		default:{
-			PageRank* pageRankAlgorithm = new PageRank(0.85); //TODO: REMEMBER TO REFACTOR THIS! THIS IS RETRIEVED FROM MAIN PARAMETERS!!!
+			PageRank* pageRankAlgorithm = new PageRank(teletransportingValue,toleranceValue);
 			return (RankingAlgorithm*)pageRankAlgorithm;
 			break;
 		}
@@ -96,7 +96,7 @@ int main(int argc, char* argv[]) {
 	
 	int amountOfIterations = 50;
 	//int amountOfResultsToShow = 10;
-	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun);
+	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun, teletransportingValue, toleranceValue);
 	rankingAlgorithm->RankPage(net, amountOfIterations);
 	
 	parsingAlgorithm->SaveRankTo(savingFile.c_str(), net, (AlgorithmType)algorithmToRun);
