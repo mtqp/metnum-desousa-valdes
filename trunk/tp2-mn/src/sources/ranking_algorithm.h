@@ -36,7 +36,7 @@ class RankingAlgorithm { //should be created with a PerformanceAnalyzer object
 
 class PageRank : public RankingAlgorithm {
     public:
-        PageRank(double teletransportingProbability) : _teletransporting(teletransportingProbability) {}
+        PageRank(double teletransportingProbability, double cutTolerance) : _teletransporting(teletransportingProbability), _cutTolerance(cutTolerance) {}
         ~PageRank();
     
         void RankPage(WebNet* net, int amountOfIterations);
@@ -46,6 +46,7 @@ class PageRank : public RankingAlgorithm {
         void updateNetWithRanks(vector<double> eigenvector, WebNet* net);
         
         double _teletransporting;
+        double _cutTolerance;
 };
 
 class HITS : public RankingAlgorithm {

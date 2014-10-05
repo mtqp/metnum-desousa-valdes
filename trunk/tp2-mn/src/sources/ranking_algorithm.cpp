@@ -16,8 +16,9 @@ void scaleBy(double aScalingFactor, vector<double>& aVector){
 
 vector<double> createRandomVectorOfSize(int n){
     vector<double> randomVector;
+    srand(42);
     for(int i=0;i<n;i++)
-        randomVector.push_back(1.0); //TODO: this should be random!!!!
+        randomVector.push_back((double)rand()); //TODO: this should be random!!!!
     return randomVector;
 }
 
@@ -58,37 +59,65 @@ void addConstantToEachElement(double aConstant, vector<double>& aVector){
 
 PageRank :: ~PageRank(){}
 
-CRSMatrix createMatrixD(WebNet* net)
-{
-    CRSBuilder builder;
+vector<double> substractVectors(vector<double>& v1, vector<double>& v2){
+	vector<double> substraction = vector<double>(v1.size(), 0);
+	for (int i =0; i < (int)v1.size(); i++)
+		substraction[i] = v1[i] - v2[i];
+		
+	return substraction;
+}
+
+double differenceBetweenSolutions(vector<double>& x, vector<double>& old_x){
+	vector<double> subSol = substractVectors(x,old_x);
+	return calculateNorm2(subSol);
+}
+
+vector<double> sumVectors(vector<double>& v1, vector<double>& v2){
+	vector<double> substraction = vector<double>(v1.size(), 0);
+	for (int i =0; i < (int)v1.size(); i++)
+		substraction[i] = v1[i] + v2[i];
+		
+	return substraction;
+}
+
+void PageRank :: RankPage(WebNet* net, int amountOfIterations){
+    
+    //CRSMatrix adjacencyMatrix = createAdjacencyMatrix(net); 
+    
+	CRSBuilder builderP, builderD;
     list<WebPage*>::iterator itNetPages = (net->webPages())->begin();
     
 	for (itNetPages; itNetPages != (net->webPages())->end(); ++itNetPages){
         list<int>* linkedPageIds = ((*itNetPages)->listOfLinkedWebPagesIds());
         list<int>::iterator itIdLinkedPages = linkedPageIds->begin();
         
+        // Construction of D matrix (D = vd^t, v_i= 1/n. if (n_i == 0) d_i = 1/n else d_i = 0. So, row_i(D) = 1/n * d)
         double pageCount = (double)linkedPageIds->size();
+        for (int i = 0; i < net->amountOfNodes(); i++){
+			double valueToPut = 0;
+			if (pageCount == 0) valueToPut = 1/(double)net->amountOfNodes();
+			builderD.AddElementAt(i,(*itNetPages)->pageId() - 1, valueToPut);
+		}
 		
         for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
 			int referencedPage = (*itNetPages)->pageId() - 1;
             int page = *itIdLinkedPages - 1;
-            builder.AddElementAt(page, referencedPage, 1.0/net->amountOfNodes());
+            builderP.AddElementAt(page, referencedPage, 1.0/pageCount);
 		}
 	}
     
-    return  builder.Build(net->amountOfNodes(), net->amountOfNodes());
-}
-
-void PageRank :: RankPage(WebNet* net, int amountOfIterations){
-    
-    CRSMatrix adjacencyMatrix = createAdjacencyMatrix(net); 
+    CRSMatrix P = builderP.Build(net->amountOfNodes(), net->amountOfNodes());
+    CRSMatrix D = builderD.Build(net->amountOfNodes(), net->amountOfNodes());
     
     int pageCount = net->amountOfNodes();
-    vector<double> lambdaOneEigenvector = createRandomVectorOfSize(pageCount);
+    vector<double> x = createRandomVectorOfSize(pageCount);
     
-	CRSMatrix matrixD = createMatrixD(net);
+    // We must find a x_0 initial vector provided that x_i >= 0 && sum(xi) = 1. Therefore, we apply norm L1 to x (scaling it by its inverse sum)
+    scaleBy(1/sumElements(x), x);
     
-    for(int iteration=0; iteration<amountOfIterations; iteration++)
+    // We keep an old solution to keep track of the cutTolerance
+    vector<double> old_x = x;
+    do
     {
         /*  We need to solve Ax=x
             Ax=x with model enrichment <==> 
@@ -97,22 +126,22 @@ void PageRank :: RankPage(WebNet* net, int amountOfIterations){
             c(Ax) + (1-c)(v_1/n)(v_1^t)x = x (v_1/n is a vector of 1/n, v_1 is a vector of ones) <==> 
             c(Ax) + (v_(1-c)/n)(v_1^t)x = x  <==> 
             c(Ax) + [((1-c)/n).sum(x_i) foreach row] = x
-            
-            Remembering to normalize x on each iteration.
         */
-        
-        normalizeVector(lambdaOneEigenvector);
-        
+       
+        old_x = x;
         double proportion = (1.0 - _teletransporting)/(double)pageCount;
-        double proportionalEigenvectorSum = sumElements(lambdaOneEigenvector) * proportion;
+        double proportionalEigenvectorSum = sumElements(x) * proportion;
         
-        lambdaOneEigenvector = adjacencyMatrix.Multiply(lambdaOneEigenvector);      // performs Ax
-        scaleBy(_teletransporting, lambdaOneEigenvector);                           // performs c(Ax)
-        addConstantToEachElement(proportionalEigenvectorSum, lambdaOneEigenvector); // adds [((1-c)/n).sum(x_i) foreach row]
-        
-    }
+        vector<double> Px = P.Multiply(x);      // performs Px
+        vector<double> Dx = D.Multiply(x);      // performs Dx
+        x = sumVectors(Px,Dx);
+        scaleBy(_teletransporting, x);                           // performs c(Ax)
+        addConstantToEachElement(proportionalEigenvectorSum, x); // adds [((1-c)/n).sum(x_i) foreach row]
+        //normalizeVector(x);
+    } while(differenceBetweenSolutions(x, old_x) >= _cutTolerance);
     
-    updateNetWithRanks(lambdaOneEigenvector, net);
+    
+    updateNetWithRanks(x, net);
 }
 
 void PageRank :: updateNetWithRanks(vector<double> eigenvector, WebNet* net)
@@ -142,7 +171,7 @@ CRSMatrix PageRank :: createAdjacencyMatrix(WebNet* net)
         for (itIdLinkedPages; itIdLinkedPages != linkedPageIds->end(); ++itIdLinkedPages){
 			int referencedPage = (*itNetPages)->pageId() - 1;
             int page = *itIdLinkedPages - 1;
-            builder.AddElementAt(page, referencedPage, 1.0/net->amountOfNodes());
+            builder.AddElementAt(page, referencedPage, 1.0/pageCount);
 		}
 	}
     
