@@ -121,15 +121,16 @@
 \section*{Introducción}
 \addcontentsline{toc}{section}{Introducción}
 
-Los talentosos y apuestos muchachos que instauraron la moda de los cabellos raros y los pasos bailables más utilizados en los últimos años han caído lentamente en el olvido. Con el fin de volver a su momento de gloria, el grupo tropical nos ha contactado para brindarles una solución teniendo en cuenta el bajo presupuesto con el que cuentan en el momento.
-\par 
-Teniendo en cuenta que los motores de búsqueda son herramientas claves para explorar la red y para determinar un orden de páginas según cierta importancia para presentar la información en orden de relevancia, el equipo de Métodos Númericos ha llegado a la conclusión que, para que el grupo de genios musicales obtenga el nivel de divulgación necesario para volver a todos los televisores nacionales e internacionales, debe figurar en páginas importantes en la web.
-El problema ahora radica en cuáles son las páginas importantes que posicionarán al grupo en los primeros links de cualquier búsqueda tropical. 
-\par 
+Los talentosos y apuestos muchachos que instauraron la moda de los cabellos raros y los pasos bailables más utilizados en los últimos años han caído lentamente en el olvido. Con el fin de volver a su momento de gloria, el grupo tropical ha contactado al DC para brindarles una solución teniendo en cuenta el bajo presupuesto con el que cuentan en el momento.
+
+Los motores de búsqueda son herramientas claves para explorar la red. Lo único que debemos hacer para utilizarlos es enviar un \textit{query} con lo que querramos buscar, y allí el motor se encargará de darnos la información correspondiente a nuestra búsqueda. Para que la experiencia del usuario sea óptima, esta información \textit{no puede estar presentada de cualquier forma}. Por lo tanto, una tarea vital del buscador será devolver al usuario un listado de páginas cuyo orden será impuesto por la \textit{relevancia} de cada página. 
+
+El equipo de Métodos Númericos ha llegado entonces a la siguiente conclusión:  para volver a todos los televisores nacionales e internacionales, este grupo de genios musicales debe figurar en páginas importantes en la web (y así encabezar todas las búsquedas). El problema ahora radica en determinar cuáles son las páginas importantes que posicionarán al grupo en los primeros links de cualquier búsqueda tropical. 
+
 De esta manera, el grupo autodenominado ``Los Pichis'' comenzó la labor de estudiar algunos de los más conocidos algoritmos de búsqueda: \textit{In-Degree}, \textit{PageRank} y \textit{Hyperlink-Induced Topic Search}(HITS).
-\par 
+
 El primero se basa en generar el ranking de importancia de la web teniendo en cuenta solamente la cantidad de links que apuntan a la página. Mientras mayor sea la cantidad de links, más importante es la página. 
-\par
+
 \textit{PageRank} es un algoritmo que luego de buscar en toda la red e indexar los datos obtenidos para realizar una búsqueda eficiente, rankea la importancia de la base de datos de manera que, cuando el usuario realiza una búsqueda, las páginas más importantes se presenten primero. Si una página $u$ apunta a una página $v$, se puede decir que $v$ es importante. Sin embargo, para no dejar que simplemente una página sea más importante por tener muchas páginas apuntadas a ella, se puede realizar un ponderado de los links utilizando la importancia de la página de origen (no es lo mismo ser apuntado por una página importante que por muchas no importantes). De esta manera, consideramos la importancia de una página $v$ como la importancia de la página $u$ (que apunta a $v$) e inversamente proporcional al grado de $u$ (es decir, la cantidad de links que  posee la página $u$). Entonces, si la página $u$ contiene $n_u$ links, uno de los cuales apunta a $v$, el aporte de ese link a la página $v$ será $x_u / n_u$.
 Como para cada página pedimos la siguiente ecuación: 
 \begin{eqnarray}
@@ -138,7 +139,7 @@ x_k = \sum_{j \in L_k} \frac{x_j}{n_j},~~~~k = 1,\dots,n. \label{eq:basicmodel}
 Luego, el modelo planteado es equivalente a encontrar un $x\in \mathbb{R}^n$ tal que $Px = x$. Esto significa, encontrar un autovector asociado al autovalor 1 de una matriz cuadrada, tal que $x_i \ge
 0$ y $\sum_{i = 1}^n x_i = 1$.
 \par 
-Finalmente, la idea del método \textit{HITS} se basa en una noción de autoridad que se trasmite de una página a otra mediante links. Es decir, se considera que existen páginas que cumplen rol de autoridad sobre un tema y se trata de modelar la relación entre estas páginas y aquelllas que las apuntan, las cuales se denominan hubs. 
+Finalmente, la idea del método \textit{HITS} se basa en una noción de autoridad que se trasmite de una página a otra mediante links. Es decir, se considera que existen páginas que cumplen rol de autoridad sobre un tema y se trata de modelar la relación entre estas páginas y aquellas que las apuntan, las cuales se denominan \textit{hubs}. 
 La relación entre ambos se establece matricialmente de la siguiente forma: 
 
 \begin{eqnarray}
@@ -153,7 +154,7 @@ Kleinberg propone en \textit{Authoritative sources in a hyperlinked environment}
 
 
 aplicando luego el paso de normalizaci\'on correspondiente. Los autores proponen comenzar con un $y_0$ incial, aplicar estas ecuaciones 
-iterativamente y demuestran que, bajo ciertas condiciones, el m\'etodo converge. Finalmente, en base a los rankings obtenimos, se retorna
+iterativamente y demuestran que, bajo ciertas condiciones, el m\'etodo converge. Finalmente, en base a los rankings obtenidos, se retorna
 al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 
 
@@ -205,7 +206,7 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 		\item \texttt{values}: Contiene los valores de la matriz, cada posición se relaciona uno a uno con \textit{colIndexes}.
 	\end{itemize}
 
-	Si queremos obtener el elemento $a_ij$ podemos definir el siguiente pseudo-codigo:
+	Si queremos obtener el elemento $a_{ij}$ podemos definir el siguiente pseudo-codigo:
 
 	\vspace{\baselineskip}
 	\begin{codebox}
