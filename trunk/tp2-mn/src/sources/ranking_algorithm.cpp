@@ -86,30 +86,20 @@ vector<double> createRandomVectorOfSize(int n, unsigned int srand_seed){
     return randomVector;
 }
 
+double norm2DifferenceBetweenSolutions(vector<double>& x, vector<double>& old_x){
+	vector<double> subSol = substractVectors(x,old_x);
+	return calculateNorm2(subSol);
+}
+
 //////////STATISTICS/////////////
-class PageRankRunStatistic {
-    public:
-    PageRankRunStatistic(int amountOfNodes, double tolerance, double teletransporting) : _amountOfNodes(amountOfNodes), _tolerance(tolerance), _teletransporting(teletransporting) {}
-
-    void add(int iteration, double manhattanDifference, double norm2Difference);
-    void save();
-    
-    private:
-    int _amountOfNodes;
-    double _tolerance;
-    double _teletransporting;
-    vector<int> _iterations;
-    vector<double> _manhattanDifference;
-    vector<double> _norm2Difference;
-    
-};
-
-void PageRankRunStatistic :: add(int iteration, double manhattanDifference, double norm2Difference)
+void RunStatistics :: add(int iteration, double manhattanDifference, double norm2Difference)
 {
     _iterations.push_back(iteration);
     _manhattanDifference.push_back(manhattanDifference);
     _norm2Difference.push_back(norm2Difference);
 }
+
+PageRankRunStatistic :: ~PageRankRunStatistic(){}
 
 void PageRankRunStatistic :: save()
 {
@@ -127,8 +117,40 @@ void PageRankRunStatistic :: save()
         file << _tolerance << endl;
         file << _teletransporting << endl;
         
-        for(int i=0;i<_iterations.size();i++) {
+        for(int i=0;i< (int)_iterations.size();i++) {
             file << _iterations[i] << " " << _manhattanDifference[i] << " " << _norm2Difference[i] << endl;
+        }
+    }
+    
+    file.close();
+    
+    cout << "Statistics saved" << endl;
+}
+
+HITSRunStatistic :: ~HITSRunStatistic(){}
+
+void HITSRunStatistic :: save()
+{
+    std::ostringstream fileName;
+    fileName << "tests/HITS_statistics/nAmount" << _amountOfNodes << ".stat";
+    const std::string tmp = fileName.str();
+    const char* cFileName = tmp.c_str();
+    cout << "Saving statistics file: " << fileName.str() << endl;
+
+    ofstream file;
+	file.open(cFileName);
+
+	if (file.is_open()){
+        file << _amountOfNodes << endl;
+        
+        // AUTH
+        for(int i=0;i< (int)_iterations.size(); i+=2) {
+            file << _iterations[i] << "\t" << _manhattanDifference[i] << "\t" << _norm2Difference[i] << endl;
+        }
+        file << endl;
+        // HUBS
+		for(int i=1;i< (int)_iterations.size(); i+=2) {
+            file << _iterations[i] << "\t" << _manhattanDifference[i] << "\t" << _norm2Difference[i] << endl;
         }
     }
     
@@ -165,12 +187,7 @@ void PageRank::prepareBuildersForPDMatrices(WebNet* net, CRSBuilder& builderP, C
 	}
 }
 
-double PageRank::differenceBetweenSolutions(vector<double>& x, vector<double>& old_x){
-	vector<double> subSol = substractVectors(x,old_x);
-	return calculateNorm2(subSol);
-}
-
-void PageRank :: RankPage(WebNet* net, int notUsed){
+void PageRank :: RankPage(WebNet* net){
 	
 	// Preparing builders for P and D matrices	
 	CRSBuilder builderP, builderD;
@@ -218,12 +235,12 @@ void PageRank :: RankPage(WebNet* net, int notUsed){
         addConstantToEachElement(proportionalEigenvectorSum, x); // adds [((1-c)/n).sum(x_i) foreach row]
         
         vector<double> vectorDifference = substractVectors(x, old_x);
-        double norm2Difference = differenceBetweenSolutions(x, old_x);
+        double norm2Difference = norm2DifferenceBetweenSolutions(x, old_x);
         double manhattanDifference = manhattanNorm(vectorDifference);
         statistics.add(iteration, manhattanDifference, norm2Difference);
 
         iteration++;
-    } while(differenceBetweenSolutions(x, old_x) >= _cutTolerance && iteration < 5000); //It could not end due to numerical error
+    } while(norm2DifferenceBetweenSolutions(x, old_x) >= _cutTolerance && iteration < 5000); //It could not end due to numerical error
     
     if(iteration >= 5000) {
         cout << "Run out of iterations - Teletransporting value: " 
@@ -253,22 +270,47 @@ void PageRank :: updateNetWithRanks(vector<double> eigenvector, WebNet* net)
 /******* HITS *******/ 
 
 
-HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations){
+HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix){
 	vector<double> authorityWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
 	vector<double> hubWeightVector = vector<double>(adjacencyMatrix.amountOfColumns(), 1.0);
 	HITS::AuthorityHubWeightVectors authorityHubWeightVectors(authorityWeightVector, hubWeightVector);
 
-	for (int i = 1; i <= amountOfIterations; i++){
+	// Statistics
+	vector<double> oldAuthVector, oldHubVector;
+	int iteration = 0;
+	
+	//This is not correct OOP, we should create an Observer pattern
+    HITSRunStatistic statistics(adjacencyMatrix.amountOfColumns());
+	
+	//for (int i = 1; i <= amountOfIterations; i++){
+	do {
+		oldAuthVector = authorityHubWeightVectors.authorityWeightVector;
+		oldHubVector = authorityHubWeightVectors.hubWeightVector;
 		authorityHubWeightVectors.authorityWeightVector = transposedAdjacencyMatrix.Multiply(authorityHubWeightVectors.hubWeightVector);
 		authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
 		authorityHubWeightVectors.normalizeVectors();
-			
-	}
+		
+		// Statistics AUTH
+		vector<double> vectorDifference = substractVectors(authorityHubWeightVectors.authorityWeightVector, oldAuthVector);
+        double norm2Difference = norm2DifferenceBetweenSolutions(authorityHubWeightVectors.authorityWeightVector, oldAuthVector);
+        double manhattanDifference = manhattanNorm(vectorDifference);
+        statistics.add(iteration, manhattanDifference, norm2Difference);
+        
+        // Statistics HUB
+		vectorDifference = substractVectors(authorityHubWeightVectors.hubWeightVector, oldHubVector);
+        norm2Difference = norm2DifferenceBetweenSolutions(authorityHubWeightVectors.hubWeightVector, oldHubVector);
+        manhattanDifference = manhattanNorm(vectorDifference);
+        statistics.add(iteration, manhattanDifference, norm2Difference);
+        iteration++;
+        
+	} while (norm2DifferenceBetweenSolutions(authorityHubWeightVectors.hubWeightVector, oldHubVector) >= _cutTolerance || norm2DifferenceBetweenSolutions(authorityHubWeightVectors.authorityWeightVector, oldAuthVector) >= _cutTolerance);
+	
+	statistics.save();
 	
 	return authorityHubWeightVectors;
 }
 
-void HITS :: RankPage(WebNet* net, int amountOfIterations){
+void HITS :: RankPage(WebNet* net){
 	
 	// Create adjacency matrix
 	CRSBuilder builder, builderTransposed;
@@ -289,7 +331,7 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
     CRSMatrix transposedAdjacencyMatrix = builderTransposed.Build(adjMatrixSize, adjMatrixSize);
 
     // Find weights (hub & authority) <==> rank webPages
-	AuthorityHubWeightVectors authHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix, amountOfIterations);
+	AuthorityHubWeightVectors authHubWeightVectors = Iterate(adjacencyMatrix, transposedAdjacencyMatrix);
 
 	
 	// Set rankings in webPages
@@ -300,7 +342,7 @@ void HITS :: RankPage(WebNet* net, int amountOfIterations){
 	}
 }
 
-void InDegree :: RankPage(WebNet* net, int notUsed){
+void InDegree :: RankPage(WebNet* net){
 	
 	// Calculate In-Degree for each page in a separate array (bucket)
 	vector<int> inDegreeForAllPages = vector<int>(net->amountOfNodes(), 0);
