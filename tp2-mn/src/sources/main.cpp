@@ -33,7 +33,7 @@ RankingAlgorithm* CreateRankingAlgorithmFromParameter(AlgorithmType algorithmTyp
 		}
 		
 		case HITSALG:{
-			HITS* HITSAlgorithm = new HITS();
+			HITS* HITSAlgorithm = new HITS(toleranceValue);
 			return (RankingAlgorithm*)HITSAlgorithm;
 			break;
 		}
@@ -84,7 +84,7 @@ int main(int argc, char* argv[]) {
 		inputFile >> toleranceValue;
 		inputFile.close();	
 	} else{
-		cout << "Unable to open input file" << endl;		
+		cout << "Unable to open input (.in) file" << endl;		
 		exit(1);
 	}
 
@@ -100,13 +100,13 @@ int main(int argc, char* argv[]) {
 	
     //cout << "File parsed into WebNet: OK" << endl;
     
-	int amountOfIterations = 50;
+	//int amountOfIterations = 50;
 
 	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun, teletransportingValue, toleranceValue);
 	
     //cout << "Ranking algorithm created: OK" << endl;
     
-    rankingAlgorithm->RankPage(net, amountOfIterations);
+    rankingAlgorithm->RankPage(net);
 	
     //cout << "Algorithm - method RankPage executed: OK" << endl;
     

@@ -36,9 +36,11 @@ vector<double> substractVectors(vector<double>& v1, vector<double>& v2);
 
 vector<double> sumVectors(vector<double>& v1, vector<double>& v2);
 
+double norm2DifferenceBetweenSolutions(vector<double>& x, vector<double>& old_x);
+
 class RankingAlgorithm {
     public:
-        virtual void RankPage(WebNet* net, int amountOfIterations) = 0;
+        virtual void RankPage(WebNet* net) = 0;
         virtual ~RankingAlgorithm(){};
         
 };
@@ -48,11 +50,10 @@ class PageRank : public RankingAlgorithm {
         PageRank(double teletransportingProbability, double cutTolerance) : _teletransporting(teletransportingProbability), _cutTolerance(cutTolerance) {}
         ~PageRank();
     
-        void RankPage(WebNet* net, int amountOfIterations);
+        void RankPage(WebNet* net);
         
     private:
 		void prepareBuildersForPDMatrices(WebNet* net, CRSBuilder& builderP, CRSBuilder& builderD);
-		double differenceBetweenSolutions(vector<double>& x, vector<double>& old_x);
         void updateNetWithRanks(vector<double> eigenvector, WebNet* net);
         
         double _teletransporting;
@@ -61,7 +62,8 @@ class PageRank : public RankingAlgorithm {
 
 class HITS : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations);
+		HITS(double cutTolerance) : _cutTolerance(cutTolerance) {}
+        void RankPage(WebNet* net);
         ~HITS(){};
     private:
 		class AuthorityHubWeightVectors {
@@ -78,14 +80,51 @@ class HITS : public RankingAlgorithm {
 				}
 		};
 		
-		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix, int amountOfIterations);
+		double _cutTolerance;
+		AuthorityHubWeightVectors Iterate(CRSMatrix& adjacencyMatrix, CRSMatrix& transposedAdjacencyMatrix);
 		
 };
 
 class InDegree : public RankingAlgorithm {
     public:
-        void RankPage(WebNet* net, int amountOfIterations);
+        void RankPage(WebNet* net);
         ~InDegree(){};
+};
+
+// STATISTICS
+
+class RunStatistics {
+	public:
+		virtual ~RunStatistics(){}
+		virtual void save() = 0;
+		void add(int iteration, double manhattanDifference, double norm2Difference);
+	
+	protected:
+		vector<int> _iterations;
+		vector<double> _manhattanDifference;
+		vector<double> _norm2Difference;
+};
+
+class PageRankRunStatistic : public RunStatistics{
+    public:
+		PageRankRunStatistic(int amountOfNodes, double tolerance, double teletransporting) : _amountOfNodes(amountOfNodes), _tolerance(tolerance), _teletransporting(teletransporting) {}
+		~PageRankRunStatistic();
+		void save();
+    
+    private:
+		int _amountOfNodes;
+		double _tolerance;
+		double _teletransporting;
+};
+
+class HITSRunStatistic : public RunStatistics{
+    public:
+		HITSRunStatistic(int amountOfNodes) : _amountOfNodes(amountOfNodes) {}
+		~HITSRunStatistic();
+		void save();
+    
+    private:
+		int _amountOfNodes;
 };
 
 #endif

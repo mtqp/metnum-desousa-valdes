@@ -70,7 +70,7 @@ WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 		amountOfNodes = fromNodeId + 1; //'cause it's zero based
 		file.close();	
 	} else{
-		cout << "Unable to open input file" << endl;		
+		cout << "Unable to open input (net) file" << endl;		
 		exit(1);
 	}
 	
@@ -125,7 +125,7 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 		}
 		file.close();	
 	}else{
-		cout << "Unable to open input file" << endl;		
+		cout << "Unable to open input (net) file" << endl;		
 		exit(1);
 	}
 	WebNet* net = new WebNet(amountOfNodes, amountOfEdges, webPages);
