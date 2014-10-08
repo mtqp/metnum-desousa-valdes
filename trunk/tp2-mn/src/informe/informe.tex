@@ -332,7 +332,7 @@ A continuación se presenta un primer gráfico. Tener en cuenta que la cantidad 
 	
 	\par 
 
-En todos los casos, el promedio de ciclos de reloj es  mayor para el \textit{pageRank}. Se puede notar como, a pesar de que la cantidad de nodos con los que trabajan los algoritmos varía de un conjunto de datos a otro (por lo que el promedio de ciclos de reloj aumenta y disminuye con ella), la relación que hay entre \textit{pageRank} y \textit{HITS} es similar cuantitativamente. Esto quiere decir que, aunque el algoritmo de \textit{pageRank} cueste mayor tiempo en promedio en todos los casos, \textit{HITS} se mantiene siendo aproximadamente $k*10$ veces más rápido siendo $1 \leq k \leq 9$. 
+En todos los casos, el promedio de ciclos de reloj es  mayor para el \textit{PageRank}. Se puede notar como, a pesar de que la cantidad de nodos con los que trabajan los algoritmos varía de un conjunto de datos a otro (por lo que el promedio de ciclos de reloj aumenta y disminuye con ella), la relación que hay entre \textit{PageRank} y \textit{HITS} es similar cuantitativamente. Esto quiere decir que, aunque el algoritmo de \textit{PageRank} cueste mayor tiempo en promedio en todos los casos, \textit{HITS} se mantiene siendo aproximadamente $k*10$ veces más rápido siendo $1 \leq k \leq 9$. 
 \par 
 
 \begin{center}
@@ -350,7 +350,7 @@ Como se mencionó previamente, mientras mayor es la cantidad de nodos, mayor es 
 \par 
 Por ejemplo, para el caso de la \textit{death\_penalty\_extended}, se puede llegar a que $k \cong 1,6966$. Esto se obtiene haciendo la división entre \textit{cantidad de ciclos de PageRank} y \textit{ciclos de HITS}, para finalmente dividir por $10$. 
 \par 
-Para el caso de \textit{abortion\_expanded} se obtiene $k \cong 1,8701$, \textit{genetic\_extended} presenta una $ k \cong 1,7121$ y \textit{movies\_extended} un $k \cong 4,0565$, siendo esta la base que mayor $k$ tiene para las queries brindadas por la cátedra. Esto permitiría acotar el $k$ por $5$ para estos caso, pero no es lo que se busca, ya que solo se intenta plantear que el algoritmo de HITS mantiene una relación para cualquiera sea la base con el algoritmo de pageRank respecto al tiempo de cómputo.
+Para el caso de \textit{abortion\_expanded} se obtiene $k \cong 1,8701$, \textit{genetic\_extended} presenta una $ k \cong 1,7121$ y \textit{movies\_extended} un $k \cong 4,0565$, siendo esta la base que mayor $k$ tiene para las queries brindadas por la cátedra. Esto permitiría acotar el $k$ por $5$ para estos caso, pero no es lo que se busca, ya que solo se intenta plantear que el algoritmo de HITS mantiene una relación para cualquiera sea la base con el algoritmo de PageRank respecto al tiempo de cómputo.
 
 Veamos por otro lado un gráfico que permita visualizar si la base afecta en algo al tiempo de ejecución del algoritmo:
 
@@ -361,7 +361,7 @@ Veamos por otro lado un gráfico que permita visualizar si la base afecta en alg
 	
 	\par 
 
-A pesar de que hay una diferencia considerable entre los tiempos de ejecución para distintos algoritmos, si consideramos la cantidad de ciclos promedio individualmente para \textit{pageRank} y \textit{HITS}, podemos ver que las diferencias entre las distintas bases no es considerable. La misma se produce principalmente por los diferentes tamaños de cada conjunto de datos (como se mencionó previamente). 
+A pesar de que hay una diferencia considerable entre los tiempos de ejecución para distintos algoritmos, si consideramos la cantidad de ciclos promedio individualmente para \textit{PageRank} y \textit{HITS}, podemos ver que las diferencias entre las distintas bases no es considerable. La misma se produce principalmente por los diferentes tamaños de cada conjunto de datos (como se mencionó previamente). 
 A continuación se puede ver la cantidad de nodos en cada base para realizar la comparación. 
 
 \begin{center}
@@ -380,8 +380,8 @@ En comparación con el gráfico, se puede notar como (con estos casos de ejemplo
 
 \par 
 
-En conclusión, el algoritmo de \textit{pageRank} tiene mayor tiempo de cómputo. En este sentido, para casos de tamaño mediano a grande, sin realizar un análisis de calidad de la solución (el cual se hará posteriormente en este trabajo práctico), \textit{HITS} parece comportarse mejor. Sin embargo, hay que tener en cuenta que parte del proceso de este algoritmo (como es la realización del subgrafo de la red) no es realizado por nuestra implementación por lo que se reduce el tiempo de cómputo. 
-\par A pesar de esto, la amplia diferencia en cantidad de ciclos de ambos algoritmos reflejan los usos que poseen ambos. Por un lado, \textit{pageRank} puede ser mejor utilizado como un proceso batch que se ejecuta cada cierto período de tiempo y no en el momento, mientras que \textit{HITS} es un algoritmo pensado para realizar el rankeo en el momento sobre un subgrafo de la red. De esta manera, tiene sentido que el algoritmo \textit{HITS} sea más veloz que el algoritmo de \textit{pageRank}, nuevamente, sin tener en cuenta en ningún momento la calidad del resultado.
+En conclusión, el algoritmo de \textit{PageRank} tiene mayor tiempo de cómputo. En este sentido, para casos de tamaño mediano a grande, sin realizar un análisis de calidad de la solución (el cual se hará posteriormente en este trabajo práctico), \textit{HITS} parece comportarse mejor. Sin embargo, hay que tener en cuenta que parte del proceso de este algoritmo (como es la realización del subgrafo de la red) no es realizado por nuestra implementación por lo que se reduce el tiempo de cómputo. 
+\par A pesar de esto, la amplia diferencia en cantidad de ciclos de ambos algoritmos reflejan los usos que poseen ambos. Por un lado, \textit{PageRank} puede ser mejor utilizado como un proceso batch que se ejecuta cada cierto período de tiempo y no en el momento, mientras que \textit{HITS} es un algoritmo pensado para realizar el rankeo en el momento sobre un subgrafo de la red. De esta manera, tiene sentido que el algoritmo \textit{HITS} sea más veloz que el algoritmo de \textit{PageRank}, nuevamente, sin tener en cuenta en ningún momento la calidad del resultado.
 
 
 
