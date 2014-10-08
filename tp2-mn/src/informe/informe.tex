@@ -201,12 +201,37 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	La semántica de estos arreglos es la siguiente, suponiendo que \textit{i} hace referencia a filas y \textit{j} a columnas:
 
 	\begin{itemize}
-		\item \texttt{rowPointers}: El valor de la i-ésima posición referencia el índice de colIndexes a partir del cual se encuentran los elementos de la i-ésima fila. En caso de no haber elementos en la i-ésima fila de la matriz, esta posición se completa con el mismo valor que la i-1 (simplemente por cuestiones implementativas).
+		\item \texttt{rowPointers}: El valor de la i-ésima posición referencia el índice de colIndexes a partir del cual se encuentran los elementos de la i-ésima fila. En caso de no haber elementos en la i-ésima fila de la matriz, esta posición se completa con el mismo valor que la i-1 (simplemente por cuestiones implementativas). Este vector tendrá entonces $m+1$ elementos para poder representar a las $m$ filas, y además el primer elemento siempre será 0 (índice en base 0) y el último siempre será la cantidad de valores no nulos.
 		\item \texttt{colIndexes}: El valor contenido dentro de cada posición representa a \textit{j}
-		\item \texttt{values}: Contiene los valores de la matriz, cada posición se relaciona uno a uno con \textit{colIndexes}.
+		\item \texttt{values}: Contiene los valores de la matriz, cada posición se relaciona uno a uno con \textit{colIndexes}. Se puede deducir fácilmente entonces que el tamaño de este vector es igual al de \texttt{colIndexes}.
 	\end{itemize}
+	
+	Veamos entonces un ejemplo del guardado de una matriz $A$ para esta estructura de datos:
+\[	A =
+	 \begin{pmatrix}
+	 0 & 1 & 0 & 0 & 5 \\
+	 2 & 3 & 0 & 0 & 1 \\
+	 0 & 0 & 0 & 0 & 0 \\
+	 0 & 0 & 0 & 7 & 0 \\
+	 8 & 0 & 11 & 0 & 4
+	 \end{pmatrix}
+\]	
 
-	Si queremos obtener el elemento $a_{ij}$ podemos definir el siguiente pseudo-codigo:
+	\begin{itemize} 
+ \item Para \texttt{values}, debemos recolectar todos los valores no nulos en orden izquierda-derecha-arriba-abajo: \texttt{values} $= [1,5,2,3,1,7,8,11,4].$
+
+ \item Para \texttt{colIndexes}, debemos recolectar todos las columnas de esos valores y ponerlas en el mismo orden que en \texttt{values}. Luego (en base 0): \texttt{colIndexes} $= [1,5,2,3,1,7,8,11,4].$
+
+ \item Finalmente para \texttt{rowPointers}, siendo este el más difícil de entender, debemos guardar en \texttt{rowPointers[$i$]} y \texttt{rowPointers[$i+1$]} el rango de índices\footnote{Rango final \textbf{no} incluído.} de \texttt{colPointers}\footnote{Se puede mirar también en \texttt{values}.} en el cual hay valores en la fila $i$ (en base 0). 
+ 
+ En el ejemplo vemos lo siguiente: en la primera fila hay 2 valores no nulos, por lo tanto \texttt{rowPointers[0] = 0, rowPointers[1] = 2}. Esto indica entonces que mi primera fila tiene los valores en \texttt{values} del índice 0 al índice 2 (no incluído), es decir el 1 y el 5 (cuyas columnas aparecen en \texttt{colIndexes} para esos mismos índices). Siguiendo el ejemplo, tendría \texttt{rowPointers} $ = [0,2,5,5,6,9]$. 
+ 
+ De esto se puede notar que efectivamente el tamaño de este vector es de la cantidad de filas más 1. También se puede ver que se repite el número 5 para los índices 2 y 3 de este vector: esto quiere decir que en la fila 2 (la tercera) debería mirar desde el índice 5 al 5 (\textbf{no} incluído) en los otros dos vectores de columnas y valores, y evidentemente eso no es posible por lo cual no hay ningún valor en esa fila.
+ 
+ Una manera fácil de ver el llenado de este vector es poner en \texttt{rowPointers[i]} la sumatoria de la cantidad de elementos no nulos hasta la fila $i$: hasta la fila de índice 0, hay 0 elementos. Hasta la fila 1, hay 2. Siguiendo este razonamiento, hasta la fila 2 hay 5 elementos. En la fila 3 sigue habiendo 5 elementos ya que no apareció ningún otro no nulo. En la fila 4 hay sólo uno más luego hasta ella hay 6 elementos, y finalmente llego a que hasta la última fila encontré todos mis 9 valores no nulos.
+		\end{itemize}
+
+	Si queremos obtener el elemento $a_{ij}$, podemos definir el siguiente pseudo-codigo:
 
 	\vspace{\baselineskip}
 	\begin{codebox}
@@ -219,8 +244,62 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	\End
 	\end{codebox} 
 	\vspace{\baselineskip}
+	
+	La multiplicación entre una matriz con esta implementación y un vector se realiza entonces sencillamente siguiendo la misma idea: iterando las filas desde \texttt{rowPointers[i]} a \texttt{rowPointers[i+1]} como en el pseudocódigo anterior, multiplicamos únicamente las posiciones \textit{j} del vector que tengamos en \texttt{colIndexes} por el valor almacenado en values. Si ninguna multiplicación es efectuada, el valor el cero. Este algoritmo de multiplicación es \textit{un paso clave} para desarrollo de los algoritmos de búsqueda propuestos. Veamos lo que sucede matemáticamente con este tipo de matrices: 
 
-	De esta manera resulta muy sencillo efectuar una multiplicación entre la matriz y un vector: Iterando las filas multiplicamos solo las posiciones \textit{j} del vector que tengamos en colIndexes por el valor almacenado en values. Si ninguna multiplicación es efectuada, el valor el cero. Por la naturaleza de la multiplicación de matriz por vector, resulta poco útil utilizar la estructura \textit{CSC}. \textit{CSC} es conveniente si necesitamos multiplicar por la traspuesta de una matriz, ya que el mismo algoritmo la recorrería de manera traspuesta. En el algoritmo de \textit{HITS} necesitamos la traspuesta, sin embargo, utilizamos la misma estructura, cargando los índices de manera inversa.
+\vspace{\baselineskip}
+
+\[	Av =
+	 \begin{pmatrix}
+	 0 & a_{1,2} & 0 & 0 & a_{1,5} \\
+	 a_{2,1} & a_{2,2} & 0 & 0 & a_{2,5} \\
+	 0 & 0 & 0 & 0 & 0 \\
+	 0 & 0 & 0 & a_{4,4} & 0 \\
+	 a_{5,1} & 0 & a_{5,3} & 0 & a_{5,5}
+	 \end{pmatrix}
+	 \cdot
+	 \begin{pmatrix}
+	 v_1 \\
+	 v_2 \\
+	 v_3 \\
+	 v_4 \\
+	 v_5 
+	 \end{pmatrix}
+	  = filas(A) \cdot v
+\]
+\vspace{2 pt}
+\[
+	= 0 \times v_1 + a_{1,2} \times v_2 + 0 \times v_3 + 0 \times v_4 + a_{1,5} \times v5 + ... + 0 \times v_4 + a_{5,5} \times v_5
+\]
+\vspace{2 pt}
+\[
+    = \sum a_{i,j} v_j  \ \ \ \ \ \ \ \ (\forall a_{i,j} \neq 0)
+\]
+\vspace{5 pt}
+
+\par
+Asi que básicamente en palabras lo que sucede es que \textit{todos los términos que son 0 en la matriz esparsa no se tienen en cuenta para la multiplicación} porque al ser el elemento neutro de la suma no producen ningún cambio. Además sabemos, por las propiedades de la multiplicación entre matrices y vectores, que \textit{aquellos términos $a_{i,j}$ que no sean 0 estarán multiplicados por $v_j$}. 
+
+Mirando ahora como está hecha la estructura de las matrices esparsas con \textit{CSR}, podemos ver que conocemos cada columna de cada valor no nulo (en \texttt{colIndexes}), cuáles son esos valores (\texttt{values}) y en qué fila están (analizando apropiadamente \texttt{rowPointers}). Teniendo esto en cuenta, el pseudocódigo (o algoritmo directamente) para la multiplicación con la implementación \textit{CSR} es el siguiente:
+
+	\vspace{\baselineskip}
+	\begin{codebox}
+	\Procname{$\proc{MatrixVectorMultiplication}$(vector $v)$}
+	\li vector \id{multiplicationVector}
+	\li \For $i \gets 0$ \To $m$ \Do
+	\li \id{rowValue} $\gets$ 0
+	\li \For $j \gets rowPointers[i]$ \To $rowPointers[i+1]$ \Do
+	\li $rowValue += values[j] \times v[colIndexes[j]]$  \End 
+	\li
+	\li $multiplicationVector$.pushToVector($rowValue$); \End
+	\li 
+	\li return $multiplicationVector$
+	\End
+	\end{codebox} 
+	\vspace{\baselineskip}
+
+\par	
+Por la naturaleza de la multiplicación de matriz por vector, resulta poco conveninete utilizar la estructura \textit{CSC}. \textit{CSC} es más redituable si necesitamos multiplicar por la traspuesta de una matriz, ya que el mismo algoritmo la recorrería de manera traspuesta\footnote{En el algoritmo de \textit{HITS} necesitamos la traspuesta, sin embargo, utilizamos la misma estructura, cargando los índices de manera inversa.}.
 
 	Tanto \textit{CSR} como \textit{CSC} son complejos de crear si los datos no son suministrados de manera ordenada. Para eso, generamos una clase \textit{CSRBuilder} al cual se le pasan los datos de manera desordenada y una vez que la carga de datos se completa, se encarga de ordenarlos, crear los índices e instanciar una \textit{CSRMatrix}. Si bien no es idéntico, preserva el espíritu de un \textit{DOK}, ya que termina utilizando de cláve \textit{i, j} por la cual ordena la información antes de generar la matriz esparsa por filas. 
 
