@@ -238,9 +238,11 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	\Procname{$\proc{Element}(i, j)$}
 	\li int \id{colIndexLower} = rowPointers[i]
 	\li int \id{colIndexUpper} = rowPointers[i+1]
-	\li foreach col : colIndexLower to colIndexUpper
-	\li .	if  colIndexes[col] == j
-	\li .	.	return values[col]
+	\li \For $col \gets colIndexLower$ \To $colIndexUpper$ \Do
+	\li \If  colIndexes[col] == j
+	\li \Then return values[col]
+	\End
+	\End
 	\End
 	\end{codebox} 
 	\vspace{\baselineskip}
@@ -313,6 +315,29 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 
 \subsection{Experimentación}
 \subsubsection{Convergencia de PageRank}
+	
+	El algoritmo de Page Rank necesita que la matriz de adyacencia, además de ser estocástica por columna, sea regular. Esto significa que todas las entradas deben ser positivas. Debido a que el grafo de conexiones entre páginas web es más bien ralo, y potencialmente inconexo, es necesario agregar al modelo algún elemento para satisfacer la precondición necesaria: El coeficiente de teletransportación. Este coeficiente ($c$) define la probabilidad de que dado que se está en una página $k$, el usuario salte a una página aleatorea cualquiera con probabilidad $c/n$
+
+	Para analizar el impacto de este coeficiente en la convergencia del \textit{Page Rank} realizamos varias pruebas con distinto valor de teletransportación. En el siguiente gráfico se muestra para la iteración $i+1$ la diferencia entre los vectores resultantes de la $i+1$ e $i$ evaluada en Norma \textit{Manhattan}. Los valores de los coeficientes son: $0.1, 0.3, 0.5, 0.7, 0.9$. El algoritmo termina si la diferencia entre estos dos vectores en Norma 2 es menor a $10^{-5}$. El dataset utilizado en este caso es el correspondiente al tópico de aborto.
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.6]{./img/page_rank_variacion_coef_teletransportacion.png}
+	\end{center}
+	\par 
+
+	Vemos que aumentando el valor de $c$, la cantidad de iteraciones necesarias para obtener un número menor al considerado como $0$ aumenta. Debido a que $c$ impacta tanto en los valores originales de la matriz que eran $0$ como en los que no, podemos pensarlo como la aplicación de un ruido sobre los datos originales. Resulta razonable pensar que a mayor cantidad de ruido, más díficil es al algoritmo encontrar la solución correcta.
+
+	Sin embargo, en la práctica es fáctible y practicable el salto aleatoréo de página en página. Por lo tanto, utilizar un coeficiente muy pequeño, por un lado nos haría tener una solución más rapidamente; pero por el otro, se generaría un modelo que no se corresponde con nuestro objetivo (cómo generar un \textit{ranking} cualitativo de la red). Los buscadores de internet deben balancear estos dos puntos. Según los artículos leídos, y por lo comentado también en clase, \textit{Google} utiliza un $c = 0.15$, el cuál dado el gráfico supone una buena relación entre \textit{performance} y calidad. 
+
+	A CONTINUACION COMPLETAR
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.6]{./img/page_rank_variacion_coef_teletransportacion_1.png}
+	\end{center}
+	
+	\par 
 
 \subsubsection{Convergencia de HITS}
 
