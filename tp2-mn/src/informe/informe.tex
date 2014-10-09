@@ -438,7 +438,6 @@ Veamos por otro lado un gráfico que permita visualizar si la base afecta en alg
 	\begin{center}
 		\includegraphics[scale=0.6]{./img/medicionesTiempo2.png}
 	\end{center}
-	
 	\par 
 
 A pesar de que hay una diferencia considerable entre los tiempos de ejecución para distintos algoritmos, si consideramos la cantidad de ciclos promedio individualmente para \textit{PageRank} y \textit{HITS}, podemos ver que las diferencias entre las distintas bases no es considerable. La misma se produce principalmente por los diferentes tamaños de cada conjunto de datos (como se mencionó previamente). 
@@ -467,10 +466,44 @@ En conclusión, el algoritmo de \textit{PageRank} tiene mayor tiempo de cómputo
 
 \subsubsection{Análisis Cualitativo}
 Luego de realizar un análisis cuantitativo en la sección previa, es necesario preguntarnos si el resultado obtenido por estos algoritmos es considerado correcto. 
-Para esto, hay que preguntarnos ¿Qué es que una búsqueda sea de calidad? 
+Para esto, hay que preguntarnos ¿Qué es la calidad en una búsqueda? 
 \par 
 Para realizar un análisis cualitativo decidimos tomar algunos reconocidos motores de búsqueda como son \textit{google}, \textit{yahoo} y \textit{bing}, y tratamos de recrear una búsqueda que otorgue como resultado varias de las páginas que se encuentran en el archivo \textit{weblist.in}. Es por esto que se eligió realizar la búsqueda ``diarios argentinos'' ya que en el mencionado archivo se podrían encontrar varios de estos links bajo esa búsqueda.
+\par 
+Para esto, primero veamos cuales fueron los resultados obtenidos por nuestros algoritmos. Empecemos con \textit{pageRank}. A continuación presentamos los datos obtenidos luego de ejecutar el algoritmo con una probabilidad de transportación de $0,10$ y una tolerancia de corte de $0.00001$. Se presenta la información ordenada decrecientemente por ranking:
 
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+    \hline
+    Posición & Página & Rank  \\ \hline
+    
+	1 & www.clarin.com & 0.0788695 \\ \hline
+	2 & www.ole.com.ar & 0.0782334 \\ \hline
+	3 & www.lanacion.com.ar & 0.0779999 \\ \hline
+	4 & www.clasificados.clarin.com & 0.073492 \\ \hline
+	5 & www.ciudad.com.ar & 0.073492 \\ \hline
+	6 & canchallena.lanacion.com.ar & 0.0732727 \\ \hline
+	7 & www.rollingstone.com.ar & 0.0697836 \\ \hline
+	8 & www.zonaprop.com.ar & 0.0697836 \\ \hline
+	9 & www.clarin.com/deportes & 0.0691553 \\ \hline
+	10 & www.google.com & 0.0671836  \\ \hline
+	11 & www.pagina12.com.ar & 0.0671836	\\ \hline		
+	12 & www.yahoo.com & 0.0671836 \\ \hline
+	13 & www.infobae.com & 0.0671836 \\ \hline
+	14 & www.mamapuntocero.com.ar & 0.0671836 \\ \hline   
+    \end{tabular}
+\end{center}
+
+Dado que la búsqueda se realizó sobre ``diarios argentinos'', sería esperable que se obtengan páginas como \textit{www.clarin.com}, \textit{www.ole.com.ar}, \textit{canchallena.lanacion.com.ar} o \textit{www.pagina12.com.ar} mientras que otras como pueden ser \textit{www.yahoo.com} o \textit{www.google.com}. 
+\par 
+De esta manera, luego se comenzó realizando la búsqueda en el motor de búsqueda por excelencia y contra el cual todos deberían compararse: Google.
+El mismo arrojo los siguientes resultados:
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/primerapaginagoogle.png}
+	\end{center}
+	\par 
 
 
 \subsubsection{Casos de Ejemplo}
