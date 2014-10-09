@@ -367,6 +367,35 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 
 \subsubsection{Convergencia de HITS}
 
+El estudio de la convergencia para HITS es muy similar al de \textit{PageRank}, aunque cuenta con una facilidad: no incluye el parámetro $c$. Sin embargo, esta vez necesitamos que el criterio de corte se aplique al mismo tiempo para el vector de pesos de autoridad que para el de pesos de \textit{hub}. Igualmente, esto último no nos supondrá problemas a la hora de analizar la convergencia del algoritmo de búsqueda. Veamos entonces qué sucede para una red mediana-grande al igual que en el estudio de la sección anterior para \textit{PageRank}:
+	
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.12]{./img/graficoAutoridadesMovies.png}
+		\par
+		\footnotesize\textit{Estudio de convergencia para HITS para la red de \texttt{movies\_expanded}. Pesos de autoridad.}
+	\end{center}
+	\par 
+	
+	Aquí se puede observar el gráfico con las diferencias entre cada solución en cada iteración. Para calcular estas diferencias se utilizó la norma Manhattan (o norma 1, en azul) y la norma 2 (en rojo). La escala en el eje $y$ es logarítmica para una mejor visualización de los resultados. Básicamente, cuanta más diferencia hay en cualquiera de las dos normas, más arriba estarán las barras y viceversa. Por lo tanto, es fácil notar que a medida que se realizan las iteraciones de los productos matriz-vector, menor es la diferencia entre las soluciones de dos iteraciones consecutivas. Esto habla \textit{a priori} de una convergencia a una solución única, justo lo que querríamos encontrar. Veamos qué sucede al mismo tiempo para los pesos de \textit{hub}:
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.12]{./img/graficoHubsMovies.png}
+		\par
+		\footnotesize\textit{Estudio de convergencia para HITS para la red de \texttt{movies\_expanded}. Pesos de hub.}
+	\end{center}
+	\par 
+	
+	Prácticamente los valores \textit{son los mismos}, no hay cambios notables entre estos pesos y los anteriores: la convergencia para ambos vectores se ve entonces en este caso.
+	
+	Algunos valores para resaltar en ambos (y en cualquier resultado para una corrida en una red con nuestra implementación de HITS) es por ejemplo aquel de la primera iteración: los vectores iniciales para los pesos son \textit{vectores de unos}\footnote{Siguiendo el paper de Kleinberg, p.9 del PDF función Iterate.}, por lo tanto la diferencia para la primera iteración y el set inicial de vectores es \textit{muy alta} y en particular para la norma Manhattan, \textit{muy parecida a la cantidad de nodos que hay en la red}. En este caso de \textit{movies\_expanded}, había 5757 nodos y la diferencia para la primera iteración está muy cerca de ese número (aprox. 5734 de diferencia para ambos).
+	
+	\vspace{\baselineskip}
+	
+	Haciendo más experimentos sobre las bases medianas-grandes que nos ofreció la cátedra nos dimos cuenta de que estos valores \textit{se repetían para todas ellas}. Consideramos adecuado no adjuntar más ejemplos ya que son análogos\footnote{Sin embargo, podrán encontrar en la carpeta de \textit{tests/HITS\_statistics} los demás resultados, con el formato: cantidad de nodos, todos los pesos de autoridad y luego los pesos de hub (en columnas número de iteración, norma 1, norma 2 para ambos).}. Con esto podemos concluír un poco mejor que la convergencia para el algoritmo HITS es un hecho a nivel práctico. Las diferencias están sobre cuán rápido converge (es decir, la cantidad de iteraciones que se realizaron antes de terminar), la cual no supera nunca las 50 iteraciones y suele estar alrededor de 20 iteraciones. Comparando estos valores con los de \textit{PageRank}, podemos intuir desde ya que el tiempo de cómputo será mucho más rápido para HITS porque hace significativamente menos iteraciones. Faltará ver entonces en qué nos beneficia cualitativamente el parámetro $c$ de \textit{PageRank} frente a HITS.
+	
+	 Algo para destacar de la cantidad de iteraciones es que \textbf{no} depende de la cantidad de nodos de la red. Que el algoritmo HITS utilice más o menos iteraciones dependerá de la tolerancia (fija en $10^{-5}$ para todos los experimentos ya dichos) pero también de cómo se realizan las cuentas y la forma de la matriz de adyacencia y de los vectores iteración por iteración\footnote{Estas formas mencionadas de la matriz de adyacencia y los resultados de cada vector para cada iteración no los pudimos analizar profundamente y por falta de tiempo los dejamos de lado, sintiendo que era una tarea bastante compleja de realizar con las redes propuestas.}. 
+
 \subsubsection{Tiempo de Cómputo}	
 Se realizaron mediciones para corroborar la cantidad de ciclos de reloj promedio que ocupa el algoritmo \textit{PageRank} y \textit{HITS}. Estos se realizaron en una ultrabook Exo con procesador Intel Core i7-3517U CPU @ 1.90GHz-2.40GHz, con 8GB de memoria RAM.  
 \par 
@@ -459,6 +488,7 @@ Para realizar un análisis cualitativo decidimos tomar algunos reconocidos motor
 %	\item Distribución de \texttt{rand()}?, \url{http://eternallyconfuzzled.com/arts/jsw\_art\_r and.aspx}
 	\item \textbf{Métodos Numéricos:}
 		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
+		\par Papers del TP.
 	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
 \end{itemize}
 
