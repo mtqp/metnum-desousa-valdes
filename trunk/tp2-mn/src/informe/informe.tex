@@ -316,7 +316,7 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 \subsection{Experimentación}
 \subsubsection{Convergencia de PageRank}
 	
-	El algoritmo de Page Rank necesita que la matriz de adyacencia, además de ser estocástica por columna, sea regular. Esto significa que todas las entradas deben ser positivas. Debido a que el grafo de conexiones entre páginas web es más bien ralo, y potencialmente inconexo, es necesario agregar al modelo algún elemento para satisfacer la precondición necesaria: El coeficiente de teletransportación. Este coeficiente ($c$) define la probabilidad de que dado que se está en una página $k$, el usuario salte a una página aleatorea cualquiera con probabilidad $c/n$
+	El algoritmo de Page Rank necesita que la matriz de adyacencia, además de ser estocástica por columnas, sea regular. Esto significa que todas las entradas deben ser positivas. Debido a que el grafo de conexiones entre páginas web es más bien ralo, y potencialmente inconexo, es necesario agregar al modelo algún elemento para satisfacer la precondición necesaria: el coeficiente de teletransportación. Este coeficiente ($c$) define la probabilidad de que dado que se está en una página $k$, el usuario salte a una página aleatorea cualquiera con probabilidad $c/n$.
 
 	Para analizar el impacto de este coeficiente en la convergencia del \textit{Page Rank} realizamos varias pruebas con distinto valor de teletransportación. En el siguiente gráfico se muestra para la iteración $i+1$ la diferencia entre los vectores resultantes de la $i+1$ e $i$ evaluada en Norma \textit{Manhattan}. Los valores de los coeficientes son: $0.1, 0.3, 0.5, 0.7, 0.9$. El algoritmo termina si la diferencia entre estos dos vectores en Norma 2 es menor a $10^{-5}$. El dataset utilizado en este caso es el correspondiente al tópico de aborto.
 
@@ -328,7 +328,7 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 
 	Vemos que aumentando el valor de $c$, la cantidad de iteraciones necesarias para obtener un número menor al considerado como $0$ aumenta. Debido a que $c$ impacta tanto en los valores originales de la matriz que eran $0$ como en los que no, podemos pensarlo como la aplicación de un ruido sobre los datos originales. Resulta razonable pensar que a mayor cantidad de ruido, más díficil es al algoritmo encontrar la solución correcta.
 
-	Sin embargo, en la práctica es fáctible y practicable el salto aleatoréo de página en página. Por lo tanto, utilizar un coeficiente muy pequeño, por un lado nos haría tener una solución de manera más rápida; pero por el otro, se generaría un modelo que no se corresponde con nuestro objetivo (cómo generar un \textit{ranking} cualitativo de la red). Los buscadores de internet deben balancear estos dos puntos. Según los artículos leídos, y por lo comentado también en clase, \textit{Google} utiliza un $c = 0.15$, el cuál dado el gráfico supone una buena relación entre \textit{performance} y calidad. 
+	Sin embargo, en la práctica es fáctible y practicable el salto aleatorio de página en página. Por lo tanto, utilizar un coeficiente muy pequeño, por un lado nos haría tener una solución de manera más rápida; pero por el otro, se generaría un modelo que no se corresponde con nuestro objetivo (cómo generar un \textit{ranking} cualitativo de la red). Los buscadores de internet deben balancear estos dos puntos. Según los artículos leídos, y por lo comentado también en clase, \textit{Google} utiliza un $c = 0.15$, el cuál dado el gráfico supone una buena relación entre \textit{performance} y calidad. 
 
 	Debemos notar que si bien parece que a mayor cantidad de iteraciones mayor error, esto fluctúa con $c = 0.3$. Dado que como recién dijimos el buscador utiliza $0.15$, el cual debería tener una curva similar a la de $0.1$, y que con $0.3$ necesitamos la misma cantidad de iteraciones, pero conseguimos una solución al menos un orden de magnitud menor de calidad; nos preguntamos qué sucede alrededor de esos valores. A continuación, se detallan distintos valores para la teletransportación entre $0.1$ y $0.3$
 
@@ -338,11 +338,11 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 	\end{center}
 	\par 
 
-	Podemos confirmar que nuesta hipótesis: `` A mayor cantidad de iteraciones, mayor error'', queda refutada. Con 0.15 y 0.1 obtuvimos datos muy similares así como con 0.12 y 0.18. No podemos extraer una función monótona creciente de estos datos. 
+	Podemos confirmar que nuesta hipótesis: ``A mayor cantidad de iteraciones, mayor error'', queda refutada. Con 0.15 y 0.1 obtuvimos datos muy similares así como con 0.12 y 0.18. No podemos extraer una función monótona creciente de estos datos. 
 
-	Para nuestro asombro, utilizando el famoso coeficiente 0.15 obtuvimos el mínimo de la muestra tomada. Estrictamente hablando, es un resultado anecdótico, ya que el grafo utilizado no representa la red completa y la semilla para la creación del vector aleatoreo está fija para poder replicar los datos.
+	Para nuestro asombro, utilizando el famoso coeficiente 0.15 obtuvimos el mínimo de la muestra tomada. Estrictamente hablando, es un resultado anecdótico, ya que el grafo utilizado no representa la red completa y la semilla para la creación del vector aleatorio está fija para poder replicar los datos.
 
-	A continuación se incluye el gráfico tomando $c = 1$
+	A continuación se incluye el gráfico tomando $c = 1$:
 
 	\par 
 	\begin{center}
@@ -350,7 +350,7 @@ Por la naturaleza de la multiplicación de matriz por vector, resulta poco conve
 	\end{center}
 	\par 
 
-	Por un lado destacamos cómo se elevó la cantidad de iteraciones para coverger. Tomando 0.9 fueron 47, y con 1 más de 1600. Es primordial remarcar que la única información relevante extraíble es que el método de la potencia converge. El vector resultante no tiene por qué estar relacionado con la idea de `` buena solución'', siendo `` buena'' medida cualitativa. Remarcamos esto dado que el grafo de la web no afecta en el cálculo realizado. Si fuera buena solución, sería una mera coincidencia.
+	Por un lado destacamos cómo se elevó la cantidad de iteraciones para coverger. Tomando 0.9 fueron 47, y con 1 más de 1600. Es primordial remarcar que la única información relevante extraíble es que el método de la potencia converge. El vector resultante no tiene por qué estar relacionado con la idea de ``buena solución'', siendo ``buena'' medida cualitativa. Remarcamos esto dado que el grafo de la web no afecta en el cálculo realizado. Si fuera buena solución, sería una mera coincidencia.
 
 	A continuación se realiza la misma prueba que la del primer gráfico, utilizando el set de datos de \textit{genética}. Queremos ver si se observan diferencias en las velocidades de convergencia para refutar nuestras hipótesis anteriores o reforzarlas.
 
