@@ -505,7 +505,78 @@ El mismo arrojo los siguientes resultados:
 	\end{center}
 	\par 
 
+Aquí podemos ver que \textit{www.ole.com.ar} se encuentra en la sección de anuncios que suele aparecer al principio de la primera página, por lo que no es tenido en cuenta para la búsqueda. Sin embargo, a pesar de estar por encima de \textit{www.clarin.com}, la diferencia entre ambas páginas para nuestra implementación no es tan amplia y tampoco podemos saber la posición de \textit{www.ole.com.ar} si no estuviera en los anuncios. Por otro lado, el ordenamiento de \textit{www.clarin.com} y \textit{www.lanacion.com.ar} es igual al de nuestra implementación. Además, se encontró que \textit{www.infobae.com} se encuentra la segunda página de la búsqueda. 
+\par 
+Notemos que las páginas como \textit{www.clasificados.clarin.com} o \textit{canchallena.lanacion.com.ar} no se muestran en las búsquedas. Posiblemente porque Google no las tenga en cuenta al ser derivadas de otras más importantes, algo que no tenemos en cuenta en nuestra implementación.  De esta manera, también se reduce los links que son tenidos en cuenta para la búsqueda en estos importantes motores de búsqueda.
+\par 
 
+Ahora veamos los resultados de nuestra implementación de \textit{HITS}. Vamos a mostrar los datos ordenados por importancia de autoridad:
+
+\begin{center}
+    \begin{tabular}{| l | l | l |}
+    \hline
+    Posición & Página & Rank  \\ \hline
+    
+	1 & www.ole.com.ar & 0.526712 \\ \hline
+	2 & www.clarin.com & 0.511331 \\ \hline
+	3 & www.clasificados.clarin.com & 0.468299 \\ \hline
+	4 & www.ciudad.com.ar & 0.468299 \\ \hline
+	5 & www.clarin.com/deportes & 0.150027	 \\ \hline
+	6 & canchallena.lanacion.com.ar & 2.66513e-06 \\ \hline
+	7 & www.lanacion.com.ar  & 1.53958e-06 \\ \hline
+	8 & www.rollingstone.com.ar & 1.53828e-06 \\ \hline
+	9 & www.zonaprop.com.ar & 1.53828e-06 \\ \hline
+	10 & www.infobae.com & 0 \\ \hline
+	11 & www.google.com & 0  \\ \hline
+	12 & www.pagina12.com.ar & 0	\\ \hline		
+	13 & www.yahoo.com & 0 \\ \hline
+	14 & www.mamapuntocero.com.ar & 0 \\ \hline   
+    \end{tabular}
+\end{center}
+
+Podemos ver que en los cuatro diarios que sabemos que aparecen en las primeras páginas de Google (\textit{www.infobae.com}, \textit{www.ole.com.ar}, \textit{www.ciudad.com.ar} y \textit{www.lanacion.com.ar}) aparecen en el mismo orden que nuestra implementación de \textit{pageRank}.
+\par 
+De esta manera, prosigamos analizando otro buscador: \textit{bing}.
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/primerapaginabing.png}
+	\end{center}
+	\par 
+	
+Aquí podemos ver que se cumple el mismo orden para las dos primeros links en el caso del \textit{pageRank} y que se encuentran invertidos para \textit{HITS}. Además podemos notar que, a diferencia de lo sucedido en Google, hay más búsquedas de un mismo diario pero que poseen distintos links. Otro dato interesante de mencionar es que el primer link de la imagen posee en su descripción una aparente query que hacen referencia a varios de links que deseamos encontrar, y entre ellos a \textit{canchallena.lanacion.com.ar}, el cual no habíamos encontrado hasta ahora.
+A continuación, la segunda página de este buscador:
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/segundapaginabing.png}
+	\end{center}
+	\par
+En este caso, se puede encontrar a \textit{www.lanacion.com.ar} y no a \textit{www.infobae.com}, el cual quedo relegado para páginas posteriores. Hay que tener en cuenta que el rankeo para esta última fue de los más bajos en ambos algoritmos de nuestra implementación, por lo que es razonable que quede relegado para páginas posteriores.
+\par 
+
+Finalmente, veamos el caso de Yahoo:
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/primerapaginayahoo.png}
+	\end{center}
+	\par
+	
+Notemos que la primera página devuelve el mismo resultado que Bing, y lo mismo sucede para la siguiente:
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.5]{./img/segundapaginayahoo.png}
+	\end{center}
+	\par
+
+Esta igualdad entre ambos buscadores se debe a que en julio del 2009, Microsoft y Yahoo! anunciaron que Bing reemplazaría a Yahoo! Search. Este cambio fue implementado a principios de 2012. De esta forma, cualquier análisis de calidad de resultado para Yahoo, corresponde con el de Bing ya que es el mismo buscador.
+\par 
+Bing posee un algoritmo que utiliza fuertemente el URL, particularmente más que Google, y que además tiene en cuenta el tiempo de existencia del link, a diferencia de su competencia. Sin embargo, Google tiene más en cuenta los llamados ``backlinks'', es decir, que la página a la que apuntas, te apunte. 
+\par 
+En conclusión, el análisis cualitativo de un motor de búsqueda es algo díficil de realizar, especialmente teniendo en cuenta cuál es la definición de calidad. La misma es subjetiva, por lo que varía dependiendo de qué factores se quieran tener en cuenta o priorizar. Es por ello que tuvimos en cuenta motores de búsqueda referentes para hacer un análisis de calidad acerca de nuestra implementación, logrando un excelente resultado para la búsqueda realizada.
+	
 \subsubsection{Casos de Ejemplo}
 
 Tomamos como ejemplo la salida de ejecutar el archivo \texttt{webparser.py} con la \texttt{weblist.in} sin modificar tal como en la subsección anterior. Esa salida es la siguiente: 
@@ -633,6 +704,9 @@ Aquí podemos ver que el ranking intuitivo estuvo en lo correcto, pero con la so
 		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
 		\par Papers del TP.
 	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
+	\item http://es.wikipedia.org/wiki/Bing
+	\item http://www.seo-advantage.com/seo-news/Jul09/Are-Bing's-Algorithms-Placing-Emphasis-On-Domain-Names.html
+	\item http://www.optimizationtheory.com/difference-in-google-and-bings-algorithm/
 \end{itemize}
 
 
