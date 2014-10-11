@@ -51,7 +51,6 @@ void CRSMatrix :: PrintItSelf(){ //esto es malisimo!, solo para debuggear, borra
 	{
 		for(int j=0; j<_m; j++)
 		{
-			//cout << "(" << i << "," << j << ") = " << ElementAt(i,j) << endl;
 			cout << ElementAt(i,j) << '\t';
 		}
 		cout << endl;
