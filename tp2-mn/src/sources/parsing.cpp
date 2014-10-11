@@ -83,20 +83,19 @@ WebNet* StanfordParsing :: ParseFile(const char* pathToFile){
 	file.open(pathToFile);
 	
 	if (file.is_open()){
-		//ignoro lineas
+		// Ignores two lines (comments)
 		file.ignore(1000,'\n');
 		file.ignore(1000,'\n');
 		
-		//ignoro hasta : 
-		
+		//Ignoring until :amountOfNodes
 		file.ignore(200, ':');
 		file >> amountOfNodes;
 		
-		//ignoro hasta : 
+		//Ignoring until :amountOfEdges 
 		file.ignore(200, ':');
 		file >> amountOfEdges;
 		
-		// ignoro lineas
+		// Ignores until whole data
 		file.ignore(1000,'\n');
 		file.ignore(1000,'\n');
 		

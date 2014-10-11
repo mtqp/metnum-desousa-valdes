@@ -238,7 +238,7 @@ void PageRank :: RankPage(WebNet* net){
     } while(norm2DifferenceBetweenSolutions(x, old_x) >= _cutTolerance && iteration < 5000); //It could not end due to numerical error
     
     if(iteration >= 5000) {
-        cout << "Run out of iterations - Teletransporting value: " 
+        cout << "Run out of iterations - Teleporting value: " 
              << _teletransporting << " - Cut tolerance: " 
              << _cutTolerance << endl;
     }

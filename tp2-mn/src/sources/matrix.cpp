@@ -22,7 +22,7 @@ vector<double> CRSMatrix::Multiply(vector<double> aVector){
 	return multiplication;
 }
 
-void CRSMatrix :: PrintItSelf(){ //esto es malisimo!, solo para debuggear, borrar antes de entregar
+void CRSMatrix :: PrintItSelf(){ // Only DEBUG
 	cout << "colIndex: " << _colIndexes.size() << endl;
 	for(int i=0; i < (int)_colIndexes.size(); i++)
 	{
@@ -167,6 +167,8 @@ vector<double> CRSBuilder::CollectValues(){
 	}
 	return values;
 }
+
+// MAIN for TESTING MATRIX
 
 //~ int main(int argc, char *argv[]) {	
     //~ CRSBuilder builder;
