@@ -148,21 +148,14 @@ y & = & Ax, \label{eq:hub-update-math}
 \end{eqnarray}
 
 Siendo $x$ un vector de peso de autoridad, $y$ el de los hubs y $A$ la matriz de adyacencia creada a partir de los links de una página a otra.
-Kleinberg propone en \textit{Authoritative sources in a hyperlinked environment} con un $y_0$ inicial, al cual aplicarle esta ecuación iterativamente para que, bajo ciertas condiciones que nuestro problema cumple, el método converja. En base a este ranking obtenido luego de realizar las iteraciones, se obtienen las páginas que son mejores autoridades y mejores hubs.
+Kleinberg propone en \textit{Authoritative sources in a hyperlinked environment} con un $y_0$ inicial, al cual aplicarle esta ecuación iterativamente para que, bajo ciertas condiciones que nuestro problema cumple, el método converja. En base a este ranking obtenido luego de realizar las iteraciones, se obtienen las páginas que son mejores autoridades y mejores hubs, Aplicando luego el paso de normalizaci\'on correspondiente. 
 
-
-
-
-aplicando luego el paso de normalizaci\'on correspondiente. Los autores proponen comenzar con un $y_0$ incial, aplicar estas ecuaciones 
+Los autores proponen comenzar con un $y_0$ incial, aplicar estas ecuaciones 
 iterativamente y demuestran que, bajo ciertas condiciones, el m\'etodo converge. Finalmente, en base a los rankings obtenidos, se retorna
 al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 
 
 \section{Desarrollo}
-\subsection{Ideas sobre la Implementación}
-
-\subsubsection{Características generales del problema}
-
 
 \subsection{Implementación}
 
@@ -201,7 +194,7 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	La semántica de estos arreglos es la siguiente, suponiendo que \textit{i} hace referencia a filas y \textit{j} a columnas:
 
 	\begin{itemize}
-		\item \texttt{rowPointers}: El valor de la i-ésima posición referencia el índice de colIndexes a partir del cual se encuentran los elementos de la i-ésima fila. En caso de no haber elementos en la i-ésima fila de la matriz, esta posición se completa con el mismo valor que la i-1 (simplemente por cuestiones implementativas). Este vector tendrá entonces $m+1$ elementos para poder representar a las $m$ filas, y además el primer elemento siempre será 0 (índice en base 0) y el último siempre será la cantidad de valores no nulos.
+		\item \texttt{rowPointers}: El valor de la i-ésima posición referencia el índice de colIndexes a partir del cual se encuentran los elementos de la i-ésima fila. En caso de no haber elementos en la i-ésima fila de la matriz, esta posición se completa con el mismo valor que la i-1 (simplemente por cuestiones implementativas). 
 		\item \texttt{colIndexes}: El valor contenido dentro de cada posición representa a \textit{j}
 		\item \texttt{values}: Contiene los valores de la matriz, cada posición se relaciona uno a uno con \textit{colIndexes}. Se puede deducir fácilmente entonces que el tamaño de este vector es igual al de \texttt{colIndexes}.
 	\end{itemize}
@@ -220,7 +213,7 @@ al usuario las mejores $t$ \emph{autoridades} y los mejores $t$ \emph{hubs}.
 	\begin{itemize} 
  \item Para \texttt{values}, debemos recolectar todos los valores no nulos en orden izquierda-derecha-arriba-abajo: \texttt{values} $= [1,5,2,3,1,7,8,11,4].$
 
- \item Para \texttt{colIndexes}, debemos recolectar todos las columnas de esos valores y ponerlas en el mismo orden que en \texttt{values}. Luego (en base 0): \texttt{colIndexes} $= [1,5,2,3,1,7,8,11,4].$
+ \item Para \texttt{colIndexes}, debemos recolectar todos las columnas de esos valores y ponerlas en el mismo orden que en \texttt{values}. Luego (en base 0): \texttt{colIndexes} $= [1,4,0,1,4,3,0,2,4]. $
 
  \item Finalmente para \texttt{rowPointers}, siendo este el más difícil de entender, debemos guardar en \texttt{rowPointers[$i$]} y \texttt{rowPointers[$i+1$]} el rango de índices\footnote{Rango final \textbf{no} incluído.} de \texttt{colPointers}\footnote{Se puede mirar también en \texttt{values}.} en el cual hay valores en la fila $i$ (en base 0). 
  
@@ -301,7 +294,7 @@ Mirando ahora como está hecha la estructura de las matrices esparsas con \texti
 	\vspace{\baselineskip}
 
 \par	
-Por la naturaleza de la multiplicación de matriz por vector, resulta poco conveninete utilizar la estructura \textit{CSC}. \textit{CSC} es más redituable si necesitamos multiplicar por la traspuesta de una matriz, ya que el mismo algoritmo la recorrería de manera traspuesta\footnote{En el algoritmo de \textit{HITS} necesitamos la traspuesta, sin embargo, utilizamos la misma estructura, cargando los índices de manera inversa.}.
+Por la naturaleza de la multiplicación de matriz por vector, resulta poco conveniente utilizar la estructura \textit{CSC}. \textit{CSC} es más redituable si necesitamos multiplicar por la traspuesta de una matriz, ya que el mismo algoritmo la recorrería de manera traspuesta\footnote{En el algoritmo de \textit{HITS} necesitamos la traspuesta, sin embargo, utilizamos la misma estructura, cargando los índices de manera inversa.}.
 
 	Tanto \textit{CSR} como \textit{CSC} son complejos de crear si los datos no son suministrados de manera ordenada. Para eso, generamos una clase \textit{CSRBuilder} al cual se le pasan los datos de manera desordenada y una vez que la carga de datos se completa, se encarga de ordenarlos, crear los índices e instanciar una \textit{CSRMatrix}. Si bien no es idéntico, preserva el espíritu de un \textit{DOK}, ya que termina utilizando de cláve \textit{i, j} por la cual ordena la información antes de generar la matriz esparsa por filas. 
 
