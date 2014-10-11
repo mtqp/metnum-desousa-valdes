@@ -657,32 +657,63 @@ Página 14: 0                        Página 14: 0
 
 Como ya vimos en el resto del TP, HITS divide el puntaje en pesos de autoridad y de \textit{hub} (es decir, de ``apuntador a páginas''). En el paper de Kleinberg para mostrar los resultados finales solo se debía presentar los primeros resultados para cada tipo de peso. En este caso el ranking por autoridad es 8, 2, 9, 11, 3, 6, 4, 7, 12 y los nodos aislados. Por peso de \textit{hub}: 3, 2, 8, 9, 11, 4, 7, 6 y los demás. Para este ejemplo, los rankings entre ambos son parecidos, aunque la página 3 fue mucho más importante para HITS que para el ranking intuitivo y el producido por \textit{in-degree}. Sin embargo, al tener en cuenta esta información, el resultado es más rico en términos de \textit{fairness} al considerar ambos grados de entrada y salida. Al combinar ambos rankings se pueden llegar eventualmente a uno definitivo y tendrá más información para hacer del mismo un \textit{mejor ranking}. En esto se basa aproxidamente el algoritmo de \textit{Twitter} y como ya se sabe, funciona muy bien. 
 
-Finalmente, los resultados de \textit{PageRank} con teletransportación $c = 0.10$ ya estaban en la sección anterior \textbf{Análisis Cualitativo} y lograban construir esta tabla:
+Finalmente, veamos los resultados de \textit{PageRank} con teletransportación $c = 0.15$ (el coeficiente que utiliza \textit{Google}) que logran construir esta tabla:
 
 \begin{center}
     \begin{tabular}{| l | l | c | l|}
     \hline
     Posición & Página & ID & Rank  \\ \hline
     
-	1 & www.clarin.com & 2 & 0.0788695 \\ \hline
-	2 & www.ole.com.ar & 8 & 0.0782334 \\ \hline
-	3 & www.lanacion.com.ar & 4 & 0.0779999 \\ \hline
-	4 & www.clasificados.clarin.com & 9 & 0.073492 \\ \hline
-	5 & www.ciudad.com.ar & 11 & 0.073492 \\ \hline
-	6 & canchallena.lanacion.com.ar & 6 & 0.0732727 \\ \hline
-	7 & www.rollingstone.com.ar & 7 & 0.0697836 \\ \hline
-	8 & www.zonaprop.com.ar & 12 & 0.0697836 \\ \hline
-	9 & www.clarin.com/deportes & 3 & 0.0691553 \\ \hline
-	10 & www.google.com & 1 & 0.0671836  \\ \hline
-	11 & www.pagina12.com.ar & 13 & 0.0671836	\\ \hline		
-	12 & www.yahoo.com & 14 & 0.0671836 \\ \hline
-	13 & www.infobae.com & 5 & 0.0671836 \\ \hline
-	14 & www.mamapuntocero.com.ar & 10 & 0.0671836 \\ \hline   
+	1 & www.clarin.com & 2 & 0.0827746 \\ \hline
+	2 & www.ole.com.ar & 8 & 0.0817891 \\ \hline
+	3 & www.lanacion.com.ar & 4 & 0.081231 \\ \hline
+	4 & www.clasificados.clarin.com & 9 & 0.0746773 \\ \hline
+	5 & www.ciudad.com.ar & 11 & 0.0746773 \\ \hline
+	6 & canchallena.lanacion.com.ar & 6 & 0.0741677 \\ \hline
+	7 & www.rollingstone.com.ar & 7 & 0.0689935 \\ \hline
+	8 & www.zonaprop.com.ar & 12 & 0.0689935 \\ \hline
+	9 & www.clarin.com/deportes & 3 & 0.0680362 \\ \hline
+	10 & www.google.com & 1 & 0.064932  \\ \hline
+	11 & www.pagina12.com.ar & 13 & 0.064932	\\ \hline		
+	12 & www.yahoo.com & 14 & 0.064932 \\ \hline
+	13 & www.infobae.com & 5 & 0.064932 \\ \hline
+	14 & www.mamapuntocero.com.ar & 10 & 0.064932 \\ \hline   
     \end{tabular}
 \end{center}
 
-Aquí podemos ver que el ranking intuitivo estuvo en lo correcto, pero con la sorpresa de la página 4 en el cuarto puesto, algo que en todos los otros algoritmos se dejó de lado. Además, sabiendo que esa página es \textit{La Nación} y la mayoría de las páginas de la red son diarios, es lógico que estuviera en una buena posición, aunque justamente esto es algo que no se puede concluír si se analizan únicamente los números. Sin embargo, con todas las operaciones matriciales detrás de \textit{PageRank}, este \textit{pudo encontrar que efectivamente la página 4 debió ser mejor rankeada}. En gran parte por estos hechos no es casualidad que \textit{Google} haya hecho frente a los demás buscadores cuando recién comenzaba y ser hoy considerado el mejor buscador de toda la Web. 
-	
+
+Aquí podemos ver que el ranking intuitivo estuvo en lo correcto, pero con la sorpresa de la página 4 en el tercer puesto, algo que en todos los otros algoritmos se dejó de lado. Además, sabiendo que esa página es \textit{La Nación} y la mayoría de las páginas de la red son diarios, es lógico que estuviera en una buena posición, aunque justamente esto es algo que no se puede concluír si se analizan únicamente los números. Sin embargo, con todas las operaciones matriciales detrás de \textit{PageRank}, este \textit{pudo encontrar que efectivamente la página 4 debió ser mejor rankeada}. En gran parte por estos hechos no es casualidad que \textit{Google} haya hecho frente a los demás buscadores cuando recién comenzaba y ser hoy considerado el mejor buscador de toda la Web. 
+
+Sin embargo, \textit{PageRank} es un algoritmo con una customización importante: el coeficiente de teletransportación. Ya lo presentamos en las secciones anteriores y vimos su interpretación y los efectos que causa. Cambiemos entonces este parámetro considerablemente hasta 0.85 para obtener esta nueva tabla:
+
+\begin{center}
+    \begin{tabular}{| l | l | c | l|}
+    \hline
+        Posición & Página & ID & Rank  \\ \hline
+1 &  www.clarin.com & 0.181219 & 2 \\ \hline   
+2 & www.ole.com.ar &  0.171217 & 8 \\ \hline   
+3 & www.clasificados.clarin.com & 0.118773 & 9 \\ \hline   
+4 & www.ciudad.com.ar & 0.118773 & 11 \\ \hline   
+5 & www.lanacion.com.ar & 0.0955543 & 4\\ \hline   
+6 & canchallena.lanacion.com.ar & 0.0662847 & 6 \\ \hline   
+7 & www.clarin.com/deportes & 0.0579484 & 3 \\ \hline   
+8 & www.rollingstone.com.ar & 0.046515 & 7 \\ \hline   
+9 & www.zonaprop.com.ar &  0.046515 & 12 \\ \hline   
+10 & www.infobae.com &  0.01944 & 5 \\ \hline   
+11 & www.yahoo.com & 0.01944 & 14 \\ \hline   
+12 & www.pagina12.com.ar & 0.01944 & 13 \\ \hline   
+13 &  www.mamapuntocero.com.ar & 0.01944 & 10\\ \hline   
+14 &  www.google.com & 0.01944 & 1 \\ \hline   
+    \end{tabular}
+\end{center}
+
+Para nuestra sorpresa, si nos fijamos el ranking que habíamos formado con el método \textit{intuitivo}, vemos que este es, \textit{¡ exactamente igual !} Volviendo a lo que significa el parámetro de teletransportación, al poner ese valor en 0.85 estamos definiendo (en palabras) que la probabilidad de saltar de una página a otra de manera \textit{random} es del 85\%. Luego teniendo eso en cuenta, podríamos llegar a discutir si finalmente este ranking es bueno o malo: si tal probabilidad es así de alta, básicamente perdemos el control que teníamos en la especulación del movimiento del usuario a partir de los datos reales de este ejemplo. Por lo tanto, podríamos deducir que este resultado podría haber sido \textit{cualquier cosa}, ya que ese parámetro está muy cerca de 1 (y ahí se perdería la estructura de la red completamente porque no importarían más las relaciones entre las páginas), lo cual nos acerca más a decir que este resultado, y por consecuente nuestro ranking intuitivo, es \textit{malo}.
+
+\vspace{\baselineskip}
+Sin embargo esto puede llevar a más preguntas: ¿ \textit{no sería correcto tener siempre un coeficiente $c$ nulo para eliminar esa posibilidad} ? La respuesta rápida podría ser \textit{sí}, ya que el usuario estaría ligado únicamente a los links de las páginas. Aunque si nos alejamos de los datos concrectos y pensamos por un momento más, la respuesta obvia es \textit{no}: como sabemos, por ser nosotros mismos \textit{usuarios} de la Web en general, la persona promedio que utiliza Internet rara vez \textit{surfee} la Web únicamente por los links de una misma página\footnote{Teniendo en cuenta \textit{este} set de páginas: \textit{Facebook} podría ser un ejemplo de \textit{hub} que permita estos movimientos.}, y usualmente lo que hará es navegar una página, ir a un link dentro de ella, y después decidir cambiar completamente la URL y saltar a otra página sin previo aviso. Por lo tanto, ese coeficiente $c = 0.15$ tampoco es ningún valor \textit{random}: los estudios estadísticos de \textit{Google} para conseguir el mejor $c$ que se adecúe al mejor ranking (subjetivamente) le permitieron ser el buscador (y tantas cosas más) que es hoy en día. 
+
+Otra idea más compleja a nivel implementativo es la del \textit{Dynamic PageRank using Evolving Teleportation} (ver \textbf{Bibliografía y referencias}) en la cual se va variando el parámetro $c$ para obtener mejores resultados\footnote{Sin embargo, esta técnica no se basa exactamente en la convergencia de las soluciones como vimos anteriormente y es más complicada de explicar a nivel teórico para este trabajo práctico.}.
+
 \section{Conclusión}
 
 
@@ -695,11 +726,13 @@ Aquí podemos ver que el ranking intuitivo estuvo en lo correcto, pero con la so
 %	\item Distribución de \texttt{rand()}?, \url{http://eternallyconfuzzled.com/arts/jsw\_art\_r and.aspx}
 	\item \textbf{Métodos Numéricos:}
 		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
-		\par Papers del TP.
+		\par \textit{Papers} del TP.
 	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-	\item http://es.wikipedia.org/wiki/Bing
-	\item http://www.seo-advantage.com/seo-news/Jul09/Are-Bing's-Algorithms-Placing-Emphasis-On-Domain-Names.html
-	\item http://www.optimizationtheory.com/difference-in-google-and-bings-algorithm/
+	\item \textbf{Historia de Bing}: \url{http://es.wikipedia.org/wiki/Bing}
+	\item \textbf{Más datos acerca de los algoritmos en los buscadores actuales}:
+			\par \url{http://www.seo-advantage.com/seo-news/Jul09/Are-Bing's-Algorithms-Placing-Emphasis-On-Domain-Names.html}
+			\par \url{http://www.optimizationtheory.com/difference-in-google-and-bings-algorithm/}
+	\item \textbf{Dynamic PageRank using Evolving Teleportation}, \url{http://arxiv.org/pdf/1203.6098.pdf}
 \end{itemize}
 
 
