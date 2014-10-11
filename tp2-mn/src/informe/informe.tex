@@ -487,9 +487,9 @@ Para esto, primero veamos cuales fueron los resultados obtenidos por nuestros al
     \end{tabular}
 \end{center}
 
-Dado que la búsqueda se realizó sobre ``diarios argentinos'', sería esperable que se obtengan páginas como \textit{www.clarin.com}, \textit{www.ole.com.ar}, \textit{canchallena.lanacion.com.ar} o \textit{www.pagina12.com.ar} mientras que otras como pueden ser \textit{www.yahoo.com} o \textit{www.google.com}. 
+Dado que la búsqueda se realizó sobre ``diarios argentinos'', sería esperable que se obtengan páginas como \textit{www.clarin.com}, \textit{www.ole.com.ar}, \textit{canchallena.lanacion.com.ar} o \textit{www.pagina12.com.ar}.
 \par 
-De esta manera, luego se comenzó realizando la búsqueda en el motor de búsqueda por excelencia y contra el cual todos deberían compararse: Google.
+Para contrastar con la ``vida real'' , se efecuó la búsqueda en el motor de búsqueda por excelencia, el cual utilizamos de \textit{benchmark}: Google.
 El mismo arrojo los siguientes resultados:
 
 	\par 
@@ -498,7 +498,7 @@ El mismo arrojo los siguientes resultados:
 	\end{center}
 	\par 
 
-Aquí podemos ver que \textit{www.ole.com.ar} se encuentra en la sección de anuncios que suele aparecer al principio de la primera página, por lo que no es tenido en cuenta para la búsqueda. Sin embargo, a pesar de estar por encima de \textit{www.clarin.com}, la diferencia entre ambas páginas para nuestra implementación no es tan amplia y tampoco podemos saber la posición de \textit{www.ole.com.ar} si no estuviera en los anuncios. Por otro lado, el ordenamiento de \textit{www.clarin.com} y \textit{www.lanacion.com.ar} es igual al de nuestra implementación. Además, se encontró que \textit{www.infobae.com} se encuentra la segunda página de la búsqueda. 
+Aquí podemos ver que \textit{www.ole.com.ar} se encuentra en la sección de anuncios que suele aparecer al principio de la primera página, por lo que no es tenido en cuenta para la búsqueda. Sin embargo, a pesar de estar por encima de \textit{www.clarin.com}, la diferencia entre ambas páginas para nuestra implementación no es tan amplia y tampoco podemos saber la posición de \textit{www.ole.com.ar} si no estuviera en los anuncios. Por otro lado, el ordenamiento de \textit{www.clarin.com} y \textit{www.lanacion.com.ar} es igual al de nuestra implementación. Además, se encontró que \textit{www.infobae.com} se encuentra en la segunda página de la búsqueda. 
 \par 
 Notemos que las páginas como \textit{www.clasificados.clarin.com} o \textit{canchallena.lanacion.com.ar} no se muestran en las búsquedas. Posiblemente porque Google no las tenga en cuenta al ser derivadas de otras más importantes, algo que no tenemos en cuenta en nuestra implementación.  De esta manera, también se reduce los links que son tenidos en cuenta para la búsqueda en estos importantes motores de búsqueda.
 \par 
@@ -527,7 +527,7 @@ Ahora veamos los resultados de nuestra implementación de \textit{HITS}. Vamos a
     \end{tabular}
 \end{center}
 
-Podemos ver que en los cuatro diarios que sabemos que aparecen en las primeras páginas de Google (\textit{www.infobae.com}, \textit{www.ole.com.ar}, \textit{www.ciudad.com.ar} y \textit{www.lanacion.com.ar}) aparecen en el mismo orden que nuestra implementación de \textit{pageRank}.
+Podemos ver que los cuatro diarios que aparecen en las primeras páginas de Google (\textit{www.infobae.com}, \textit{www.ole.com.ar}, \textit{www.ciudad.com.ar} y \textit{www.lanacion.com.ar}), aparecen en el mismo orden que nuestra implementación de \textit{pageRank}.
 \par 
 De esta manera, prosigamos analizando otro buscador: \textit{bing}.
 
@@ -568,11 +568,11 @@ Esta igualdad entre ambos buscadores se debe a que en julio del 2009, Microsoft 
 \par 
 Bing posee un algoritmo que utiliza fuertemente el URL, particularmente más que Google, y que además tiene en cuenta el tiempo de existencia del link, a diferencia de su competencia. Sin embargo, Google tiene más en cuenta los llamados ``backlinks'', es decir, que la página a la que apuntas, te apunte. Hay que tener en cuenta que los algoritmos usados por estos buscadores no son de conocimiento público, por lo que la información recopilada se basa en búsquedas en internet.
 \par 
-En conclusión, el análisis cualitativo de un motor de búsqueda es algo díficil de realizar, especialmente teniendo en cuenta cuál es la definición de calidad. La misma es subjetiva, por lo que varía dependiendo de qué factores se quieran tener en cuenta o priorizar. Es por ello que tuvimos en cuenta motores de búsqueda referentes para hacer un análisis de calidad acerca de nuestra implementación, logrando un excelente resultado para la búsqueda realizada.
+En conclusión, el análisis cualitativo de un motor de búsqueda es algo díficil de realizar, especialmente teniendo en cuenta cuál es la definición de calidad. La misma es subjetiva, por lo que varía dependiendo de qué factores se quieran tener en cuenta o priorizar. Es por ello que tuvimos en cuenta motores de búsqueda referentes para hacer un análisis de calidad acerca de nuestra implementación, logrando un excelente resultado para esta caso en particular.
 	
 \subsubsection{Casos de Ejemplo}
 
-Tomamos como ejemplo la salida de ejecutar el archivo \texttt{webparser.py} con la \texttt{weblist.in} sin modificar tal como en la subsección anterior. Esa salida es la siguiente: 
+Tomamos como ejemplo la salida de \texttt{webparser.py} con \texttt{weblist.in} como input, sin modificar. El resultado es: 
 
 \begin{verbatim}
 # Directed graph (each unordered pair of nodes is saved once):
@@ -710,12 +710,19 @@ Sin embargo, \textit{PageRank} es un algoritmo con una customización importante
 Para nuestra sorpresa, si nos fijamos el ranking que habíamos formado con el método \textit{intuitivo}, vemos que este es, \textit{¡ exactamente igual !} Volviendo a lo que significa el parámetro de teletransportación, al poner ese valor en 0.85 estamos definiendo (en palabras) que la probabilidad de saltar de una página a otra de manera \textit{random} es del 85\%. Luego teniendo eso en cuenta, podríamos llegar a discutir si finalmente este ranking es bueno o malo: si tal probabilidad es así de alta, básicamente perdemos el control que teníamos en la especulación del movimiento del usuario a partir de los datos reales de este ejemplo. Por lo tanto, podríamos deducir que este resultado podría haber sido \textit{cualquier cosa}, ya que ese parámetro está muy cerca de 1 (y ahí se perdería la estructura de la red completamente porque no importarían más las relaciones entre las páginas), lo cual nos acerca más a decir que este resultado, y por consecuente nuestro ranking intuitivo, es \textit{malo}.
 
 \vspace{\baselineskip}
-Sin embargo esto puede llevar a más preguntas: ¿ \textit{no sería correcto tener siempre un coeficiente $c$ nulo para eliminar esa posibilidad} ? La respuesta rápida podría ser \textit{sí}, ya que el usuario estaría ligado únicamente a los links de las páginas. Aunque si nos alejamos de los datos concrectos y pensamos por un momento más, la respuesta obvia es \textit{no}: como sabemos, por ser nosotros mismos \textit{usuarios} de la Web en general, la persona promedio que utiliza Internet rara vez \textit{surfee} la Web únicamente por los links de una misma página\footnote{Teniendo en cuenta \textit{este} set de páginas: \textit{Facebook} podría ser un ejemplo de \textit{hub} que permita estos movimientos.}, y usualmente lo que hará es navegar una página, ir a un link dentro de ella, y después decidir cambiar completamente la URL y saltar a otra página sin previo aviso. Por lo tanto, ese coeficiente $c = 0.15$ tampoco es ningún valor \textit{random}: los estudios estadísticos de \textit{Google} para conseguir el mejor $c$ que se adecúe al mejor ranking (subjetivamente) le permitieron ser el buscador (y tantas cosas más) que es hoy en día. 
+Sin embargo esto puede llevar a más preguntas: ¿ \textit{no sería correcto tener siempre un coeficiente $c$ nulo para eliminar esa posibilidad} ? La respuesta rápida podría ser \textit{sí}, ya que el usuario estaría ligado únicamente a los links de las páginas. Aunque si nos alejamos de los datos concretos y pensamos por un momento más, la respuesta obvia es \textit{no}: como sabemos, por ser nosotros mismos \textit{usuarios} de la Web en general, la persona promedio que utiliza Internet rara vez \textit{surfee} la Web únicamente por los links de una misma página\footnote{Teniendo en cuenta \textit{este} set de páginas: \textit{Facebook} podría ser un ejemplo de \textit{hub} que permita estos movimientos.}, y usualmente lo que hará es navegar una página, ir a un link dentro de ella, y después decidir cambiar completamente la URL y saltar a otra página sin previo aviso. Por lo tanto, ese coeficiente $c = 0.15$ tampoco es ningún valor \textit{random}: los estudios estadísticos de \textit{Google} para conseguir el mejor $c$ que se adecúe al mejor ranking (subjetivamente) le permitieron ser el buscador (y tantas cosas más) que es hoy en día. 
 
 Otra idea más compleja a nivel implementativo es la del \textit{Dynamic PageRank using Evolving Teleportation} (ver \textbf{Bibliografía y referencias}) en la cual se va variando el parámetro $c$ para obtener mejores resultados\footnote{Sin embargo, esta técnica no se basa exactamente en la convergencia de las soluciones como vimos anteriormente y es más complicada de explicar a nivel teórico para este trabajo práctico.}.
 
 \section{Conclusión}
 
+La matemática, y su uso mediante métodos numéricos, se encuentran embebidos en los aspectos más importantes de la civilización del siglo XXI. El conocer, entender y experimentar con estas herramientas nos ayuda a entender los pilares, en nuestro caso informáticos, sobre los que se basa nuestra sociedad. Cuesta creer todavía, como una idea, la cuál a vuelo de pájaro parece simple, logró revolucionar cómo el ser humano comparte información. Hay una famosa frase que dice: ``El conocimiento es poder''. No podemos estar más de acuerdo con ella. Como comentaron en clase, hoy en día las empresas utilizan \textit{Community managers} para realizar este trabajo, cuyo rol (o parte de él) es entender cómo funciona la red. La sociedad los trata de nuevos gurúes del análisis virtual, cuando por desinformación, se desconoce que ya es un problema bien resuelto\footnote{No pretendemos, ni tenemos los conocimientos suficientes para juzgar este nuevo trabajo, simplemente notar como existen profesiones que enmascaran un problema ya resuelto, nos queda para un curso de sociología pensar si es correcto o no.}.
+
+Consideramos como nuestra tarea siendo futuros profesionales, poder entender los métodos numéricos, para así generar mapeos útiles con la ``vida real'' y/o generar nuevos métodos para que sean aplicados el día de mañana para nuevos problemas.
+
+Particularmente de este trabajo práctico, queremos destacar algunos puntos: El primero es ver que existen distintas formas de atacar un problema; algo tan abstracto como  ``resultados de calidad'' puede tener infinitos enfoques. Consideramos fructífero entenderlo, a través del análisis de distintos algoritmos para resolver el mismo problema. Nos resultó interesante tener que investigar por nuestra cuenta el método \textit{HITS}: Nos acerca un poco más, a lo que consideramos como tareas de un investigador. Queremos enfatizar ver que no siempre existe una solución correcta: Haciendo introspección sobre la carrera y nosotros los alumnos, nos cuesta aceptar que existen problemas donde la respuesta posee un ``depende'' inmiscuído. Utilizar una ciencia exacta para un problema potencialmente no exacto \textit{(calidad)} es una tarea común como investigador, o profesional de la industria y nos parece excelente que sea algo que podamos ver en la facultad.
+
+Los métodos utilizados nos resultaron muy interesantes, destacando la implementación de matriz rala: Generalmente sólo nos preocupa \textit{performance} temporal y no espacial, en un problema como ordenar la web, ambos son problemas que se necesitan atacar. 
 
 \section{Bibliografía y referencias} %arreglar cuando se termine 
 
@@ -728,7 +735,7 @@ Otra idea más compleja a nivel implementativo es la del \textit{Dynamic PageRan
 		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
 		\par \textit{Papers} del TP.
 	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-	\item \textbf{Historia de Bing}: \url{http://es.wikipedia.org/wiki/Bing}
+	\item \textbf{Historia de Bing}: \url{http://es.wikipedia.org/wiki/Bing}\footnote{Citamos wikipedia por el detalle de la fusión entre Bing y Yahoo!, no se utilizó para fundamentar implementación, algoritmos o calidad}
 	\item \textbf{Más datos acerca de los algoritmos en los buscadores actuales}:
 			\par \url{http://www.seo-advantage.com/seo-news/Jul09/Are-Bing's-Algorithms-Placing-Emphasis-On-Domain-Names.html}
 			\par \url{http://www.optimizationtheory.com/difference-in-google-and-bings-algorithm/}
