@@ -90,29 +90,16 @@ int main(int argc, char* argv[]) {
 
 	string savingFile(argv[2]);
 	
-    //cout << "Parse input args: OK" << endl;	
-	
 	ParsingAlgorithm* parsingAlgorithm = CreateParsingAlgorithmFromParameter((InstanceType)instanceType);
-
-    //cout << "Parsing algorithm created: OK" << endl;
     
 	WebNet* net = parsingAlgorithm->ParseFile(webDefinitionPathFile);	
-	
-    //cout << "File parsed into WebNet: OK" << endl;
-    
-	//int amountOfIterations = 50;
 
 	RankingAlgorithm* rankingAlgorithm = CreateRankingAlgorithmFromParameter((AlgorithmType)algorithmToRun, teletransportingValue, toleranceValue);
 	
-    //cout << "Ranking algorithm created: OK" << endl;
-    
     rankingAlgorithm->RankPage(net);
-	
-    //cout << "Algorithm - method RankPage executed: OK" << endl;
     
 	parsingAlgorithm->SaveRankTo(savingFile.c_str(), net, (AlgorithmType)algorithmToRun);
-	
-    //cout << "Algorithm  - method SaveRankTo executed: OK" << endl;
+
     
 	delete parsingAlgorithm;
 	delete rankingAlgorithm;

@@ -9,8 +9,6 @@ void ParsingAlgorithm :: SaveRankTo(const char* pathToSavingFile, WebNet* aNet, 
 		list<WebPage*>* webPages = aNet->webPages();
 		if (algorithmType != HITSALG){
 			list<WebPage*>::iterator itNetPages = webPages->begin();
-			//cout << "List size: " << webPages->size() << endl;
-            //cout << "Amount of nodes: " << aNet->amountOfNodes() << endl;
             
 			for (int webPageId = 1; webPageId <= aNet->amountOfNodes(); webPageId++){
                 PageRankInDegreeRank* rankingOfPage = (PageRankInDegreeRank*)((*itNetPages)->ranking());
@@ -52,7 +50,7 @@ WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 		{
 			file >> fromNodeId ;
 			int nodeId = fromNodeId;
-			file.ignore(); 				// ignora el :
+			file.ignore(); 				// ignores the :
 			int toNodeId;
 			file >> toNodeId; 
 			
@@ -64,7 +62,7 @@ WebNet* TorontoParsing :: ParseFile(const char* pathToFile){
 					amountOfEdges++;
 				}
 			}	
-			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);  	//ver
+			WebPage* node = new WebPage(nodeId, listOfLinkedWebPagesIds);  
 			webPages->push_back(node);
 		}
 		amountOfNodes = fromNodeId + 1; //'cause it's zero based

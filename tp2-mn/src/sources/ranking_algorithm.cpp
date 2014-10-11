@@ -4,11 +4,6 @@ using namespace std;
 
 /******* VECTOR UTILITES *******/ 
 
-/*TODO: 
-    this should be in a class linked to vectors... 
-    maybe we shouldnt have used vectors but our own implementation
-*/
-
 void scaleBy(double aScalingFactor, vector<double>& aVector){
     for (int i = 0; i < (int)aVector.size(); i++)
 	{
@@ -209,7 +204,6 @@ void PageRank :: RankPage(WebNet* net){
     // We keep an old solution to keep track of the cutTolerance
     vector<double> old_x = x;
     
-    //This is not correct OOP, we should create an Observer pattern
     PageRankRunStatistic statistics(net->amountOfNodes(), _cutTolerance, _teletransporting);
     
     int iteration = 0;
@@ -279,10 +273,8 @@ HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMat
 	vector<double> oldAuthVector, oldHubVector;
 	int iteration = 0;
 	
-	//This is not correct OOP, we should create an Observer pattern
     HITSRunStatistic statistics(adjacencyMatrix.amountOfColumns());
 	
-	//for (int i = 1; i <= amountOfIterations; i++){
 	do {
 		oldAuthVector = authorityHubWeightVectors.authorityWeightVector;
 		oldHubVector = authorityHubWeightVectors.hubWeightVector;
