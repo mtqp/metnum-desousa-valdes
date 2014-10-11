@@ -204,7 +204,7 @@ void PageRank :: RankPage(WebNet* net){
     // We keep an old solution to keep track of the cutTolerance
     vector<double> old_x = x;
     
-    PageRankRunStatistic statistics(net->amountOfNodes(), _cutTolerance, _teletransporting);
+    //PageRankRunStatistic statistics(net->amountOfNodes(), _cutTolerance, _teletransporting);
     
     int iteration = 0;
     
@@ -228,10 +228,11 @@ void PageRank :: RankPage(WebNet* net){
         scaleBy(_teletransporting, x);                           // performs c(Px+Dx)
         addConstantToEachElement(proportionalEigenvectorSum, x); // adds [((1-c)/n).sum(x_i) foreach row]
         
-        vector<double> vectorDifference = substractVectors(x, old_x);
+        //Used to calculate statistics for experiments
+        /*vector<double> vectorDifference = substractVectors(x, old_x);
         double norm2Difference = norm2DifferenceBetweenSolutions(x, old_x);
         double manhattanDifference = manhattanNorm(vectorDifference);
-        statistics.add(iteration, manhattanDifference, norm2Difference);
+        statistics.add(iteration, manhattanDifference, norm2Difference);*/
 
         iteration++;
     } while(norm2DifferenceBetweenSolutions(x, old_x) >= _cutTolerance && iteration < 5000); //It could not end due to numerical error
@@ -242,7 +243,7 @@ void PageRank :: RankPage(WebNet* net){
              << _cutTolerance << endl;
     }
     
-    statistics.save();
+    //statistics.save();
    
     // Set rankings in webPages
     updateNetWithRanks(x, net);
@@ -273,7 +274,7 @@ HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMat
 	vector<double> oldAuthVector, oldHubVector;
 	int iteration = 0;
 	
-    HITSRunStatistic statistics(adjacencyMatrix.amountOfColumns());
+    //HITSRunStatistic statistics(adjacencyMatrix.amountOfColumns());
 	
 	do {
 		oldAuthVector = authorityHubWeightVectors.authorityWeightVector;
@@ -282,8 +283,9 @@ HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMat
 		authorityHubWeightVectors.hubWeightVector = adjacencyMatrix.Multiply(authorityHubWeightVectors.authorityWeightVector);
 		authorityHubWeightVectors.normalizeVectors();
 		
+		//Used to calculate statistics for experiments
 		// Statistics AUTH
-		vector<double> vectorDifference = substractVectors(authorityHubWeightVectors.authorityWeightVector, oldAuthVector);
+		/*vector<double> vectorDifference = substractVectors(authorityHubWeightVectors.authorityWeightVector, oldAuthVector);
         double norm2Difference = norm2DifferenceBetweenSolutions(authorityHubWeightVectors.authorityWeightVector, oldAuthVector);
         double manhattanDifference = manhattanNorm(vectorDifference);
         statistics.add(iteration, manhattanDifference, norm2Difference);
@@ -292,12 +294,13 @@ HITS::AuthorityHubWeightVectors HITS::Iterate(CRSMatrix& adjacencyMatrix, CRSMat
 		vectorDifference = substractVectors(authorityHubWeightVectors.hubWeightVector, oldHubVector);
         norm2Difference = norm2DifferenceBetweenSolutions(authorityHubWeightVectors.hubWeightVector, oldHubVector);
         manhattanDifference = manhattanNorm(vectorDifference);
-        statistics.add(iteration, manhattanDifference, norm2Difference);
+        statistics.add(iteration, manhattanDifference, norm2Difference);*/
+        
         iteration++;
         
 	} while (norm2DifferenceBetweenSolutions(authorityHubWeightVectors.hubWeightVector, oldHubVector) >= _cutTolerance || norm2DifferenceBetweenSolutions(authorityHubWeightVectors.authorityWeightVector, oldAuthVector) >= _cutTolerance);
 	
-	statistics.save();
+	//statistics.save();
 	
 	return authorityHubWeightVectors;
 }
