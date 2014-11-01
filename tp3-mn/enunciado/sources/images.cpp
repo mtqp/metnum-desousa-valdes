@@ -2,10 +2,16 @@
 
 using namespace std;
 
+void resizeTwoDimensionalVectorToWidthAndHeight(int aWidth, int aHeight, vector< vector<double> >& aVector){
+	aVector.resize(aHeight);
+	for (int i = 0; i < aHeight; i++)
+		aVector[i].resize(aWidth);
+}
+
 BayerImage :: BayerImage(int width, int height){
 	this->width = width;
 	this->height = height;
-	this->image = vector< vector<double>(width) >(height);
+	resizeTwoDimensionalVectorToWidthAndHeight(width, height, this->image);
 }
 
 void BayerImage :: setPixel(int i, int j, double pixel){
@@ -26,7 +32,7 @@ void BayerImage :: viewImage(){
 ColorImage :: ColorImage(int width, int height){
 	this->width = width;
 	this->height = height;
-	this->channel_r = vector< vector<double>(width) >(height);
-	this->channel_g = vector< vector<double>(width) >(height);
-	this->channel_b = vector< vector<double>(width) >(height);
+	resizeTwoDimensionalVectorToWidthAndHeight(width, height, this->channel_r);
+	resizeTwoDimensionalVectorToWidthAndHeight(width, height, this->channel_g);
+	resizeTwoDimensionalVectorToWidthAndHeight(width, height, this->channel_b);
 }
