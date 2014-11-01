@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <cmath>
+#include <cstdlib>
 #include <vector>
 #include <iomanip>
 #include <string>
@@ -14,7 +15,7 @@ using namespace std;
 class ParsingAlgorithm {
     public:
     	ParsingAlgorithm(string aFilename) : filename(aFilename) {};
-    	~ParsingAlgorithm();
+    	~ParsingAlgorithm(){};
 		BayerImage imageFromFile();
 		void saveQualityOfFilteredImage();
 		void saveImage(ColorImage anImage);
