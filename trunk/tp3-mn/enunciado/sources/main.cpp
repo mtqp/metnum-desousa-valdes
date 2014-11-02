@@ -11,19 +11,19 @@ Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, B
 		}
 		
 		case BILINEAR_INTERPOLATION:{
-			BilinearInterpolation* bilinearInterpolationFilter = new BilinearInterpolation();
+			BilinearInterpolation* bilinearInterpolationFilter = new BilinearInterpolation(bayerImage);
 			return (Filter*)bilinearInterpolationFilter;
 			break;
 		}
 		
 		case DIRECTIONAL_INTERPOLATION:{
-			DirectionalInterpolation* directionalInterpolationFilter = new DirectionalInterpolation();
+			DirectionalInterpolation* directionalInterpolationFilter = new DirectionalInterpolation(bayerImage);
 			return (Filter*)directionalInterpolationFilter;
 			break;
 		}
 		
 		case MALVAR_HE_CUTLER:{
-			MalvarHeCutler* MalvarHeCutlerFilter = new MalvarHeCutler();
+			MalvarHeCutler* MalvarHeCutlerFilter = new MalvarHeCutler(bayerImage);
 			return (Filter*)MalvarHeCutlerFilter;
 			break;
 		}
