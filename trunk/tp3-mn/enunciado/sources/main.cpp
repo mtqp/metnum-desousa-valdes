@@ -2,10 +2,10 @@
 
 using namespace std;
 
-Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType){
+Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, BayerImage& bayerImage){
 	switch (filterAlgorithmType){
 		case CLOSEST_NEIGHBOR:{
-			ClosestNeighbor* closestNeighborFilter = new ClosestNeighbor();
+			ClosestNeighbor* closestNeighborFilter = new ClosestNeighbor(bayerImage);
 			return (Filter*)closestNeighborFilter;
 			break;
 		}
@@ -92,10 +92,12 @@ int main(int argc, char* argv[]) {
 	int filterType = atoi(argv[3]);
 	
 	ParsingAlgorithm parser(filename);
-	BayerImage bayerImage = parser.imageFromFile();
+	BayerImage bayerImage = parser.ImageFromFile();
 	
-	Filter* filter = CreateFilterTypeFromParameter((FilterAlgorithmType)filterType);
+	Filter* filter = CreateFilterTypeFromParameter((FilterAlgorithmType)filterType, bayerImage);
 	QualityAlgorithm* qualityAlgorithm = CreateQualityAlgorithmFromParameter((QualityMeasurementType)qualityMeasurementType);
+	ColorImage filteredImage = filter->FilterImage();
+	parser.SaveImage(filteredImage);
 	
 	delete filter;
 	delete qualityAlgorithm;

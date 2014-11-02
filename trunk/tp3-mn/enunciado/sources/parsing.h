@@ -16,14 +16,15 @@ class ParsingAlgorithm {
     public:
     	ParsingAlgorithm(string aFilename) : filename(aFilename) {};
     	~ParsingAlgorithm(){};
-		BayerImage imageFromFile();
-		void saveQualityOfFilteredImage();
-		void saveImage(ColorImage anImage);
-		void saveComputationalTime();
+		BayerImage ImageFromFile();
+		void SaveQualityOfFilteredImage();
+		void SaveImage(ColorImage anImage);
+		void SaveComputationalTime();
 		
 	private:
 		string filename;
 		
+		void saveImageChannel(string filename, const vector<vector<double> >& valuesToSave);
 		string computationalTimeFilename();
 		string savingImageFilename();
 		string qualityFilename();        
