@@ -15,7 +15,7 @@ using namespace std;
 
 class Filter {
     public:
-        virtual double FilterImage() = 0;
+        virtual ColorImage FilterImage() = 0;
         virtual ~Filter(){};
 	
 	protected:
@@ -24,10 +24,10 @@ class Filter {
 
 class ClosestNeighbor : public Filter {
     public:
-        ClosestNeighbor(){}
+        ClosestNeighbor(BayerImage& aBayerImage);
         ~ClosestNeighbor();
     
-        double FilterImage();
+        ColorImage FilterImage();
 };
 
 class BilinearInterpolation : public Filter {
@@ -35,7 +35,7 @@ class BilinearInterpolation : public Filter {
         BilinearInterpolation(){}
         ~BilinearInterpolation();
     
-        double FilterImage();
+        ColorImage FilterImage();
 };
 
 class DirectionalInterpolation : public Filter {
@@ -43,7 +43,7 @@ class DirectionalInterpolation : public Filter {
         DirectionalInterpolation(){}
         ~DirectionalInterpolation();
     
-        double FilterImage();
+        ColorImage FilterImage();
 };
 
 class MalvarHeCutler : public Filter {
@@ -51,7 +51,7 @@ class MalvarHeCutler : public Filter {
         MalvarHeCutler(){}
         ~MalvarHeCutler();
     
-        double FilterImage();
+        ColorImage FilterImage();
 };
 
 #endif
