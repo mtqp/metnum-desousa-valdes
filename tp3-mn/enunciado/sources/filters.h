@@ -20,6 +20,7 @@ class Filter {
 	
 	protected:
         BayerImage bayerImage;
+        double interpolateVertical(int i, int j);
 };
 
 class ClosestNeighbor : public Filter {
@@ -30,9 +31,21 @@ class ClosestNeighbor : public Filter {
         ColorImage FilterImage();
 };
 
-class BilinearInterpolation : public Filter {
+class LinearInterpolation : public Filter {
+	public:
+		~LinearInterpolation(){}
+		
+	protected:
+		double linearIntepolation(double value, double anotherValue);
+		double interpolateVertical(int i, int j);
+		double interpolateHorizontal(int i, int j);
+		double interpolateCross(int i, int j);
+		double interpolateCorners(int i, int j);
+};
+
+class BilinearInterpolation : public LinearInterpolation {
     public:
-        BilinearInterpolation(){}
+        BilinearInterpolation(BayerImage& aBayerImage);
         ~BilinearInterpolation();
     
         ColorImage FilterImage();
@@ -40,7 +53,7 @@ class BilinearInterpolation : public Filter {
 
 class DirectionalInterpolation : public Filter {
     public:
-        DirectionalInterpolation(){}
+        DirectionalInterpolation(BayerImage& aBayerImage);
         ~DirectionalInterpolation();
     
         ColorImage FilterImage();
@@ -48,7 +61,7 @@ class DirectionalInterpolation : public Filter {
 
 class MalvarHeCutler : public Filter {
     public:
-        MalvarHeCutler(){}
+        MalvarHeCutler(BayerImage& aBayerImage);
         ~MalvarHeCutler();
     
         ColorImage FilterImage();
