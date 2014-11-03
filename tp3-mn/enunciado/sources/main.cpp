@@ -36,28 +36,6 @@ Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, B
 	}
 }
 
-QualityAlgorithm* CreateQualityAlgorithmFromParameter(QualityMeasurementType qualityMeasurementType){
-	switch (qualityMeasurementType){
-		case PSNR_Q:{
-			PSNR* PSNRAlgorithm = new PSNR();
-			return (QualityAlgorithm*)PSNRAlgorithm;
-			break;
-		}
-		
-		case SSIM_Q:{
-			SSIM* SSIMAlgorithm = new SSIM();
-			return (QualityAlgorithm*)SSIMAlgorithm;
-			break;
-		}
-		
-		default:{
-			cout << "Haven't specified quality measurement type: impossible to qualify filtered image." << endl;
-			exit(1);
-			break;
-		}
-	}
-}
-
 int main(int argc, char* argv[]) {	
 	/*  --Pseudocodigo de pasos
 	
@@ -80,10 +58,9 @@ int main(int argc, char* argv[]) {
 
 	// SAVES
 	
-	qualityOfFilteredImage = qualityAlgorithm(filteredImage) // Cuantitativos: PSNR, SSIM
 	saveImage(filteredImage)
-	saveQualityOfFilteredImage(qualityOfFilteredImage)
 	
+	// QUALITY --> se hace en matlab
 	
 	*/
 	
@@ -95,11 +72,9 @@ int main(int argc, char* argv[]) {
 	BayerImage bayerImage = parser.ImageFromFile();
 	
 	Filter* filter = CreateFilterTypeFromParameter((FilterAlgorithmType)filterType, bayerImage);
-	QualityAlgorithm* qualityAlgorithm = CreateQualityAlgorithmFromParameter((QualityMeasurementType)qualityMeasurementType);
 	ColorImage filteredImage = filter->FilterImage();
 	parser.SaveImage(filteredImage);
 	
 	delete filter;
-	delete qualityAlgorithm;
 	return 0;
 }
