@@ -121,26 +121,32 @@
 \section*{Introducción}
 \addcontentsline{toc}{section}{Introducción}
 
-Los recruiters de \textbf{Adobby} están buscando los mejores candidatos para trabajar en su empresa comprometida con la excelencia y exigencia de los diseñadores que utilizan sus productos. Para eso, han lanzado la búsqueda de un \texttt{Ninja Gurú Jedi Master: The image demosaicing god.}
+Luego de haber llevado a cabo el TP1 y el TP2 de métodos númericos, la excelente compañía \textbf{Adobby} se vio interesada en nosotros. En vista de que se presentaron tres puestos libres en la compañia (se dice que tres de sus empleados, un flaquito de anteojos, un colorado y una sabelotodo, partieron en búsqueda de un nuevo trabajo en ``El Que No Debe Ser Nombrado''), los recruiters de la empresa lanzaron un desafío para encontrar los reemplazantes de lo que llamaban ``el trío mágico'', y suplantarlos de esta manera en sus puestos de \textit{Ninja Gurú Jedi Master: The image demosaicing god.}
 
-
+\par 
+El desafío consiste en diseñar, implementar y analizar un algoritmo para resolver el
+problema de demosaicing. El mismo consiste en obtener una imagen con información en los 3 canales (colores rojo, verde y azul) para cada pixel, a partir de la información capturada por un sensor de una cámara digital marca \textit{``Fotos Casi en Movimiento''}. Para esto se asume que la información captada por el sensor es
+correcta y se trata de inferir los valores de los dos canales faltantes en cada uno de los píxeles de la imagen.
+\par 
+Con el fin de no tener que invocar artes oscuras para resolver este problema, el desafío plantea trabajar solo sobre el Bayer Array. El mismo consiste en alternar filas de rojo y verde o verde y azul. Cada color no recibe una fracción igual en el area ya que el ojo humano es mas sensitivo a la ``luz verde''. Este tipo de arreglo tiene el doble de elementos verdes que rojos o azules, lo cual produce una imagen que aparenta tener menos ruido y mayor detalle que si se trataran los tres colores por igual. El motivo por el que sucede esto escapa los efectos de este trabajo práctico.
+\par 
+Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Programadores''}, \textit{Adobby} pidió que se implementaran varios métodos para poder recrear la imagen a partir de lo que tomó la cámara.
 
 
 \section{Desarrollo}
 
 \subsection{Implementación}
+\subsubsection{Closest Neighbor}
+\subsubsection{Linear Interpolation}
+\subsubsection{Bilinear Interpolation}
+\subsubsection{Directional Interpolation}
+\subsubsection{Algoritmo de Malvar, He y Cutler}
+
 
 \subsubsection{Problemas en la Implementación}
 
 	
 \subsection{Experimentación}
-\subsubsection{Convergencia de PageRank}
-	
-
-
-\subsubsection{Convergencia de HITS}
-
-
 
 
 \subsubsection{Análisis Cuantitavo}
@@ -162,7 +168,7 @@ Los recruiters de \textbf{Adobby} están buscando los mejores candidatos para tr
 %		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
 %		\par \textit{Papers} del TP.
 %	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-
+http://www.cambridgeincolour.com/tutorials/camera-sensors.htm
 \end{itemize}
 
 
