@@ -12,9 +12,11 @@
 #include "images.h"
 #include "rdtsc.h"
 
+#define NOT_COMPUTED_FILTER 0
+
 using namespace std;
 
-typedef unsigned long long uint64;
+typedef unsigned long long int uint64;
 
 class Filter {
     public:
