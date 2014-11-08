@@ -15,11 +15,17 @@ using namespace std;
 
 class Filter {
     public:
-        virtual ColorImage FilterImage() = 0;
         virtual ~Filter(){};
+        ColorImage FilterImage();
 	
 	protected:
-        BayerImage bayerImage;
+		BayerImage bayerImage;
+		double distanceFromPixelStartToBorder;
+		virtual double getRedChannelInGreenPixel(int i, int j) = 0;
+		virtual double getRedChannelInBluePixel(int i, int j) = 0;
+		virtual double getGreenChannelInRedAndBluePixels(int i, int j) = 0;
+		virtual double getBlueChannelInGreenPixel(int i, int j) = 0;
+		virtual double getBlueChannelInRedPixel(int i, int j) = 0;
 };
 
 class ClosestNeighbor : public Filter {
@@ -28,6 +34,12 @@ class ClosestNeighbor : public Filter {
         ~ClosestNeighbor();
     
         ColorImage FilterImage();
+	private:
+		double getRedChannelInGreenPixel(int i, int j);
+		double getRedChannelInBluePixel(int i, int j);
+		double getGreenChannelInRedAndBluePixels(int i, int j);
+		double getBlueChannelInGreenPixel(int i, int j);
+		double getBlueChannelInRedPixel(int i, int j);
 };
 
 class LinearInterpolation : public Filter {
@@ -40,6 +52,10 @@ class LinearInterpolation : public Filter {
 		double interpolateHorizontal(int i, int j);
 		double interpolateCross(int i, int j);
 		double interpolateCorners(int i, int j);
+		double getRedChannelInGreenPixel(int i, int j);
+		double getRedChannelInBluePixel(int i, int j);
+		double getBlueChannelInGreenPixel(int i, int j);
+		double getBlueChannelInRedPixel(int i, int j);
 };
 
 class BilinearInterpolation : public LinearInterpolation {
@@ -48,6 +64,9 @@ class BilinearInterpolation : public LinearInterpolation {
         ~BilinearInterpolation();
     
         ColorImage FilterImage();
+		
+	private:
+		double getGreenChannelInRedAndBluePixels(int i, int j);
 };
 
 class SplineInterpolation : public LinearInterpolation {
@@ -69,6 +88,9 @@ class DirectionalInterpolation : public SplineInterpolation {
         ~DirectionalInterpolation();
     
         ColorImage FilterImage();
+	
+	private:
+		double getGreenChannelInRedAndBluePixels(int i, int j);
 };
 
 class MalvarHeCutlerInterpolation : public LinearInterpolation {
@@ -88,6 +110,7 @@ class MalvarHeCutler : public MalvarHeCutlerInterpolation {
         ColorImage FilterImage();
 	
 	private:
+		double getGreenChannelInRedAndBluePixels(int i, int j);
 		double alpha;
 };
 
