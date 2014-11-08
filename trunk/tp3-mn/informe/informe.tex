@@ -136,8 +136,69 @@ Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Pr
 \section{Desarrollo}
 
 \subsection{Implementación}
+
+
+Nuestro programa recibe como parámetros el nombre de un archivo que posee los valores de la matriz que representa la imagen obtenida por la cámara. Es decir, sin haber hecho ningun proceso de demosaicing. Además, recibe qué filtro deberá aplicarse y, en caso del algoritmo de Malvar, He y Cutler, obtiene como tercer parámetro el valor \textbf{$\alpha$}.
+\par 
+Lo primero que se hace es tomar el archivo obtenido por parámetro y, a partir de sus datos, crear la \textit{bayerImage} correspondiente, que luego es utilizada para aplicar el filtro correspondiente al segundo parámetro.
+\par 
+Finalmente, luego de la ejecución del filtro correspondiente, se guardan tres archivos correspondientes a las capas verde, azul y roja de la imagen obtenida. Estos archivos tienen un formato que permite ser leído por \textit{matlab}, desde donde posteriormente se van a recrear las imágenes.
+\par 
+Además, dado que en este trabajo práctico, la obtención del archivo con la representación en bayer array se hace a partir de una imagen y no de lo que capten los sensores de una cámara, el algoritmo que transforma la foto en el archivo de texto fue realizado en matlab, así como otras pequeñas cosas. Todos estos scripts se pueden encontrar en la carpeta \textit{matlab}.
+
+\vspace{2\baselineskip}
+
+Todas la implementaciones que se mostrarán a continuación, se hicieron bajo la base de obtener el siguiente bayer array:
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.4]{./img/bayerarray.png}
+		\par 
+		\footnotesize\textit{Modelo de Bayer Array utilizado.}
+	\end{center}
+	\par 
+	
+Como podemos notar, e indexando las filas y columnas desde 0, los píxeles azules se encuentran en las posiciones de fila par y columna par. Por otro lado, el color rojo aparece en las filas impares y columnas impares, mientras que el color verde se encuentra en toda posición que no cumple la misma paridad entre columnas y filas.
+\par 
+Una vez dicho esto, comenzamos con el análisis de las implementaciones realizadas para los siguientes filtros.
+	
 \subsubsection{Closest Neighbor}
-\subsubsection{Linear Interpolation}
+
+Este filtro se basa en rellenar los valores faltantes copiando al vecino más
+cercano del pixel, siempre y cuando tenga una observación real en el mismo canal que se está tratando averiguar. Este fundamento se basa en considerar que el valor de dos pixeles cercanos no debe variar mucho respecto de un mismo canal. De esta manera, podemos obtener toda la información que necesitamos a partir de contemplar el entorno de cada pixel.
+\par 
+En nuestro caso, se decidió dividir los casos dependiendo si la información que buscamos corresponde al canal verde o a otro canal.
+\par 
+Como ya se explicó previamente, el color verde va a ser encontrado en las columnas impares y filas pares al igual que en las columnas pares y filas impares. De esta manera, y mirando el modelo de bayer array que se planteó previamente, decidimos tomar los valores que se encuentra en la fila superior y misma columna, y los valores en la columna anterior y misma fila (es decir, tomar el valor del pixel justo encima y el que se encuentra justo a la izquierda). Sin embargo, a qué canal corresponde cada valor depende de en qué fila se encuentre el pixel que quiero reconstruir. Es por esto que se hace un chequeo sobre la fila del píxel.
+\par 
+Solo a manera ilustrativa e informativa, se muestra en qué sector del código se realiza esto (método \textit{FilterImage()}): 
+\begin{lstlisting}
+if (bayerImage.CurrentPixelIsGreen(i,j))
+{
+	greenNeighborPixel = bayerImage.GetPixel(i, j);
+	if (evenRow)
+	{
+		blueNeighborPixel = bayerImage.GetPixel(i, j-1);
+		redNeighborPixel = bayerImage.GetPixel(i-1, j);
+	} 
+	else
+	{
+		blueNeighborPixel = bayerImage.GetPixel(i-1, j);
+		redNeighborPixel = bayerImage.GetPixel(i, j-1);
+	}
+}
+\end{lstlisting}
+\par 
+A continuación de esto se plantea el caso en el que \textbf{NO} estamos ubicados en un pixel verde. Nuevamente, mirando el modelo utilizado para el bayer array, suceden dos casos: o el pixel es azul o es rojo. Sin embargo, en ambos se puede encontrar un pixel verde a su lado izquierdo (hay que ver cuestiones de bordes que serán explicadas a continuación). Y a su vez, en cualquier diagonal contigua podemos encontrar el otro color distinto de verde, es decir, al azul si estamos en rojo y viceversa. Elegimos tomar el valor que se encuentra en la diagonal superior izquierda. El código para esta parte es muy similar al mostrado previamente, solo que las condiciones son distintas. Igualmente, la asignación a las variables se hace de la misma forma.
+\par 
+Debido a lo recién mencionado, se hace una distinción en todo momento acerca de qué color es el pixel que estamos utilizando. De esta manera podemos elegir cuál posición vecino corresponde al mismo canal que mi pixel para tomar su valor. Cabe destacar que la elección de estos vecinos fue arbitraria. Dependiendo de la imagen que se utilice, algún vecino puede funcionar mejor que otra, pero esto no es cuantificable ni sigue un patrón tal que elegir un vecino en particular sea siempre la mejor opción.
+\par 
+Debido a que siempre estamos completando la información faltante a partir de los píxeles que se encuentran en la fila superior o la columna anterior (mirando de izquierda a derecha), el filtro comienza a aplicarse a partir de la segunda fila y la segunda columna. De esta manera, el primer caso será a partir de la posición $(1,1)$ de la matriz (indexada desde 0). Luego, en \textit{matlab} se le recorta el borde a la imagen, dejando sin utilización así el borde para el cual se perdió la información.
+\par 
+Finalmente, se setean los valores obtenidos a los canales correspondientes.
+
+
+
 \subsubsection{Bilinear Interpolation}
 \subsubsection{Directional Interpolation}
 \subsubsection{Algoritmo de Malvar, He y Cutler}
@@ -152,6 +213,8 @@ Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Pr
 \subsubsection{Análisis Cuantitavo}
 
 \subsubsection{Análisis Cualitativo}
+
+Comparando directional y malvar-he-cutler: el directional blurea los bordes. A veces mejora pero si no hay un cambio brusco en los colores (como en el pico), se blurea mucho. Y malvar con 1/2 alfa queda bien, pero queda con zipping en los bordes negros.
 
 
 \section{Conclusión}
