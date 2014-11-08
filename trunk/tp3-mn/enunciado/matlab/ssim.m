@@ -1,35 +1,39 @@
-function [mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
+function [mssim, ssim_map] = ssim(img1, img2, K, window, L)
 
-%========================================================================
-%SSIM Index, Version 1.0
-%Copyright(c) 2003 Zhou Wang
-%All Rights Reserved.
+% ========================================================================
+% SSIM Index with automatic downsampling, Version 1.0
+% Copyright(c) 2009 Zhou Wang
+% All Rights Reserved.
 %
-%The author is with Howard Hughes Medical Institute, and Laboratory
-%for Computational Vision at Center for Neural Science and Courant
-%Institute of Mathematical Sciences, New York University.
-%
-%----------------------------------------------------------------------
-%Permission to use, copy, or modify this software and its documentation
-%for educational and research purposes only and without fee is hereby
-%granted, provided that this copyright notice and the original authors'
-%names appear on all copies and supporting documentation. This program
-%shall not be used, rewritten, or adapted as the basis of a commercial
-%software or hardware product without first obtaining permission of the
-%authors. The authors make no representations about the suitability of
-%this software for any purpose. It is provided "as is" without express
-%or implied warranty.
+% ----------------------------------------------------------------------
+% Permission to use, copy, or modify this software and its documentation
+% for educational and research purposes only and without fee is hereby
+% granted, provided that this copyright notice and the original authors'
+% names appear on all copies and supporting documentation. This program
+% shall not be used, rewritten, or adapted as the basis of a commercial
+% software or hardware product without first obtaining permission of the
+% authors. The authors make no representations about the suitability of
+% this software for any purpose. It is provided "as is" without express
+% or implied warranty.
 %----------------------------------------------------------------------
 %
-%This is an implementation of the algorithm for calculating the
-%Structural SIMilarity (SSIM) index between two images. Please refer
-%to the following paper:
+% This is an implementation of the algorithm for calculating the
+% Structural SIMilarity (SSIM) index between two images
 %
-%Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, "Image
-%quality assessment: From error measurement to structural similarity"
-%IEEE Transactios on Image Processing, vol. 13, no. 1, Jan. 2004.
+% Please refer to the following paper and the website with suggested usage
 %
-%Kindly report any suggestions or corrections to zhouwang@ieee.org
+% Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, "Image
+% quality assessment: From error visibility to structural similarity,"
+% IEEE Transactios on Image Processing, vol. 13, no. 4, pp. 600-612,
+% Apr. 2004.
+%
+% http://www.ece.uwaterloo.ca/~z70wang/research/ssim/
+%
+% Note: This program is different from ssim_index.m, where no automatic
+% downsampling is performed. (downsampling was done in the above paper
+% and was described as suggested usage in the above website.)
+%
+% Kindly report any suggestions or corrections to zhouwang@ieee.org
 %
 %----------------------------------------------------------------------
 %
@@ -48,13 +52,13 @@ function [mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
 %            quality measure of the other image.
 %            If img1 = img2, then mssim = 1.
 %        (2) ssim_map: the SSIM index map of the test image. The map
-%            has a smaller size than the input images. The actual size:
-%            size(img1) - size(window) + 1.
+%            has a smaller size than the input images. The actual size
+%            depends on the window size and the downsampling factor.
 %
-%Default Usage:
+%Basic Usage:
 %   Given 2 test images img1 and img2, whose dynamic range is 0-255
 %
-%   [mssim ssim_map] = ssim_index(img1, img2);
+%   [mssim, ssim_map] = ssim(img1, img2);
 %
 %Advanced Usage:
 %   User defined parameters. For example
@@ -62,24 +66,23 @@ function [mssim, ssim_map] = ssim_index(img1, img2, K, window, L)
 %   K = [0.05 0.05];
 %   window = ones(8);
 %   L = 100;
-%   [mssim ssim_map] = ssim_index(img1, img2, K, window, L);
+%   [mssim, ssim_map] = ssim(img1, img2, K, window, L);
 %
-%See the results:
+%Visualize the results:
 %
 %   mssim                        %Gives the mssim value
 %   imshow(max(0, ssim_map).^4)  %Shows the SSIM index map
-%
 %========================================================================
 
 
 if (nargin < 2 || nargin > 5)
-   ssim_index = -Inf;
+   mssim = -Inf;
    ssim_map = -Inf;
    return;
 end
 
 if (size(img1) ~= size(img2))
-   ssim_index = -Inf;
+   mssim = -Inf;
    ssim_map = -Inf;
    return;
 end
@@ -88,19 +91,19 @@ end
 
 if (nargin == 2)
    if ((M < 11) || (N < 11))
-	   ssim_index = -Inf;
+	   mssim = -Inf;
 	   ssim_map = -Inf;
       return
    end
    window = fspecial('gaussian', 11, 1.5);	%
-   K(1) = 0.01;								      % default settings
-   K(2) = 0.03;								      %
-   L = 255;                                  %
+   K(1) = 0.01;					% default settings
+   K(2) = 0.03;					%
+   L = 255;                                     %
 end
 
 if (nargin == 3)
    if ((M < 11) || (N < 11))
-	   ssim_index = -Inf;
+	   mssim = -Inf;
 	   ssim_map = -Inf;
       return
    end
@@ -108,12 +111,12 @@ if (nargin == 3)
    L = 255;
    if (length(K) == 2)
       if (K(1) < 0 || K(2) < 0)
-		   ssim_index = -Inf;
+		   mssim = -Inf;
    		ssim_map = -Inf;
 	   	return;
       end
    else
-	   ssim_index = -Inf;
+	   mssim = -Inf;
    	ssim_map = -Inf;
 	   return;
    end
@@ -122,19 +125,19 @@ end
 if (nargin == 4)
    [H W] = size(window);
    if ((H*W) < 4 || (H > M) || (W > N))
-	   ssim_index = -Inf;
+	   mssim = -Inf;
 	   ssim_map = -Inf;
       return
    end
    L = 255;
    if (length(K) == 2)
       if (K(1) < 0 || K(2) < 0)
-		   ssim_index = -Inf;
+		   mssim = -Inf;
    		ssim_map = -Inf;
 	   	return;
       end
    else
-	   ssim_index = -Inf;
+	   mssim = -Inf;
    	ssim_map = -Inf;
 	   return;
    end
@@ -143,28 +146,44 @@ end
 if (nargin == 5)
    [H W] = size(window);
    if ((H*W) < 4 || (H > M) || (W > N))
-	   ssim_index = -Inf;
+	   mssim = -Inf;
 	   ssim_map = -Inf;
       return
    end
    if (length(K) == 2)
       if (K(1) < 0 || K(2) < 0)
-		   ssim_index = -Inf;
+		   mssim = -Inf;
    		ssim_map = -Inf;
 	   	return;
       end
    else
-	   ssim_index = -Inf;
+	   mssim = -Inf;
    	ssim_map = -Inf;
 	   return;
    end
 end
 
+
+img1 = double(img1);
+img2 = double(img2);
+
+% automatic downsampling
+f = max(1,round(min(M,N)/256));
+%downsampling by f
+%use a simple low-pass filter 
+if(f>1)
+    lpf = ones(f,f);
+    lpf = lpf/sum(lpf(:));
+    img1 = imfilter(img1,lpf,'symmetric','same');
+    img2 = imfilter(img2,lpf,'symmetric','same');
+
+    img1 = img1(1:f:end,1:f:end);
+    img2 = img2(1:f:end,1:f:end);
+end
+
 C1 = (K(1)*L)^2;
 C2 = (K(2)*L)^2;
 window = window/sum(sum(window));
-img1 = double(img1);
-img2 = double(img2);
 
 mu1   = filter2(window, img1, 'valid');
 mu2   = filter2(window, img2, 'valid');
@@ -175,7 +194,7 @@ sigma1_sq = filter2(window, img1.*img1, 'valid') - mu1_sq;
 sigma2_sq = filter2(window, img2.*img2, 'valid') - mu2_sq;
 sigma12 = filter2(window, img1.*img2, 'valid') - mu1_mu2;
 
-if (C1 > 0 & C2 > 0)
+if (C1 > 0 && C2 > 0)
    ssim_map = ((2*mu1_mu2 + C1).*(2*sigma12 + C2))./((mu1_sq + mu2_sq + C1).*(sigma1_sq + sigma2_sq + C2));
 else
    numerator1 = 2*mu1_mu2 + C1;

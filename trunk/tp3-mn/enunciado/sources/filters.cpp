@@ -388,20 +388,19 @@ MalvarHeCutler :: MalvarHeCutler(BayerImage& aBayerImage, double alpha) {
 	this->alpha = alpha;
 }
 
-
 MalvarHeCutler :: ~MalvarHeCutler(){}
 
 ColorImage MalvarHeCutler :: FilterImage(){
-	int newImageWidth = bayerImage.Width() - 2;
-	int newImageHeight = bayerImage.Height() - 2;
+	int newImageWidth = bayerImage.Width() - 4;
+	int newImageHeight = bayerImage.Height() - 4;
 	ColorImage filteredImage(newImageWidth, newImageHeight);
 	
-	for (int i = 1; i <= newImageHeight; i++)
+	for (int i = 2; i <= newImageHeight + 1; i++)
 	{
-		for (int j = 1; j <= newImageWidth; j++)
+		for (int j = 2; j <= newImageWidth + 1; j++)
 		{
-			int correctedRowIndexForFilteredImage = i-1;
-			int correctedColIndexForFilteredImage = j-1;
+			int correctedRowIndexForFilteredImage = i-2;
+			int correctedColIndexForFilteredImage = j-2;
 			bool evenRow = i % 2 == 0;
 			double redChannelValue, greenChannelValue, blueChannelValue;
 			if (bayerImage.CurrentPixelIsGreen(i,j))
