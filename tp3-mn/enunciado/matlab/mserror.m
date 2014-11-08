@@ -1,4 +1,4 @@
-function [ error ] = mse( img1, img2, onlyGreen )
+function [ error ] = mserror( img1, img2, onlyGreen )
 %MSE Mean Squared Error
 	% Casteos para trabajar con doubles y que no limiten los uint8
 	img1 = double(img1);
@@ -14,6 +14,7 @@ function [ error ] = mse( img1, img2, onlyGreen )
         end
     else
         substract_and_square_matrix = (img1(:,:,2) - img2(:,:,2)) .^ 2;
+    end
         
 	error = (1/(m*n)) * sum(substract_and_square_matrix(:));
 end
