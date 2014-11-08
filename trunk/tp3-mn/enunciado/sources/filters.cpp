@@ -47,7 +47,6 @@ ColorImage Filter :: FilterImage(){
 
 
 /******* Closest Neighbor *******/ 
-//Consultar si hacemos experimento de Closest Neighbor comparando que vecino se toma (analisis cualitativo)
 
 ClosestNeighbor :: ClosestNeighbor(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
@@ -55,6 +54,9 @@ ClosestNeighbor :: ClosestNeighbor(BayerImage& aBayerImage) {
 }
 
 ClosestNeighbor :: ~ClosestNeighbor(){}	
+
+// EN PIXEL VERDE: Se toman los pixeles de la izquierda y arriba 
+// EN OTROS: Se toman los pixeles de la izquierda y arriba a la izquierda
 
 double ClosestNeighbor :: getRedChannelInGreenPixel(int i, int j){
 	bool evenRow = i % 2 == 0;
@@ -93,6 +95,9 @@ double ClosestNeighbor :: getBlueChannelInRedPixel(int i, int j)		{
 }
 
 /******* Linear Interpolation Abstract Class *******/ 
+
+// EN PIXEL VERDE: Se toman los pixeles de la izquierda y arriba 
+// EN OTROS: Se toma la interpolación lineal horizontalmente y verticalmente (con los vecinos inmediatos)
 
 double LinearInterpolation :: linearIntepolation(double value, double anotherValue){
 	return (value + anotherValue)/2.0;
@@ -306,6 +311,8 @@ double SplineInterpolation :: cubicFunction(double x, double xj, double aj, doub
 		
 /******* Directional Interpolation *******/ 
 
+// Se utiliza SPLINES SÓLO en el CANAL VERDE
+
 DirectionalInterpolation :: DirectionalInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
 	this->distanceFromPixelStartToBorder = 1;
@@ -337,6 +344,8 @@ double MalvarHeCutlerInterpolation :: gradientCorrection(int i, int j){
 
 
 /******* Malvar He Cutler Filter *******/ 
+
+// Se utiliza SPLINES SÓLO en el CANAL VERDE
 
 MalvarHeCutler :: MalvarHeCutler(BayerImage& aBayerImage, double alpha) {
 	this->bayerImage = aBayerImage;
