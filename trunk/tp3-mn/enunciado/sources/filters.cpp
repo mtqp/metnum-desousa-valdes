@@ -369,17 +369,79 @@ ColorImage DirectionalInterpolation :: FilterImage(){
 			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, blueChannelValue, BLUE);	
 		}
 	}
-	
+	 
 	return filteredImage;
+}
+
+
+/******* Malvar He Cutler Interpolation *******/ 
+
+double MalvarHeCutlerInterpolation :: gradientCorrection(int i, int j){
+	return bayerImage.GetPixel(i, j) - 0.25 * ( bayerImage.GetPixel(i, j-2) + bayerImage.GetPixel(i, j+2) + bayerImage.GetPixel(i-2, j) + bayerImage.GetPixel(i+2, j) ); 
 }
 
 
 /******* Malvar He Cutler Filter *******/ 
 
-MalvarHeCutler :: MalvarHeCutler(BayerImage& aBayerImage) {
+MalvarHeCutler :: MalvarHeCutler(BayerImage& aBayerImage, double alpha) {
 	this->bayerImage = aBayerImage;
+	this->alpha = alpha;
 }
+
 
 MalvarHeCutler :: ~MalvarHeCutler(){}
 
-ColorImage MalvarHeCutler :: FilterImage(){}
+ColorImage MalvarHeCutler :: FilterImage(){
+	int newImageWidth = bayerImage.Width() - 2;
+	int newImageHeight = bayerImage.Height() - 2;
+	ColorImage filteredImage(newImageWidth, newImageHeight);
+	
+	for (int i = 1; i <= newImageHeight; i++)
+	{
+		for (int j = 1; j <= newImageWidth; j++)
+		{
+			int correctedRowIndexForFilteredImage = i-1;
+			int correctedColIndexForFilteredImage = j-1;
+			bool evenRow = i % 2 == 0;
+			double redChannelValue, greenChannelValue, blueChannelValue;
+			if (bayerImage.CurrentPixelIsGreen(i,j))
+			{
+				/// NO USAMOS MARVAL HE CUTLER PARA EL ROJO Y EL AZUL (USAMOS LINEAR INTERPOLATION)
+				// Tomo los pixeles de la izquierda y arriba
+				greenChannelValue = bayerImage.GetPixel(i, j);
+				if (evenRow)
+				{
+					// Rojos en eje vertical
+					redChannelValue = interpolateVertical(i, j);
+					blueChannelValue = interpolateHorizontal(i, j);
+				} 
+				else
+				{
+					// Azules en eje vertical
+					blueChannelValue = interpolateVertical(i, j);
+					redChannelValue = interpolateHorizontal(i, j);
+				}
+			}
+			else
+			{
+				// Tomo  el channel verde con la interpolación bilineal con la corrección
+				greenChannelValue = interpolateCross(i, j)  + alpha * gradientCorrection(i, j);
+				if (bayerImage.CurrentPixelIsRed(i,j))
+				{					
+					blueChannelValue = interpolateCorners(i, j);	
+					redChannelValue = bayerImage.GetPixel(i, j);			
+				}
+				else
+				{
+					redChannelValue = interpolateCorners(i, j);
+					blueChannelValue = bayerImage.GetPixel(i, j);
+				}
+			}
+			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, redChannelValue, RED);
+			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, greenChannelValue, GREEN);
+			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, blueChannelValue, BLUE);	
+		}
+	}
+	 
+	return filteredImage;
+}

@@ -71,12 +71,24 @@ class DirectionalInterpolation : public SplineInterpolation {
         ColorImage FilterImage();
 };
 
-class MalvarHeCutler : public Filter {
+class MalvarHeCutlerInterpolation : public LinearInterpolation {
+	public:
+		~MalvarHeCutlerInterpolation(){}
+		
+	protected:
+		double gradientCorrection(int i, int j);
+};
+
+
+class MalvarHeCutler : public MalvarHeCutlerInterpolation {
     public:
-        MalvarHeCutler(BayerImage& aBayerImage);
+        MalvarHeCutler(BayerImage& aBayerImage, double alpha);
         ~MalvarHeCutler();
     
         ColorImage FilterImage();
+	
+	private:
+		double alpha;
 };
 
 #endif
