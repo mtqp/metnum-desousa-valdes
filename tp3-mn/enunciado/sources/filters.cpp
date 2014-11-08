@@ -4,6 +4,19 @@ using namespace std;
 
 /************ Filter ************/
 
+uint64 Filter :: ComputationalTime(){
+	return computationalTime;
+}
+
+double Filter :: getCompTimeAndGreenChannelInRedAndBluePixels(int i, int j){
+	uint64 start = rdtsc();
+	double greenChannelValue = getGreenChannelInRedAndBluePixels(i,j);
+	uint64 finish = rdtsc();
+	uint64 total = finish - start;
+	computationalTime = computationalTime + total;
+	return greenChannelValue;
+}
+
 ColorImage Filter :: FilterImage(){
 	int newImageWidth = bayerImage.Width() - distanceFromPixelStartToBorder * 2;
 	int newImageHeight = bayerImage.Height() - distanceFromPixelStartToBorder * 2;
@@ -24,7 +37,7 @@ ColorImage Filter :: FilterImage(){
 			}
 			else
 			{
-				greenChannelValue = getGreenChannelInRedAndBluePixels(i, j);
+				greenChannelValue = getCompTimeAndGreenChannelInRedAndBluePixels(i, j);
 				if (bayerImage.CurrentPixelIsRed(i,j))
 				{
 					redChannelValue = bayerImage.GetPixel(i, j);
@@ -36,6 +49,7 @@ ColorImage Filter :: FilterImage(){
 					redChannelValue = getRedChannelInBluePixel(i, j);
 				}
 			}
+			
 			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, redChannelValue, RED);
 			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, greenChannelValue, GREEN);
 			filteredImage.SetPixel(correctedRowIndexForFilteredImage, correctedColIndexForFilteredImage, blueChannelValue, BLUE);	
@@ -50,7 +64,7 @@ ColorImage Filter :: FilterImage(){
 
 ClosestNeighbor :: ClosestNeighbor(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 1;
+	this->distanceFromPixelStartToBorder = 2;
 }
 
 ClosestNeighbor :: ~ClosestNeighbor(){}	
@@ -172,7 +186,7 @@ double LinearInterpolation :: getBlueChannelInRedPixel(int i, int j)		{
 
 BilinearInterpolation :: BilinearInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 1;
+	this->distanceFromPixelStartToBorder = 2;
 }
 
 BilinearInterpolation :: ~BilinearInterpolation(){}
@@ -315,7 +329,7 @@ double SplineInterpolation :: cubicFunction(double x, double xj, double aj, doub
 
 DirectionalInterpolation :: DirectionalInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 1;
+	this->distanceFromPixelStartToBorder = 2;
 }
 
 DirectionalInterpolation :: ~DirectionalInterpolation(){}

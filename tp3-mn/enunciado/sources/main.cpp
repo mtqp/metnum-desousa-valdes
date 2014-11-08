@@ -75,7 +75,9 @@ int main(int argc, char* argv[]) {
 	
 	Filter* filter = CreateFilterTypeFromParameter(filterType, bayerImage, alpha);
 	ColorImage filteredImage = filter->FilterImage();
-	parser.SaveImage(filteredImage);
+	// parser.SaveImage(filteredImage);
+	// cout << "Green channel computational time clocks: " << 
+	cout << filter->ComputationalTime() << endl;
 	
 	delete filter;
 	return 0;

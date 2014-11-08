@@ -10,17 +10,25 @@
 #include <iomanip>
 #include <string>
 #include "images.h"
+#include "rdtsc.h"
 
 using namespace std;
+
+typedef unsigned long long uint64;
 
 class Filter {
     public:
         virtual ~Filter(){};
         ColorImage FilterImage();
+		uint64 ComputationalTime();
 	
 	protected:
 		BayerImage bayerImage;
 		double distanceFromPixelStartToBorder;
+		uint64 computationalTime;
+		
+		double getCompTimeAndGreenChannelInRedAndBluePixels(int i, int j);
+		
 		virtual double getRedChannelInGreenPixel(int i, int j) = 0;
 		virtual double getRedChannelInBluePixel(int i, int j) = 0;
 		virtual double getGreenChannelInRedAndBluePixels(int i, int j) = 0;
