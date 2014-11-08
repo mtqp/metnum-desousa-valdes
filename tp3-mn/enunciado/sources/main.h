@@ -16,6 +16,6 @@ using namespace std;
 
 enum FilterAlgorithmType { CLOSEST_NEIGHBOR, BILINEAR_INTERPOLATION, DIRECTIONAL_INTERPOLATION, MALVAR_HE_CUTLER }; // CLOSEST_NEIGHBOR = 0, BILINEAR_INTERPOLATION = 1, DIRECTIONAL_INTERPOLATION = 2, MALVAR_HE_CUTLER = 3
 
-Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, BayerImage& bayerImage);
+Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, BayerImage& bayerImage, double alpha);
 
 #endif

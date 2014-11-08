@@ -2,7 +2,7 @@
 
 using namespace std;
 
-Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, BayerImage& bayerImage){
+Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, BayerImage& bayerImage, double alpha){
 	switch (filterAlgorithmType){
 		case CLOSEST_NEIGHBOR:{
 			ClosestNeighbor* closestNeighborFilter = new ClosestNeighbor(bayerImage);
@@ -23,7 +23,7 @@ Filter* CreateFilterTypeFromParameter(FilterAlgorithmType filterAlgorithmType, B
 		}
 		
 		case MALVAR_HE_CUTLER:{
-			MalvarHeCutler* MalvarHeCutlerFilter = new MalvarHeCutler(bayerImage);
+			MalvarHeCutler* MalvarHeCutlerFilter = new MalvarHeCutler(bayerImage, alpha);
 			return (Filter*)MalvarHeCutlerFilter;
 			break;
 		}
@@ -64,12 +64,16 @@ int main(int argc, char* argv[]) {
 	*/
 	
 	string filenameImageMosaic(argv[1]);
-	int filterType = atoi(argv[2]);
+	FilterAlgorithmType filterType = (FilterAlgorithmType) atoi(argv[2]);
+	
+	// Malvar He Cutler parameter
+	double alpha;
+	if (filterType == MALVAR_HE_CUTLER) alpha = atof(argv[3]);
 	
 	ParsingAlgorithm parser(filenameImageMosaic);
 	BayerImage bayerImage = parser.ImageFromFile();
 	
-	Filter* filter = CreateFilterTypeFromParameter((FilterAlgorithmType)filterType, bayerImage);
+	Filter* filter = CreateFilterTypeFromParameter(filterType, bayerImage, alpha);
 	ColorImage filteredImage = filter->FilterImage();
 	parser.SaveImage(filteredImage);
 	
