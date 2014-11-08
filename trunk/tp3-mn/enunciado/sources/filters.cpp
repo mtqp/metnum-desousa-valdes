@@ -65,6 +65,7 @@ ColorImage Filter :: FilterImage(){
 ClosestNeighbor :: ClosestNeighbor(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
 	this->distanceFromPixelStartToBorder = 2;
+	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
 ClosestNeighbor :: ~ClosestNeighbor(){}	
@@ -187,6 +188,7 @@ double LinearInterpolation :: getBlueChannelInRedPixel(int i, int j)		{
 BilinearInterpolation :: BilinearInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
 	this->distanceFromPixelStartToBorder = 2;
+	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
 BilinearInterpolation :: ~BilinearInterpolation(){}
@@ -330,6 +332,7 @@ double SplineInterpolation :: cubicFunction(double x, double xj, double aj, doub
 DirectionalInterpolation :: DirectionalInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
 	this->distanceFromPixelStartToBorder = 2;
+	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
 DirectionalInterpolation :: ~DirectionalInterpolation(){}
@@ -364,6 +367,7 @@ double MalvarHeCutlerInterpolation :: gradientCorrection(int i, int j){
 MalvarHeCutler :: MalvarHeCutler(BayerImage& aBayerImage, double alpha) {
 	this->bayerImage = aBayerImage;
 	this->distanceFromPixelStartToBorder = 2;
+	this->computationalTime = NOT_COMPUTED_FILTER;
 	this->alpha = alpha;
 }
 
