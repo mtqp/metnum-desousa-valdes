@@ -41,15 +41,14 @@ int main(int argc, char* argv[]) {
 	
 	// ARGUMENTOS
 	
-	filename = GetFileName(first argument)
-	qualityAlgorithm = GetQualityAlgorithm(second argument)
+	filenameImageMosaic = GetFileName(first argument)
 	Filter = GetFilterType(third argument)
 	argumentsOfFilter = Filter.arguments(argc, argv[3:])
 
 
 	// CREAR IMAGENES 
 	
-	bayerImage = imageFromFile(filename) // imageFromFile es un parser único, bayerImage es vector<vector>> (sabemos como es la forma)	
+	bayerImage = imageFromFile(filenameImageMosaic) // imageFromFile es un parser único, bayerImage es vector<vector>> (sabemos como es la forma)	
 	filter = Filter.filter
 
 	----- ACA MEDIR TIEMPO DE COMPUTO ---- --> ver desvio standard y promedio haciendo un for y corriendo muchas veces
@@ -64,11 +63,10 @@ int main(int argc, char* argv[]) {
 	
 	*/
 	
-	string filename(argv[1]);
-	int qualityMeasurementType = atoi(argv[2]);
-	int filterType = atoi(argv[3]);
+	string filenameImageMosaic(argv[1]);
+	int filterType = atoi(argv[2]);
 	
-	ParsingAlgorithm parser(filename);
+	ParsingAlgorithm parser(filenameImageMosaic);
 	BayerImage bayerImage = parser.ImageFromFile();
 	
 	Filter* filter = CreateFilterTypeFromParameter((FilterAlgorithmType)filterType, bayerImage);
