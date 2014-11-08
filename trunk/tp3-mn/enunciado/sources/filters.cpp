@@ -224,7 +224,7 @@ vector<double> SplineInterpolation :: takeGreenFromCol(int i, int j, vector<int>
 		exit(1);
 	}
 	
-	for (; row < bayerImage.Width(); row = row + 2)
+	for (; row < bayerImage.Height(); row = row + 2)
 	{
 		xValuesForData.push_back(row);
 		dataToInterpolate.push_back(bayerImage.GetPixel(row, j));
