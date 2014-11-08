@@ -20,7 +20,6 @@ class Filter {
 	
 	protected:
         BayerImage bayerImage;
-        double interpolateVertical(int i, int j);
 };
 
 class ClosestNeighbor : public Filter {
@@ -51,7 +50,20 @@ class BilinearInterpolation : public LinearInterpolation {
         ColorImage FilterImage();
 };
 
-class DirectionalInterpolation : public Filter {
+class SplineInterpolation : public LinearInterpolation {
+	public:
+		~SplineInterpolation(){}
+		
+	protected:
+		double horizontalGradient(int i, int j);
+		double verticalGradient(int i, int j);
+		vector<double> takeGreenFromRow(int i, int j, vector<int>& xValuesForData);
+		vector<double> takeGreenFromCol(int i, int j, vector<int>& xValuesForData);
+		double naturalCubicSplineInterpolation(int xValueForCurrentPixel, const vector<int>& x, const vector<double>& a);
+		double cubicFunction(double x, double xj, double aj, double bj, double cj, double dj);
+};
+
+class DirectionalInterpolation : public SplineInterpolation {
     public:
         DirectionalInterpolation(BayerImage& aBayerImage);
         ~DirectionalInterpolation();
