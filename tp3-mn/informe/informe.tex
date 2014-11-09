@@ -197,7 +197,7 @@ Finalmente, se setean los valores obtenidos a los canales correspondientes.
 Este es un método que se compone de sucesivas interpolaciones lineales. De esta manera, se aproxima el valor de una función de dos variables a partir de puntos cercanos al que se quiere averiguar. En nuestro caso, esto se trasmite a cada pixel.  
 \par 
 Primero empecemos diciendo que es la interpolación lineal:
-La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2.0$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
+La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
 \par 
 De esta manera, nuestra interpolación bilineal consiste en hacer dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, y luego interpolar linealmente ambos resultados.
 \par 
@@ -214,15 +214,29 @@ Debido a la forma en la que fue realizada el código, y gracias al polimorfismo,
 
 \subsubsection{Directional Interpolation}
 
-Este método se basa en la interpolación por direcciones. En nuestro caso, esto implica interpolar valores obtenidos a partir de una dirección en la matriz. 
+Este método se basa en la interpolación por direcciones. En nuestro caso, esto implica interpolar valores obtenidos a partir de una dirección en la matriz. Respetando las consignas del TP, se decidió conseguir únicamente el canal verde a través de este método y para el resto de las canales se utiliza interpolación bilineal.
 \par 
-En nuestro caso, utilizamos el gradiente para decidir si nos convenía tomar una dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. De esta manera, tomamos la dirección que menor gradiente aportaba. 
-\par 
-A través de splines (con el algoritmo obtenido del libro \textit{``Numerical Analysis'' de Richard L. Burden y J. Douglas Faires}, obtuvimos todos los polinomios correspondientes a la fila o la columna correspondiente al pixel del que deseamos obtener la información faltante. De esta forma, interpolamos, particularmente, el punto (en nuestro caso, pixel) del cual queremos obtener la información.
+En nuestro caso, utilizamos el gradiente para decidir si nos convenía tomar una dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. Esto se utilizará para los casos en los cuales estemos analizando un pixel que esté junto a un borde: no querríamos interpolar utilizando la información de una parte de la imagen que posiblemente no corresponda al mismo entorno del pixel en el cual trabajamos. Por esto, se decidió entonces tomar los datos en la dirección que menor gradiente aporta. 
 
+El cálculo del gradiente se realiza utilizando la aproximación propuesta en el enunciado de este trabajo práctico. Básicamente, se consigue restando los valores del canal verde de los pixeles consecutivos (en la dirección vertical u horizontal) y tomando valor absoluto de ello.
 
+Como dijimos previamente, la información que queremos obtener es la correspondiente al canal verde de la imagen. De esta forma, cuando determinemos la dirección que deseamos, solo se interpolarán a partir de los píxeles verdes que conocemos. Se aplicará el algoritmo de interpolación a través de splines teniendo en cuenta como puntos únicamente a los píxeles verdes que ya poseemos su información en la fila o columna, dada por el criterio del gradiente.
+
+A través de splines (con el algoritmo obtenido del libro \textit{``Numerical Analysis'' de Richard L. Burden y J. Douglas Faires}) obtuvimos todos los polinomios correspondientes a la fila/columna respectiva al pixel del que deseamos obtener la información faltante. Con este algoritmo se consiguen todos los coeficientes de todos los trazadores cúbicos que interpolan cada par de puntos (polinomios cúbicos $S_j(x)$ en la teórica y la práctica). De esta forma obtenemos un polinomio que servirá para interpolar el canal verde en cualquier punto azul o rojo. En particular, podemos obtener el valor deseado para el pixel en el cual estamos iterando evaluando en el punto medio del polinomio interpolador correspondiente.
 
 \subsubsection{Algoritmo de Malvar, He y Cutler}
+
+El algoritmo de Malvar, He y Cutler se concentra en corregir la interpolación bilineal: para ello cada canal que se quiera conseguir va a ser calculado con el valor correspondiente a la interpolación bilineal, sumado a un factor de corrección basado en cálculos con el gradiente. Este factor se va a aplicar en una cierta medida $\alpha$ especificada como parámetro en este problema.
+
+Una vez más, nos concentraremos en obtener únicamente el canal verde con este método. El resto de los canales será calculado nuevamente a través de  interpolación bilineal.
+
+La corrección del gradiente se calcula esta vez en una vecindad más grande. Para conseguirla en este método aproximaremos el gradiente en una ventana de $5 \times 5$  y por lo tanto para empezar el algoritmo debemos asegurarnos que esta cantidad de vecinos siempre esté disponible. Para ello, tuvimos que eliminar 4 filas y 4 columnas (2 de cada lado), a diferencia de los otros filtros que permitían eliminar 2 filas y columnas.
+
+La fórmula exacta para esta corrección es la misma que la del paper de Malvar, He, Cutler [2]: [INSERTAR FORMULA]
+
+A su vez como dijimos antes, esta corrección va a estar impuesta con cierta importancia gracias al parámetro $\alpha$. La fórmula resultante para el cálculo del valor del canal verde para un pixel en particular entonces es la siguiente: [INSERTAR FORMULA].
+
+
 
 
 \subsubsection{Problemas en la Implementación}
