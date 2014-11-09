@@ -175,20 +175,14 @@ Solo a manera ilustrativa e informativa, se muestra en qué sector del código s
 \begin{lstlisting}
 if (bayerImage.CurrentPixelIsGreen(i,j))
 {
-	greenNeighborPixel = bayerImage.GetPixel(i, j);
-	if (evenRow)
-	{
-		blueNeighborPixel = bayerImage.GetPixel(i, j-1);
-		redNeighborPixel = bayerImage.GetPixel(i-1, j);
-	} 
-	else
-	{
-		blueNeighborPixel = bayerImage.GetPixel(i-1, j);
-		redNeighborPixel = bayerImage.GetPixel(i, j-1);
-	}
+	greenChannelValue = bayerImage.GetPixel(i, j);
+	blueChannelValue = getBlueChannelInGreenPixel(i, j);
+	redChannelValue = getRedChannelInGreenPixel(i, j);
 }
 \end{lstlisting}
 \par 
+Donde \textit{getBlueChannelInGreenPixel(i,j)} y \textit{getRedChannelInGreenPixel(i,j)} hacen la deferencia sobre en que fila se encuentra el pixel con valor de verde para devolver correspondientemente el color azul y rojo.
+\par
 A continuación de esto se plantea el caso en el que \textbf{NO} estamos ubicados en un pixel verde. Nuevamente, mirando el modelo utilizado para el bayer array, suceden dos casos: o el pixel es azul o es rojo. Sin embargo, en ambos se puede encontrar un pixel verde a su lado izquierdo (hay que ver cuestiones de bordes que serán explicadas a continuación). Y a su vez, en cualquier diagonal contigua podemos encontrar el otro color distinto de verde, es decir, al azul si estamos en rojo y viceversa. Elegimos tomar el valor que se encuentra en la diagonal superior izquierda. El código para esta parte es muy similar al mostrado previamente, solo que las condiciones son distintas. Igualmente, la asignación a las variables se hace de la misma forma.
 \par 
 Debido a lo recién mencionado, se hace una distinción en todo momento acerca de qué color es el pixel que estamos utilizando. De esta manera podemos elegir cuál posición vecino corresponde al mismo canal que mi pixel para tomar su valor. Cabe destacar que la elección de estos vecinos fue arbitraria. Dependiendo de la imagen que se utilice, algún vecino puede funcionar mejor que otra, pero esto no es cuantificable ni sigue un patrón tal que elegir un vecino en particular sea siempre la mejor opción.
@@ -200,6 +194,24 @@ Finalmente, se setean los valores obtenidos a los canales correspondientes.
 
 
 \subsubsection{Bilinear Interpolation}
+Este es un método que se compone de sucesivas interpolaciones lineales. De esta manera, se aproxima el valor de una función de dos variables a partir de puntos cercanos al que se quiere averiguar. En nuestro caso, esto se trasmite a cada pixel.  
+\par 
+Primero empecemos diciendo que es la interpolación lineal:
+La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2.0$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
+\par 
+De esta manera, nuestra interpolación bilineal consiste en hacer dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, y luego interpolar linealmente ambos resultados.
+\par 
+Este caso sucede explicitamente cuando se desea interpolar para obtener los valores rojo y azul de un pixel verde. Haciendo referencia a nuestro bayer array mostrado previamente, Cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente verticalmente u horizontalmente (dependiendo de si estamos en fila par o impar), lo cual se repetirá en el sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo.
+\par 
+Como lo que más nos importa a nosotros es el color verde, la recreación del color verde a partir de los píxeles azules y rojos. Como se puede ver en el bayer array, cuando estamos en un pixel azul o rojo, tanto encima o abajo y a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontalmente y luego verticalmente, para finalizar interpolando ambos resultados. De esta forma obtenemos una interpolación bilineal para el color verde.
+\par 
+En estos casos, también debemos obtener el color distinto de verde contrario al cual ya tenemos. Para estos casos, desplazándose en cualquier diagonal podemos encontrar píxeles de ese color. Por lo que en nuestra implementación se hace una interpolación lineal para ambos pixeles en la fila anterior y otra para los de la siguiente fila. Finalmente, se interpolan entre ellos obteniendo así el valor querido.
+\par 
+La decisión de tomar los píxeles mencionados para realizar las interpolaciones, al igual que en \textit{Closest Neighbor}, fue arbitraria. El factor más influyente fue la cercanidad de los píxeles, ya que como se decía en la sección previa, se espera que los valores no varíen demasiado de un píxel a otro. De esta manera, e interpolando los puntos cercanos, se espera obtener un valor mucho más cercano que simplemente tomar alguno de los vecinos y utilizarlo.
+\par 
+%VER SIGUIENTE FRASE
+Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}. La única variación corresponde al código que devuelve los valores de los colores obtenidos. Para el caso de interpolación bilineal, se realizó lo explicado previamente.
+
 \subsubsection{Directional Interpolation}
 \subsubsection{Algoritmo de Malvar, He y Cutler}
 
