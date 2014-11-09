@@ -64,7 +64,7 @@ ColorImage Filter :: FilterImage(){
 
 ClosestNeighbor :: ClosestNeighbor(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 2;
+	this->distanceFromPixelStartToBorder = 1;
 	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
@@ -187,7 +187,7 @@ double LinearInterpolation :: getBlueChannelInRedPixel(int i, int j)		{
 
 BilinearInterpolation :: BilinearInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 2;
+	this->distanceFromPixelStartToBorder = 1;
 	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
@@ -331,7 +331,7 @@ double SplineInterpolation :: cubicFunction(double x, double xj, double aj, doub
 
 DirectionalInterpolation :: DirectionalInterpolation(BayerImage& aBayerImage) {
 	this->bayerImage = aBayerImage;
-	this->distanceFromPixelStartToBorder = 2;
+	this->distanceFromPixelStartToBorder = 1;
 	this->computationalTime = NOT_COMPUTED_FILTER;
 }
 
