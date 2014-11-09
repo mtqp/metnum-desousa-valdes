@@ -213,6 +213,15 @@ La decisión de tomar los píxeles mencionados para realizar las interpolaciones
 Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}. La única variación corresponde al código que devuelve los valores de los colores obtenidos. Para el caso de interpolación bilineal, se realizó lo explicado previamente.
 
 \subsubsection{Directional Interpolation}
+
+Este método se basa en la interpolación por direcciones. En nuestro caso, esto implica interpolar valores obtenidos a partir de una dirección en la matriz. 
+\par 
+En nuestro caso, utilizamos el gradiente para decidir si nos convenía tomar una dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. De esta manera, tomamos la dirección que menor gradiente aportaba. 
+\par 
+A través de splines (con el algoritmo obtenido del libro \textit{``Numerical Analysis'' de Richard L. Burden y J. Douglas Faires}, obtuvimos todos los polinomios correspondientes a la fila o la columna correspondiente al pixel del que deseamos obtener la información faltante. De esta forma, interpolamos, particularmente, el punto (en nuestro caso, pixel) del cual queremos obtener la información.
+
+
+
 \subsubsection{Algoritmo de Malvar, He y Cutler}
 
 
@@ -244,6 +253,7 @@ Comparando directional y malvar-he-cutler: el directional blurea los bordes. A v
 %		\par \textit{Papers} del TP.
 %	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
 http://www.cambridgeincolour.com/tutorials/camera-sensors.htm
+http://ins.sjtu.edu.cn/people/mtang/textbook.pdf
 \end{itemize}
 
 
