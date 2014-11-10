@@ -249,7 +249,9 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 
 \subsubsection{Análisis Cualitativo}
 
-Comparando directional y malvar-he-cutler: el directional blurea los bordes. A veces mejora pero si no hay un cambio brusco en los colores (como en el pico), se blurea mucho. Y malvar con 1/2 alfa queda bien, pero queda con zipping en los bordes negros.
+Para la búsqueda de \textit{artifacts} corrimos los cuatro algoritmos sobre las imágenes de la cátedra y proseguimos a buscarlos de manera empírica. Encontramos casos donde cada algoritmo funciona mejor que el resto, donde ``mejor'' queda sujeto a nuestra interpretación subjetiva.
+
+La primer imagen utilizada es la de los loros \textit{(img1.bmp)}: nos quedamos sólo con el borde entre el fondo verde y el pico del loro que se encuentra a la derecha. Vemos como trata cada algoritmo la diferencia de tonalidad al presentarse una recta. 
 
 	\begin{center}
 		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/pico_loro_closest.png}
@@ -279,6 +281,16 @@ Comparando directional y malvar-he-cutler: el directional blurea los bordes. A v
 		\par
 		\footnotesize\textit{Borde entre colores, algoritmo: Malvar He Cutler.}
 	\end{center}
+
+ \textit{Closest Neighbor}  posee notoriamente el artifact conocido como ``zipping''. Esto se debe intrínsecamente a cómo se obtienen los píxeles para rellenar; al copiar el valor de un píxel lindero, cuando nos encontramos en un borde, este, no va ser homogéneo. En el lado más claro se agrupan píxeles dando la sensación de tener conjunto de ``ladrillos'' del mismo color, su justificación es la misma que la del borde, simplemente con distintos tonos del mismo color.
+
+En el algoritmo \textit{Bilinear} la imagen es mucho mas homogénea ya que se utiliza la interpolación de cuatro puntos, ponderando así el valor de un píxel mediante la utilización de varios vecinos.
+
+\textit{Directional interpolation} devuelve la imagen más suave. Recordemos que interpola por \textit{splines} en la dirección con deriva más chica, en este caso la vertical. 
+
+El último algoritmo \textit{Malvar, He, Cutler}, posee las misma propiedades que el bilinear pero siendo más suave.
+
+A continuación veremos un extracto la la imagen número once (suministrada por la cátedra), correspondiente a la pared de un granero.
 
 %.---------------------
 	\begin{center}
@@ -311,6 +323,12 @@ Comparando directional y malvar-he-cutler: el directional blurea los bordes. A v
 		\par
 		\footnotesize\textit{Pared de un granero iluminado por el atardecer, algoritmo: Malvar He Cutler.}
 	\end{center}
+
+El algoritmo de vecinos mas cercanos y el de interpolación directional poseen los \textit{artifacts} más notorios. En el primero volvemos a ver la creación de bloques similares a ladrillos en una pared y en el segundo la aparición de laberintos en la imágen.
+
+Consideramos que el algoritmo bilinear devuelve una mejor solución que \textit{Malvar He Cutler} considerando cómo manejan la anomalía de la esquina superior derecha (punto blanco). Dado que el segundo utiliza una vecindad extendida para definir el valor de cada píxel, si se encuentran detalles en la imagen que son resonantes (como un punto de otro color) el algoritmo los propaga de manera más notoria que el bilinear.
+
+Proseguimos con un extracto de la imagen siete: una isla con palmeras.
 
 %.---------------------
 
@@ -414,6 +432,7 @@ Comparando directional y malvar-he-cutler: el directional blurea los bordes. A v
 
 \section{Conclusión}
 
+Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las imágenes son iguales. La digitalización de las imágenes nos otorga una mirada sesgada e irreal de la realidad (considerando ``realidad'' como lo que nuestros ojos pueden interpretar).
 
 \section{Bibliografía y referencias} %arreglar cuando se termine 
 
