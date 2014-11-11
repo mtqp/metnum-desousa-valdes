@@ -137,14 +137,17 @@ Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Pr
 
 \subsection{Implementación}
 
+Antes de poder empezar a trabajar se necesita una imagen obtenida por alguna cámara de fotos digital, pero antes de poder observarla en el visor. Esto es, \textit{que no tenga hecho el proceso de demosaicing}, ya que es justamente esto lo que se plantea resolver en el trabajo práctico. Por simpleza, la obtención del archivo con la representación en forma de mosaico se hace a partir de una imagen normal (con el proceso de \textit{mosaicing}) y no de lo que capten los sensores de una cámara. El algoritmo que se ocupa de este proceso fue realizado en \textit{Matlab} y pasa entonces una imagen normal a una imagen con un mosaico que sigue los lineamientos del Bayer Array propuesto (el más utilizado hoy en día).
 
-Nuestro programa recibe como parámetros el nombre de un archivo que posee los valores de la matriz que representa la imagen obtenida por la cámara. Es decir, sin haber hecho ningun proceso de demosaicing. Además, recibe qué filtro deberá aplicarse y, en caso del algoritmo de Malvar, He y Cutler, obtiene como tercer parámetro el valor \textbf{$\alpha$}.
-\par 
-Lo primero que se hace es tomar el archivo obtenido por parámetro y, a partir de sus datos, crear la \textit{bayerImage} correspondiente, que luego es utilizada para aplicar el filtro correspondiente al segundo parámetro.
-\par 
-Finalmente, luego de la ejecución del filtro correspondiente, se guardan tres archivos correspondientes a las capas verde, azul y roja de la imagen obtenida. Estos archivos tienen un formato que permite ser leído por \textit{matlab}, desde donde posteriormente se van a recrear las imágenes.
-\par 
-Además, dado que en este trabajo práctico, la obtención del archivo con la representación en bayer array se hace a partir de una imagen y no de lo que capten los sensores de una cámara, el algoritmo que transforma la foto en el archivo de texto fue realizado en matlab, así como otras pequeñas cosas. Todos estos scripts se pueden encontrar en la carpeta \textit{matlab}.
+Igualmente, no utilizamos una librería/biblioteca\footnote{Son libres de elegir la palabra que quieran sin juzgar, se los prometemos.} de C++ que se ocupe de cargar imágenes, por lo tanto después de procesar una imagen normal con el algoritmo de \textit{mosaicing}, también se la lleva desde \textit{Matlab} a un archivo de texto que la represente. Este archivo tiene alto y ancho de la imagen y los valores de la matriz que la conforman en escala de grises (es decir, pasamos las 3 capas de colores a una sola capa ya que no hay canales que se superpongan en este tipo de imágenes con anteriores al \textit{demosaicing}). Además, como ya sabemos donde se encuentra cada color del Bayer Array, podemos cargar la imagen con nuestro código en C++ sin mayores problemas.
+
+Nuestro programa recibe luego como parámetros el nombre de algún archivo que contenga la información antes explicada que represente a una imagen con el proceso de \textit{mosacing}. Además, otro parámetro que se le pasa a nuestro programa es el del tipo de filtro a aplicar. En caso del algoritmo de Malvar, He y Cutler, también se obtiene un tercer parámetro \textbf{$\alpha$} que caracteriza este filtro en particular.
+
+Acercándonos un poco más al código, lo primero que se hace es tomar el archivo obtenido por parámetro y, a partir de sus datos, crear la \textit{bayerImage} correspondiente, que luego es utilizada para aplicar el filtro que elegimos mediante el segundo parámetro.
+
+Finalmente, luego de la ejecución del filtro elegido, se guardan tres archivos correspondientes a las capas verde, azul y roja de la imagen obtenida. Estos archivos tienen un formato que permite ser leído por \textit{Matlab}, desde donde posteriormente se van a recrear las imágenes.
+
+A su vez, los algoritmos de cálculo de calidad cuantitativa también serán aplicados \textit{Matlab}, ya que se nos hace mucho más fácil programarlos allí con las facilidades que nos ofrece el \textit{toolbox} de edición de imágenes. Las calidades medidas en nuestro TP son PSNR\footnote{\textit{Peak Signal to Noise Ratio}} y SSIM\footnote{\textit{Structural SIMilarity}} y se encuentran en el paquete de \textit{Matlab R2014a}, pero ya que no lo tenemos programamos PSNR e hicimos uso de un SSIM ya existente [3]. Todos estos scripts de \textit{Matlab} se pueden encontrar en la carpeta \textit{matlab}.
 
 \vspace{2\baselineskip}
 
