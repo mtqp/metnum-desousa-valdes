@@ -243,12 +243,74 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 
 
 \subsubsection{Problemas en la Implementación}
-
+En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido y fácil de encontrar los problemas.
 	
 \subsection{Experimentación}
 
+A la hora de decidir qué algoritmo se debe utilizar, hay varios puntos que se deben tener en cuenta. ¿Queremos que sea rápido? ¿Queremos una imagen que sea grata a la vista o preferimos que sea lo más semejante posible a la imagen que queremos capturar? ¿Es necesario ceder algo de tiempo a fin de obtener una mejor imagen? Y si es así, ¿Estamos dispuestos a hacerlo? 
+
+A continuación se plantearán estos problemas mostrando las diferencias cuantitativas y cualitativas de todos los algoritmos explicados previamente.
 
 \subsubsection{Análisis Cuantitavo}
+
+\begin{itemize}
+\item \underline{PSNR:}
+\item \underline{SSIM:}
+
+\item \underline{Análisis de tiempos:}
+
+Ya vimos qué algoritmos brindan una imagen con mayor similitud a la original. Ahora nos tenemos que plantear qué tiempos de cómputo corresponden a cada uno de los métodos realizados. 
+
+La experimentación realizada para calcular los tiempos de cada método se realizó teniendo en cuenta solo el tiempo de cómputo del color verde. Esto se debe a que tanto la interpolación direccional como el algoritmo de Malvar, He y Cutler obtienen la información faltante de los colores rojo y azul a través del algoritmo de interpolación bilineal. De esta forma, pierde sentido analizar su tiempo de cómputo ya que es simil para todos.
+
+Lo primero que notamos al realizar esta experimentación fue que se obtuvieron mediciones muy similares para el mismo algoritmo aplicado a las distintas imágenes presentadas por la cátedra. Esto se puede ver reflejado en los siguientes gráficos:
+
+	\begin{center}
+		\includegraphics[scale=0.4]{./img/comparacionMetodoImagen.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Comparación entre imágenes y algoritmos para un promedio de 20 repeticiones del método.}
+	\end{center}
+
+Como podemos notar, para un mismo algoritmo, \textbf{TODAS} las imágenes brindadas por la cátedra obtienen un promedio de 20 iteraciones del algoritmo muy similar. Esto implica que el tiempo de cómputo \textbf{NO} depende de la imagen, sino que solamente del algoritmo utilizado. 
+
+Teniendo en cuenta las implementaciones de los filtros, esto tiene sentido ya que nunca se debe realizar más instrucciones por alguna característica de la imagen. El único caso en el que puede verse alguna particularidad como esta sería con el algoritmo de interpolación direccional. Recordemos que a partir del valor del gradiente obtenido en dirección horizontal y vertical al pixel, se toma una fila o una columna respectivamente. A partir de esta elección se toma todo el vector fila o columna y se realiza splines sobre eso. 
+
+Supongamos imágenes mucho más anchas que altas; por ende, la matriz que representa la imagen va a ser rectangular. Además, diferenciemos dos imágenes tal que el algoritmo de interpolación siempre posea el menor gradiente en la dirección columna mientras que la otra imagen la posea siempre en las filas. En este caso, la diferencia de tiempo será la causada por el cálculo de splines. Teniendo en cuenta que la complejidad de este algoritmo es O($n + log(n)$)[3], la potencial diferencia entre la cantidad de columnas y filas se verá influenciada en un orden lineal (siendo el $n$ lo que predomina en esta complejidad).
+
+Sin embargo, no existen imágenes infinitas, y solamente el cálculo de splines es el que puede modificar de alguna manera el tiempo de cómputo. Pero para imágenes ``normales'', donde no se produce ningún caso extraño y el cálculo del gradiente alterna la elección del vector sobre el que aplicar splines, los tiempos de cómputo, como se vieron en la experimentación realizada.
+
+
+\vspace{2\baselineskip}
+
+Del gráfico comparativo se puede extraer más información. Estamos analizando el promedio de iteraciones para cada imagen dependiendo del algoritmo. Como vimos, los valores son muy similares para el mismo algoritmo. De esta manera, si calculamos para obtener la cantidad de ciclos promedio del algoritmo, nos encontraremos con un gráfico muy similar al recién mostrado:
+
+	\begin{center}
+		\includegraphics[scale=0.4]{./img/tiemposDeComputo.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Comparación de cantidad de ciclos promedio para cada método.}
+	\end{center}
+
+Este gráfico se corresponde con el obtenido a partir de los promedios de cada imagen. Ya que interpretamos que una corrida del algoritmo no varía (excepto en casos especiales) de una imagen a otra, a las 20 corridas por algoritmo se le corresponden 12 imágenes dandonos una cantidad suficiente de corridas para calcular un promedio por algoritmo que podemos considerar una cantidad de ciclos media.
+
+Como se puede ver, la cantidad de ciclos utilizada por \textit{Closest Neighbor} es la menor a todas. De esta manera vemos que, lo que perdimos en cuenta a la similitud con la imagen original lo estamos ganando en velocidad. Es por esto que puede plantearse una situación donde este sea el método que mejor se acomoda a las circunstancias. 
+
+Por otro lado, vemos una relación muy parecida entre el método de \textit{interpolación bilineal} con el \textit{algoritmo de Malvar, He y Cutler}. Esto es razonable debido a que este último método se basa en aplicar una interpolación bilineal a la cual le realiza operaciones para modificar su calidad. Así vemos que con un leve aumento del tiempo de cómputo, podemos obtener una imagen de mayor calidad. A pesar de esto, el método de interpolación bilineal resulta más costoso que el de Closest Neighbor pero teniendo en cuenta la calidad de la imagen, puede preferirse ceder algo de tiempo para obtener una mayor nitidez o menor cantidad de artifacts. Teniendo en cuenta que la diferencia de tiempos de cómputo entre ambos no es tan notoria, y que también la implementación del algoritmo de Closest Neighbor se basa en el azar de obtener un buen vecino, la interpolación bilineal se vuelve un buen candidato a utilizar.
+
+Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene muy buenos resultados de calidad, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.
+Sin embargo, puede ser una buena elección si tenemos el tiempo para procesarlo. El usuario podría obtener una imagen de mayor calidad y más gustosa a la vista. 
+
+Este último planteo nos deja a la vista más preguntas. Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
+
+¿Me gusta la imagen o no? 
+
+
+
+
+\end{itemize}
+
+
 
 \subsubsection{Análisis Cualitativo}
 
@@ -448,8 +510,9 @@ Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las i
 %		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
 %		\par \textit{Papers} del TP.
 %	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-http://www.cambridgeincolour.com/tutorials/camera-sensors.htm
-http://ins.sjtu.edu.cn/people/mtang/textbook.pdf
+\item $http://www.cambridgeincolour.com/tutorials/camera-sensors.htm [1]$
+\item $http://ins.sjtu.edu.cn/people/mtang/textbook.pdf [2]$
+\item $http://www.csie.ntu.edu.tw/~lyuu/theses/thesis_r91723055.pdf [3]$
 \end{itemize}
 
 
