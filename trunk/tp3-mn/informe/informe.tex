@@ -121,7 +121,7 @@
 \section*{Introducción}
 \addcontentsline{toc}{section}{Introducción}
 
-Luego de haber llevado a cabo el TP1 y el TP2 de métodos númericos, la excelente compañía \textbf{Adobby} se vio interesada en nosotros. En vista de que se presentaron tres puestos libres en la compañia (se dice que tres de sus empleados, un flaquito de anteojos, un colorado y una sabelotodo, partieron en búsqueda de un nuevo trabajo en ``El Que No Debe Ser Nombrado''), los recruiters de la empresa lanzaron un desafío para encontrar los reemplazantes de lo que llamaban ``el trío mágico'', y suplantarlos de esta manera en sus puestos de \textit{Ninja Gurú Jedi Master: The image demosaicing god.}
+Luego de haber llevado a cabo el TP1 y el TP2 de métodos númericos, la excelente compañía \textbf{Adobby} se vio interesada en nosotros. En vista de que se presentaron tres puestos libres en la compañía (se dice que tres de sus empleados, un flaquito de anteojos, un colorado y una sabelotodo, partieron en búsqueda de un nuevo trabajo en ``El Que No Debe Ser Nombrado''), los recruiters de la empresa lanzaron un desafío para encontrar los reemplazantes de lo que llamaban ``el trío mágico'', y suplantarlos de esta manera en sus puestos de \textit{Ninja Gurú Jedi Master: The image demosaicing god.}
 
 \par 
 El desafío consiste en diseñar, implementar y analizar un algoritmo para resolver el
@@ -141,13 +141,13 @@ Antes de poder empezar a trabajar se necesita una imagen obtenida por alguna cá
 
 Igualmente, no utilizamos una librería/biblioteca\footnote{Son libres de elegir la palabra que quieran sin juzgar, se los prometemos.} de C++ que se ocupe de cargar imágenes, por lo tanto después de procesar una imagen normal con el algoritmo de \textit{mosaicing}, también se la lleva desde \textit{Matlab} a un archivo de texto que la represente. Este archivo tiene alto y ancho de la imagen y los valores de la matriz que la conforman en escala de grises (es decir, pasamos las 3 capas de colores a una sola capa ya que no hay canales que se superpongan en este tipo de imágenes con anteriores al \textit{demosaicing}). Además, como ya sabemos donde se encuentra cada color del Bayer Array, podemos cargar la imagen con nuestro código en C++ sin mayores problemas.
 
-Nuestro programa recibe luego como parámetros el nombre de algún archivo que contenga la información antes explicada que represente a una imagen con el proceso de \textit{mosacing}. Además, otro parámetro que se le pasa a nuestro programa es el del tipo de filtro a aplicar. En caso del algoritmo de Malvar, He y Cutler, también se obtiene un tercer parámetro \textbf{$\alpha$} que caracteriza este filtro en particular.
+El programa recibe luego como parámetros el nombre de algún archivo que contenga la información antes explicada. El siguiente, es el tipo de filtro a aplicar. En caso del algoritmo de Malvar, He y Cutler, también se obtiene un tercer parámetro \textbf{$\alpha$} que caracteriza este filtro en particular.
 
 Acercándonos un poco más al código, lo primero que se hace es tomar el archivo obtenido por parámetro y, a partir de sus datos, crear la \textit{bayerImage} correspondiente, que luego es utilizada para aplicar el filtro que elegimos mediante el segundo parámetro.
 
 Finalmente, luego de la ejecución del filtro elegido, se guardan tres archivos correspondientes a las capas verde, azul y roja de la imagen obtenida. Estos archivos tienen un formato que permite ser leído por \textit{Matlab}, desde donde posteriormente se van a recrear las imágenes.
 
-A su vez, los algoritmos de cálculo de calidad cuantitativa también serán aplicados \textit{Matlab}, ya que se nos hace mucho más fácil programarlos allí con las facilidades que nos ofrece el \textit{toolbox} de edición de imágenes. Las calidades medidas en nuestro TP son PSNR\footnote{\textit{Peak Signal to Noise Ratio}} y SSIM\footnote{\textit{Structural SIMilarity}} y se encuentran en el paquete de \textit{Matlab R2014a}, pero ya que no lo tenemos programamos PSNR e hicimos uso de un SSIM ya existente [3]. Todos estos scripts de \textit{Matlab} se pueden encontrar en la carpeta \textit{matlab}.
+A su vez, los algoritmos de cálculo de calidad cuantitativa también serán aplicados en \textit{Matlab}, ya que se nos hace mucho más fácil programarlos allí con las facilidades que nos ofrece el \textit{toolbox} de edición de imágenes. Las calidades medidas en nuestro TP son PSNR\footnote{\textit{Peak Signal to Noise Ratio}} y SSIM\footnote{\textit{Structural SIMilarity}} y se encuentran en el paquete de \textit{Matlab R2014a}. Dado que no tenemos esa versión, programamos PSNR e hicimos uso de un SSIM ya existente [3]. Todos estos scripts de \textit{Matlab} se pueden encontrar en la carpeta \textit{matlab}.
 
 \vspace{2\baselineskip}
 
@@ -186,27 +186,24 @@ if (bayerImage.CurrentPixelIsGreen(i,j))
 \par 
 Donde \textit{getBlueChannelInGreenPixel(i,j)} y \textit{getRedChannelInGreenPixel(i,j)} hacen la deferencia sobre en que fila se encuentra el pixel con valor de verde para devolver correspondientemente el color azul y rojo.
 \par
-A continuación de esto se plantea el caso en el que \textbf{NO} estamos ubicados en un pixel verde. Nuevamente, mirando el modelo utilizado para el bayer array, suceden dos casos: o el pixel es azul o es rojo. Sin embargo, en ambos se puede encontrar un pixel verde a su lado izquierdo (hay que ver cuestiones de bordes que serán explicadas a continuación). Y a su vez, en cualquier diagonal contigua podemos encontrar el otro color distinto de verde, es decir, al azul si estamos en rojo y viceversa. Elegimos tomar el valor que se encuentra en la diagonal superior izquierda. El código para esta parte es muy similar al mostrado previamente, solo que las condiciones son distintas. Igualmente, la asignación a las variables se hace de la misma forma.
+Seguido, se plantea el caso en el que \textbf{NO} estamos ubicados en un pixel verde. Nuevamente, mirando el modelo utilizado para el bayer array, suceden dos casos: o el pixel es azul o es rojo. Sin embargo, en ambos se puede encontrar un pixel verde a su lado izquierdo (hay que ver cuestiones de bordes que serán explicadas a continuación). Y a su vez, en cualquier diagonal contigua podemos encontrar el otro color distinto de verde, es decir, al azul si estamos en rojo y viceversa. Elegimos tomar el valor que se encuentra en la diagonal superior izquierda. El código para esta parte es muy similar al mostrado previamente, solo que las condiciones son distintas. Igualmente, la asignación a las variables se hace de la misma forma.
 \par 
-Debido a lo recién mencionado, se hace una distinción en todo momento acerca de qué color es el pixel que estamos utilizando. De esta manera podemos elegir cuál posición vecino corresponde al mismo canal que mi pixel para tomar su valor. Cabe destacar que la elección de estos vecinos fue arbitraria. Dependiendo de la imagen que se utilice, algún vecino puede funcionar mejor que otra, pero esto no es cuantificable ni sigue un patrón tal que elegir un vecino en particular sea siempre la mejor opción.
+Podemos entonces distinguir en todo momento cuál es el color del pixel que estamos utilizando y qué posición vecina corresponde al mismo canal para tomar su valor. Cabe destacar que la elección de estos vecinos fue arbitraria. Dependiendo de la imagen que se utilice, algún vecino puede funcionar mejor que otra, pero esto no es cuantificable ni sigue un patrón tal que elegir un vecino en particular sea siempre la mejor opción.
 \par 
-Debido a que siempre estamos completando la información faltante a partir de los píxeles que se encuentran en la fila superior o la columna anterior (mirando de izquierda a derecha), el filtro comienza a aplicarse a partir de la segunda fila y la segunda columna. De esta manera, el primer caso será a partir de la posición $(1,1)$ de la matriz (indexada desde 0). Luego, en \textit{matlab} se le recorta el borde a la imagen, dejando sin utilización así el borde para el cual se perdió la información.
+Dado que siempre estamos completando la información faltante a partir de los píxeles que se encuentran en la fila superior o la columna anterior (mirando de izquierda a derecha), el filtro comienza a aplicarse a partir de la segunda fila y la segunda columna. De esta manera, el primer caso será a partir de la posición $(1,1)$ de la matriz (indexada desde 0). Luego, en \textit{matlab} se le recorta el borde a la imagen, dejando sin utilización el borde para el cual se perdió la información.
 \par 
 Finalmente, se setean los valores obtenidos a los canales correspondientes.
 
 
 
 \subsubsection{Bilinear Interpolation}
-Este es un método que se compone de sucesivas interpolaciones lineales. De esta manera, se aproxima el valor de una función de dos variables a partir de puntos cercanos al que se quiere averiguar. En nuestro caso, esto se trasmite a cada pixel.  
+Este método se compone de sucesivas interpolaciones lineales. De esta manera, se aproxima el valor de una función de dos variables a partir de puntos cercanos al que se quiere averiguar. En nuestro caso, esto se trasmite a cada pixel.  
 \par 
-Primero empecemos diciendo que es la interpolación lineal:
 La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
 \par 
-De esta manera, nuestra interpolación bilineal consiste en hacer dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, y luego interpolar linealmente ambos resultados.
-\par 
-Este caso sucede explicitamente cuando se desea interpolar para obtener los valores rojo y azul de un pixel verde. Haciendo referencia al ejemplo de Bayer Array, cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente verticalmente u horizontalmente (dependiendo de si estamos en fila par o impar), lo cual se repetirá en el sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo.
-\par 
-La recreación del color verde se genera a partir de los píxeles azules y rojos. Como se puede ver en el bayer array, cuando estamos en un pixel azul o rojo, tanto encima o abajo y a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontalmente y luego verticalmente, para finalizar interpolando ambos resultados. 
+Se define la interpolación bilineal como dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, y luego interpolar linealmente ambos resultados. 
+
+Se utiliza interpolación de fila o columna cuando se desea obtener los valores rojo y azul de un pixel verde. Recordando que la estructura es Bayer Array, cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente verticalmente u horizontalmente (dependiendo de si estamos en fila par o impar), y en sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo. En el caso de estar en un pixel azul o rojo, tanto encima o abajo y a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontalmente y luego verticalmente, para finalizar interpolando ambos resultados. 
 \par 
 En estos casos, también debemos obtener el color distinto de verde contrario al cual ya tenemos. Para estos casos, desplazándose en cualquier diagonal podemos encontrar píxeles de ese color. Por lo que en nuestra implementación se hace una interpolación lineal para ambos pixeles en la fila anterior y otra para los de la siguiente fila. Finalmente, se interpolan entre ellos obteniendo el valor objetivo.
 \par 
@@ -393,40 +390,7 @@ El algoritmo de vecinos mas cercanos y el de interpolación directional poseen l
 
 Consideramos que el algoritmo bilinear devuelve una mejor solución que \textit{Malvar He Cutler} considerando cómo manejan la anomalía de la esquina superior derecha (punto blanco). Dado que el segundo utiliza una vecindad extendida para definir el valor de cada píxel, si se encuentran detalles en la imagen que son resonantes (como un punto de otro color) el algoritmo los propaga de manera más notoria que el bilinear.
 
-Proseguimos con un extracto de la imagen siete: una isla con palmeras.
-
-%.---------------------
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_closest.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Closest Neighbor.}
-	\end{center}
-
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_bilinear.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Bilinear Interpolation.}
-	\end{center}
-
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_directional.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Directional Interpolation.}
-	\end{center}
-
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_malvar.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Malvar He Cutler.}
-	\end{center}
+Encontramos una imagen donde los artifacts que generan los algoritmos más complejos son más notorios y nos llevan a elegir como imagen de mejor calidad a la que le fue aplicada vecinos más cercanos. El extracto de imagen corresponde a rejas blancas, siendo la imagen número ocho suministrada por la cátedra.
 
 %.---------------------
 
@@ -461,45 +425,38 @@ Proseguimos con un extracto de la imagen siete: una isla con palmeras.
 		\footnotesize\textit{Rejas blancas, algoritmo: Malvar He Cutler.}
 	\end{center}
 
-%.---------------------
+El algoritmo bilineal y de Malvar poseen los mismo artifacts, generando la cuadrilla. El direccional genera el laberinto, los tres mencionados previamente. Lo interesante es lo que le pasa al algoritmo de vecinos más cercanos: Dada la rectitud de las rejas, y como se copia el color de al lado, el patrón se mantiene en la misma dirección que las rejas. Mirando esta imagen pero en resolución original (sin \textit{zoom)}), este algoritmo nos da el resultado más agradable a la vista.
+
+
+
+
+%.--------------------
+Encontramos en la imagen de las palmeras (número siete) un artifact llamativo para el algoritmo direccional, y sólo se incluye ella, dado que los otros algoritmos no aportan información nueva.
 
 	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/sailing_boat_closest.png}
+		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_directional.png}
 		\vspace{2pt}
 		\par
-		\footnotesize\textit{Vela de un velero, algoritmo: Closest Neighbor.}
+		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Directional Interpolation.}
 	\end{center}
 
+Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fueron tapados con el fondo, y por eso las palmeras ``flotan''. De todas maneras, parece ser un nuevo artifact dado que el que conocemos para direccional, es la creación de laberintos. Dado que con esta información no podemos asegurar nada en concreto, procedemos a efectuar un \textit{zoom} sobre uno de los troncos.
 
 	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/sailing_boat_bilinear.png}
+		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_zoom_directional.png}
 		\vspace{2pt}
 		\par
-		\footnotesize\textit{Vela de un velero, algoritmo: Bilinear Interpolation.}
+		\footnotesize\textit{Zoom sobre uno de los troncos para imagen de palmeras, algoritmo: Directional Interpolation.}
 	\end{center}
 
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/sailing_boat_directional.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Vela de un velero, algoritmo: Directional Interpolation.}
-	\end{center}
-
-
-	\begin{center}
-		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/sailing_boat_malvar.png}
-		\vspace{2pt}
-		\par
-		\footnotesize\textit{Vela de un velero, algoritmo: Malvar He Cutler.}
-	\end{center}
+Podemos ver que tanto el pasto (verde en la parte inferior) y el fondo azul forman laberintos. Así mismo, el correspondiente al fondo realiza su recorrido pasando por el tronco y de esta manera generando la ilusión de que estan cortados. Concluímos entonces que no encontramos un nuevo artefacto.
 
 
 \section{Conclusión}
 
 Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las imágenes son iguales. La digitalización de las imágenes nos otorga una mirada sesgada e irreal de la realidad (considerando ``realidad'' como lo que nuestros ojos pueden interpretar).
 
-\section{Bibliografía y referencias} %arreglar cuando se termine 
+\section{Bibliografía y referencias} 
 
 \begin{itemize}
 	\item \textbf{STL de C++}: \url{http://en.cppreference.com}.
