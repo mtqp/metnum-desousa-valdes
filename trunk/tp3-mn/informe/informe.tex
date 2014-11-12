@@ -202,16 +202,19 @@ Este método se compone de sucesivas interpolaciones lineales. De esta manera, s
 \par 
 La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
 \par 
-Se define la interpolación bilineal como dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, y luego interpolar linealmente ambos resultados. 
+Se define la interpolación bilineal como dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, para luego interpolar linealmente ambos resultados. 
 
-Se utiliza interpolación de fila o columna cuando se desea obtener los valores rojo y azul de un pixel verde. Recordando que la estructura es Bayer Array, cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente verticalmente u horizontalmente (dependiendo de si estamos en fila par o impar), y en sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo. En el caso de estar en un pixel azul o rojo, tanto encima o abajo y a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontalmente y luego verticalmente, para finalizar interpolando ambos resultados. 
+Recordando que la estructura es Bayer Array, cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente vertical u horizontalmente (dependiendo de si estamos en fila par o impar), y en sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo. Tengamos en cuenta que los colores rojos y azules se obtendrán en los métodos que se presentarán a continuación a través de esta interpolación
+
+
+En el caso de estar en un pixel azul o rojo, tanto encima, abajo, a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontal y por otro verticalmente, para luego finalizar interpolando ambos resultados. 
 \par 
-En estos casos, también debemos obtener el color distinto de verde contrario al cual ya tenemos. Para estos casos, desplazándose en cualquier diagonal podemos encontrar píxeles de ese color. Por lo que en nuestra implementación se hace una interpolación lineal para ambos pixeles en la fila anterior y otra para los de la siguiente fila. Finalmente, se interpolan entre ellos obteniendo el valor objetivo.
+En estos casos, también debemos obtener el color distinto de verde contrario al cual ya tenemos. Esto significa, obtener el azul para los píxeles rojos y viceversa. Para estos casos, desplazándose en cualquier diagonal podemos encontrar píxeles del color querido. Por lo que en nuestra implementación se hace una interpolación lineal para ambos pixeles en la fila anterior y otra para los de la siguiente fila. Finalmente, se interpolan entre ellos obteniendo el valor objetivo.
 \par 
-La decisión de tomar los píxeles mencionados para realizar las interpolaciones, al igual que en \textit{Closest Neighbor}, fue arbitraria. El factor más influyente fue la cercanía entre píxeles, ya que como se mencionó en la sección previa, se espera que los valores no varíen demasiado de un píxel a otro. De esta manera, e interpolando los puntos cercanos, se espera obtener un valor mucho más cercano que simplemente tomar alguno de los vecinos y utilizarlo.
+La decisión de tomar los píxeles mencionados para realizar las interpolaciones, al igual que en \textit{Closest Neighbor}, fue arbitraria. El factor más influyente fue la cercanía entre píxeles, ya que, como se mencionó en la sección previa, se espera que los valores no varíen demasiado de un píxel a otro. De esta manera, interpolando los puntos cercanos se espera obtener un valor mucho más cercano que simplemente tomar alguno de los vecinos y utilizarlo.
 \par 
 %VER SIGUIENTE FRASE
-Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}, teniendo como única diferencia, que el valor de cada color obtenido es producto de interpolación.
+Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}, teniendo como única diferencia, que el valor de cada color obtenido es producto de interpolación tal como fue explicada previamente.
 
 \subsubsection{Directional Interpolation}
 
