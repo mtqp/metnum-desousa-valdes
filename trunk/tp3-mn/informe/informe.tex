@@ -210,13 +210,13 @@ En estos casos, también debemos obtener el color distinto de verde contrario al
 La decisión de tomar los píxeles mencionados para realizar las interpolaciones, al igual que en \textit{Closest Neighbor}, fue arbitraria. El factor más influyente fue la cercanía entre píxeles, ya que como se mencionó en la sección previa, se espera que los valores no varíen demasiado de un píxel a otro. De esta manera, e interpolando los puntos cercanos, se espera obtener un valor mucho más cercano que simplemente tomar alguno de los vecinos y utilizarlo.
 \par 
 %VER SIGUIENTE FRASE
-Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}. La única variación corresponde al código que devuelve los valores de los colores obtenidos. Para el caso de interpolación bilineal, se realizó lo explicado previamente.
+Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}, teniendo como única diferencia, que el valor de cada color obtenido es producto de interpolación.
 
 \subsubsection{Directional Interpolation}
 
 Este método se basa en la interpolación por direcciones. En nuestro caso, esto implica interpolar valores obtenidos a partir de una dirección en la matriz. Respetando las consignas del TP, se decidió conseguir únicamente el canal verde a través de este método y para el resto de las canales se utiliza interpolación bilineal.
 \par 
-En nuestro caso, utilizamos el gradiente para decidir si nos convenía tomar una dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. Esto se utilizará para los casos en los cuales estemos analizando un pixel que esté junto a un borde: no querríamos interpolar utilizando la información de una parte de la imagen que posiblemente no corresponda al mismo entorno del pixel en el cual trabajamos. Por esto, se decidió entonces tomar los datos en la dirección que menor gradiente aporta. 
+En nuestro caso, utilizamos el gradiente para decidir si nos conviene tomar la dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. El gradiente es útil por ejemplo, en los casos un pixel está junto a un borde: a priori, interpolar utilizando la información de una parte de la imagen que posiblemente no corresponda al mismo entorno del píxel en el cual trabajamos no parece una buena solución. Sin embargo, si tomamos la otra dirección, la cual posee menor gradiente, el resultado puede ser mejor. Decidimos entonces tomar los datos en la dirección de menor gradiente.
 
 El cálculo del gradiente se realiza utilizando la aproximación propuesta en el enunciado de este trabajo práctico. Básicamente, se consigue restando los valores del canal verde de los pixeles consecutivos (en la dirección vertical u horizontal) y tomando valor absoluto de ello.
 
@@ -240,7 +240,9 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 
 
 \subsubsection{Problemas en la Implementación}
-En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido y fácil de encontrar los problemas.
+En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido, siendo sus problemas, fáciles de encontrar.
+
+Debemos notar que la utilización de \textit{MatLab} para preparar los datos para los algoritmos fue crucial para simplificar el problema.
 	
 \subsection{Experimentación}
 
@@ -258,7 +260,7 @@ A continuación se plantearán estos problemas mostrando las diferencias cuantit
 
 Ya vimos qué algoritmos brindan una imagen con mayor similitud a la original. Ahora nos tenemos que plantear qué tiempos de cómputo corresponden a cada uno de los métodos realizados. 
 
-La experimentación realizada para calcular los tiempos de cada método se realizó teniendo en cuenta solo el tiempo de cómputo del color verde. Esto se debe a que tanto la interpolación direccional como el algoritmo de Malvar, He y Cutler obtienen la información faltante de los colores rojo y azul a través del algoritmo de interpolación bilineal. De esta forma, pierde sentido analizar su tiempo de cómputo ya que es simil para todos.
+La experimentación realizada para calcular los tiempos de cada método se realizó teniendo en cuenta sólo el tiempo de cómputo del color verde. Esto se debe a que tanto la interpolación direccional como el algoritmo de Malvar, He y Cutler obtienen la información faltante de los colores rojo y azul a través del algoritmo de interpolación bilineal. De esta forma, pierde sentido analizar su tiempo de cómputo ya que es simil para todos.
 
 Lo primero que notamos al realizar esta experimentación fue que se obtuvieron mediciones muy similares para el mismo algoritmo aplicado a las distintas imágenes presentadas por la cátedra. Esto se puede ver reflejado en los siguientes gráficos:
 
@@ -269,9 +271,9 @@ Lo primero que notamos al realizar esta experimentación fue que se obtuvieron m
 		\footnotesize\textit{Comparación entre imágenes y algoritmos para un promedio de 20 repeticiones del método.}
 	\end{center}
 
-Como podemos notar, para un mismo algoritmo, \textbf{TODAS} las imágenes brindadas por la cátedra obtienen un promedio de 20 iteraciones del algoritmo muy similar. Esto implica que el tiempo de cómputo \textbf{NO} depende de la imagen, sino que solamente del algoritmo utilizado. 
+Como podemos notar, para un mismo algoritmo, \textbf{TODAS} las imágenes brindadas por la cátedra obtienen un promedio de 20 iteraciones del algoritmo muy similar. Esto implica que el tiempo de cómputo \textbf{NO} depende de la imagen, sino que solamente del algoritmo utilizado, claro está, a igual dimensión. 
 
-Teniendo en cuenta las implementaciones de los filtros, esto tiene sentido ya que nunca se debe realizar más instrucciones por alguna característica de la imagen. El único caso en el que puede verse alguna particularidad como esta sería con el algoritmo de interpolación direccional. Recordemos que a partir del valor del gradiente obtenido en dirección horizontal y vertical al pixel, se toma una fila o una columna respectivamente. A partir de esta elección se toma todo el vector fila o columna y se realiza splines sobre eso. 
+Teniendo en cuenta las implementaciones de los filtros, es coherente siendo que no se deben realizar distinta cantidad de instrucciones dependiendo de características de la imagen. El único caso en el que puede verse alguna particularidad como esta sería con el algoritmo de interpolación direccional. Recordemos que a partir del valor del gradiente obtenido en dirección horizontal y vertical al pixel, se toma una fila o una columna respectivamente. A partir de esta elección se toma todo el vector fila o columna y se realiza splines sobre eso. De todas formas, las imágenes poseen similar altura y ancho.
 
 Supongamos imágenes mucho más anchas que altas; por ende, la matriz que representa la imagen va a ser rectangular. Además, diferenciemos dos imágenes tal que el algoritmo de interpolación siempre posea el menor gradiente en la dirección columna mientras que la otra imagen la posea siempre en las filas. En este caso, la diferencia de tiempo será la causada por el cálculo de splines. Teniendo en cuenta que la complejidad de este algoritmo es O($n + log(n)$)[3], la potencial diferencia entre la cantidad de columnas y filas se verá influenciada en un orden lineal (siendo el $n$ lo que predomina en esta complejidad).
 
@@ -280,7 +282,7 @@ Sin embargo, no existen imágenes infinitas, y solamente el cálculo de splines 
 
 \vspace{2\baselineskip}
 
-Del gráfico comparativo se puede extraer más información. Estamos analizando el promedio de iteraciones para cada imagen dependiendo del algoritmo. Como vimos, los valores son muy similares para el mismo algoritmo. De esta manera, si calculamos para obtener la cantidad de ciclos promedio del algoritmo, nos encontraremos con un gráfico muy similar al recién mostrado:
+Estamos analizando el promedio de iteraciones para cada imagen dependiendo del algoritmo. Los valores son muy similares para el mismo algoritmo. De esta manera, si calculamos la cantidad de ciclos promedio del algoritmo, nos encontraremos con un gráfico muy similar al recién mostrado:
 
 	\begin{center}
 		\includegraphics[scale=0.4]{./img/tiemposDeComputo.png}
@@ -289,7 +291,7 @@ Del gráfico comparativo se puede extraer más información. Estamos analizando 
 		\footnotesize\textit{Comparación de cantidad de ciclos promedio para cada método.}
 	\end{center}
 
-Este gráfico se corresponde con el obtenido a partir de los promedios de cada imagen. Ya que interpretamos que una corrida del algoritmo no varía (excepto en casos especiales) de una imagen a otra, a las 20 corridas por algoritmo se le corresponden 12 imágenes dandonos una cantidad suficiente de corridas para calcular un promedio por algoritmo que podemos considerar una cantidad de ciclos media.
+Este gráfico se corresponde con el obtenido a partir de los promedios de cada imagen. Ya que interpretamos que una corrida del algoritmo casi no varía de una imagen a otra, y tenemos 20 corridas por algoritmo por cada una de las 12 imágenes, consideramos cantidad suficiente para calcular un promedio por algoritmo.
 
 Como se puede ver, la cantidad de ciclos utilizada por \textit{Closest Neighbor} es la menor a todas. De esta manera vemos que, lo que perdimos en cuenta a la similitud con la imagen original lo estamos ganando en velocidad. Es por esto que puede plantearse una situación donde este sea el método que mejor se acomoda a las circunstancias. 
 
@@ -311,7 +313,7 @@ Este último planteo nos deja a la vista más preguntas. Tenemos un análisis qu
 
 \subsubsection{Análisis Cualitativo}
 
-Para la búsqueda de \textit{artifacts} corrimos los cuatro algoritmos sobre las imágenes de la cátedra y proseguimos a buscarlos de manera empírica. Encontramos casos donde cada algoritmo funciona mejor que el resto, donde ``mejor'' queda sujeto a nuestra interpretación subjetiva.
+Para la búsqueda de \textit{artifacts} corrimos los cuatro algoritmos sobre las imágenes de la cátedra y proseguimos a buscarlos de manera empírica. Encontramos casos donde cada algoritmo funciona mejor que el resto, donde ``mejor'' queda sujeto a nuestra interpretación, subjetiva.
 
 La primer imagen utilizada es la de los loros \textit{(img1.bmp)}: nos quedamos sólo con el borde entre el fondo verde y el pico del loro que se encuentra a la derecha. Vemos como trata cada algoritmo la diferencia de tonalidad al presentarse una recta. 
 
@@ -386,9 +388,9 @@ A continuación veremos un extracto la la imagen número once (suministrada por 
 		\footnotesize\textit{Pared de un granero iluminado por el atardecer, algoritmo: Malvar He Cutler.}
 	\end{center}
 
-El algoritmo de vecinos mas cercanos y el de interpolación directional poseen los \textit{artifacts} más notorios. En el primero volvemos a ver la creación de bloques similares a ladrillos en una pared y en el segundo la aparición de laberintos en la imágen.
+El algoritmo de vecinos mas cercanos y el de interpolación direccional poseen los \textit{artifacts} más notorios. En el primero volvemos a ver la creación de bloques similares a ladrillos en una pared y en el segundo la aparición de laberintos en la imágen.
 
-Consideramos que el algoritmo bilinear devuelve una mejor solución que \textit{Malvar He Cutler} considerando cómo manejan la anomalía de la esquina superior derecha (punto blanco). Dado que el segundo utiliza una vecindad extendida para definir el valor de cada píxel, si se encuentran detalles en la imagen que son resonantes (como un punto de otro color) el algoritmo los propaga de manera más notoria que el bilinear.
+Consideramos que el algoritmo bilinear devuelve una mejor solución que \textit{Malvar He Cutler} considerando cómo manejan la anomalía de la esquina superior derecha (punto blanco). Dado que el segundo utiliza una vecindad extendida para definir el valor de cada píxel, si se encuentran detalles en la imagen que son resonantes (como un punto de otro color) el algoritmo los propaga de manera más notoria que el bilineal.
 
 Encontramos una imagen donde los artifacts que generan los algoritmos más complejos son más notorios y nos llevan a elegir como imagen de mejor calidad a la que le fue aplicada vecinos más cercanos. El extracto de imagen corresponde a rejas blancas, siendo la imagen número ocho suministrada por la cátedra.
 
@@ -440,7 +442,7 @@ Encontramos en la imagen de las palmeras (número siete) un artifact llamativo p
 		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Directional Interpolation.}
 	\end{center}
 
-Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fueron tapados con el fondo, y por eso las palmeras ``flotan''. De todas maneras, parece ser un nuevo artifact dado que el que conocemos para direccional, es la creación de laberintos. Dado que con esta información no podemos asegurar nada en concreto, procedemos a efectuar un \textit{zoom} sobre uno de los troncos.
+Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fueron tapados con el fondo, y por eso las palmeras ``flotan''. Parece ser un nuevo artifact ya que hasta el momento sólo habíamos encontrado el laberinto para el direccional. Dado que con esta información no podemos asegurar nada en concreto, procedemos a efectuar un \textit{zoom} sobre uno de los troncos.
 
 	\begin{center}
 		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_zoom_directional.png}
@@ -450,6 +452,8 @@ Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fu
 	\end{center}
 
 Podemos ver que tanto el pasto (verde en la parte inferior) y el fondo azul forman laberintos. Así mismo, el correspondiente al fondo realiza su recorrido pasando por el tronco y de esta manera generando la ilusión de que estan cortados. Concluímos entonces que no encontramos un nuevo artefacto.
+
+Hemos encontrado distintos casos donde cada algoritmo nos da un mejor resultado que el otro. En lineas generales, vecinos cercanos no es un bueno, salvo el caso de las rejas: posee zipping muy notorio. En cambios abruptos de color en lineas rectas, el algoritmo de interpolación direccional da los mejores resultados. Por otro lado, Malvar y bilineal dan similares resultados, siendo el primero una mejora del segundo. Mirando las imágenes completas y sin zoom, Malvar y direccional parecen dar las imágenes con mejor calidad. Sólo cuando se pasa al detalle que Malvar supera a direccional ya que el artefacto del laberito aparece.
 
 
 \section{Conclusión}
