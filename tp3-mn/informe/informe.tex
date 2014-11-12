@@ -140,7 +140,9 @@ Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Pr
 
 Antes de poder empezar a trabajar se necesita una imagen obtenida por alguna cámara de fotos digital, pero antes de poder observarla en el visor. Esto es, \textit{que no tenga hecho el proceso de demosaicing}, ya que es justamente esto lo que se plantea resolver en el trabajo práctico. Por simpleza, la obtención del archivo con la representación en forma de mosaico se hace a partir de una imagen normal (con el proceso de \textit{mosaicing}) y no de lo que capten los sensores de una cámara. El algoritmo que se ocupa de este proceso fue realizado en \textit{Matlab} y pasa entonces una imagen normal a una imagen con un mosaico que sigue los lineamientos del Bayer Array propuesto (el más utilizado hoy en día).
 
-Igualmente, no utilizamos una librería/biblioteca\footnote{Son libres de elegir la palabra que quieran sin juzgar, se los prometemos.} de C++ que se ocupe de cargar imágenes, por lo tanto después de procesar una imagen normal con el algoritmo de \textit{mosaicing}, también se la lleva desde \textit{Matlab} a un archivo de texto que la represente. Este archivo tiene alto y ancho de la imagen y los valores de la matriz que la conforman en escala de grises (es decir, pasamos las 3 capas de colores a una sola capa ya que no hay canales que se superpongan en este tipo de imágenes con anteriores al \textit{demosaicing}). Además, como ya sabemos donde se encuentra cada color del Bayer Array, podemos cargar la imagen con nuestro código en C++ sin mayores problemas.
+Igualmente, no utilizamos una librería/biblioteca\footnote{Son libres de elegir la palabra que quieran sin juzgar, se los prometemos.} de C++ que se ocupe de cargar imágenes, por lo tanto después de procesar una imagen normal con el algoritmo de \textit{mosaicing}, también se la lleva desde \textit{Matlab} a un archivo de texto que la represente. Este archivo tiene alto y ancho de la imagen y los valores de la matriz que la conforman en escala de grises (es decir, pasamos las 3 capas de colores a una sola capa ya que no hay canales que se superpongan en este tipo de imágenes anteriores al \textit{demosaicing}). Además, como ya sabemos donde se encuentra cada color del Bayer Array, podemos cargar la imagen con nuestro código en C++ sin mayores problemas.
+
+\vspace{\baselineskip}
 
 El programa recibe luego como parámetros el nombre de algún archivo que contenga la información antes explicada. El siguiente, es el tipo de filtro a aplicar. En caso del algoritmo de Malvar, He y Cutler, también se obtiene un tercer parámetro \textbf{$\alpha$} que caracteriza este filtro en particular.
 
@@ -256,7 +258,45 @@ A continuación se plantearán estos problemas mostrando las diferencias cuantit
 \subsubsection{Análisis Cuantitavo}
 
 \begin{itemize}
-\item \underline{PSNR:}
+\item \underline{PSNR:} 
+
+La medición PSNR o \textit{Peak Signal to Noise Ratio} según sus siglas en inglés nos sirve para medir cuantitativamente la calidad de una imagen: este nos otorga un resultado en dB el cual indicará cuán buena es una imagen respecto de otra. Cuanto \textit{más grande} sea el resultado de aplicar PSNR para comparar imágenes, \textit{más parecidas} serán esas dos imágenes entre sí. Por lo tanto, al comparar dos imágenes idénticas, el resultado nos dará infinito. Se puede apreciar también en la fórmula de PSNR: 
+
+\[ PSNR(I_1, I_2) = 20 \cdot log_{10}(255) - 10 \cdot log_{10}(MSE(I_1, I_2)) \]
+
+Donde $MSE$ es el error cuadrático medio (\textit{Mean Squared Error}, en inglés) y se calcula de la siguiente manera:
+
+\[ MSE(I_1, I_2) = \dfrac{1}{mn} \sum\limits_{i=0}^{m-1}\sum\limits_{j=0}^{n-1}[I_1(i,j) - I_2(i,j)]^2 \]
+
+De aquí se puede apreciar que si las imágenes son idénticas, el error cuadrático medio se hace 0 y hacer el logaritmo de 0 no es válido, por lo tanto PSNR devuelve en ese caso infinito.
+
+
+Luego para nuestro problema, comparamos las imágenes filtradas con cada filtro contra las 12 imágenes provistas por la cátedra. Además, separamos el análisis para la capa verde únicamente como para todas las capas. Ambas opciones estarán involucradas en este análisis.
+
+Fue entonces realizado el score de PSNR para todos los filtros, para la capa verde y todas las capas, y para todas las imágenes provistas. Para tener una observación general se tomó la media de todos los resultados según el filtro. Este es el gráfico resultante:
+
+	\begin{center}
+		\includegraphics[scale=0.27]{./img/psnrScores.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Media de todos los resultados de PSNR aplicado a todas las imágenes provistas para todos los filtros}
+	\end{center}
+
+
+Antes que nada hay que aclarar que la diferencia de score entre todos los canales y el canal verde existe y da mejor para el canal verde es porque, tal como se nos explicó en la presentación del TP, los humanos percibimos mejor este color y por lo tanto el bayer array tiene más verde que los otros colores. Además, al concentrarnos primordialmente en este canal para la gran mayoría de los filtros, es normal que el resultado tenga esta forma.
+
+Podemos ver entonces que para esta medida de calidad, el algoritmo más \textit{naïf} es el de peor rendimiento, llegando aproximadamente a los 29 dB. Luego, la interpolación bilateral nos consigue un valor de 34 dB. La interpolación direccional con splines empata en esta medición. Finalmente, el algoritmo de Malvar, He y Cutler, el cual aplica una corrección basada en el gradiente al filtro bilineal, es el que mejor funcionó, llegando a rozar el pico de los 40 dB. De aquí nos llevamos que claramente para PSNR el algoritmo de Malvar, He y Cutler es el ganador, mientras que interpolar direccionalmente (horizontalmente y verticalmente) toda una fila y una columna con splines contra interpolación bilineal en una vecindad de 3x3 nos da prácticamente los mismos resultados (34,00147845 para bilineal y 34,01162873 para direccional, una diferencia \textit{extremadamente chica}). Por lo tanto, si debemos elegir entre estos dos algoritmos, esta elección dependerá del tiempo de cómputo y de los \textit{artifacts} visuales que aparezcan (sin tener en cuenta la otra medición SSIM). Adelantándonos al análisis de tiempo de cómputo de los algoritmos, podemos intuir rápidamente que el filtro bilineal será mucho rápido que splines, ya que este último implica resolver matrices versus operaciones sencillas de interpolación lineal.
+
+Si miramos ahora los valores de todos los canales, se puede notar, además de tener valores más bajos, que el orden de la performance de los algoritmos según PSNR es el mismo. Debemos recordar también que conseguir los colores rojo y azul con las interpolaciones de Malvar, He y Cutler y \textit{Directional Interpolation} se realizó en ambos casos de igual manera con interpolación bilineal. Esto tal vez explique también el parecido en los scores entre interpolación direccional e interpolación bilineal. Para Malvar, He y Cutler, esto seguramente signifique que la mejora para todos los canales fue mejorada gracias a la mejora del verde y nada más.
+
+\vspace{\baselineskip}
+
+Sin embargo, este análisis está basado en \textbf{la media de todos los resultados para todas las imágenes.} En este caso, si nos ponemos a mirar la tabla completa con todos los valores, veremos que este orden se mantiene \textit{para cada una de las imágenes}. Las interpolaciones bilineales y direccionales son las únicas que no tienen bien definido cuál es mejor en términos de PSNR, ya que hay imágenes en las que funciona mejor bilineal que direccional y vice versa. De cualquier forma, analizar estos casos no tiene mucho sentido (para PSNR) ya que la diferencia es mínima. Todos estos valores, incluídos las medias y los gráficos están en un archivo de \textit{Excel} en la carpeta \textit{informe/excel/}.
+
+\vspace{\baselineskip}
+
+De aquí nos llevamos entonces que, siguiendo únicamente los scores de PSNR, \textit{Closest Neighbor} definitivamente no es el algoritmo que querríamos usar para obtener una imagen de buena calidad. Entre interpolación bilineal y direccional no hay mucha diferencia (habiendo interpolado en esas direcciones y esa cantidad de puntos que discutimos en la sección de implementación), pero ambos son mejores que \textit{Closest Neighbor}. El algoritmo a elegir es entonces el de Malvar, He y Cutler, el cual tiene el mejor PSNR. Faltará decidir nada más si este algoritmo conviene a nivel de tiempos de cómputo, análisis que será desarrollado posteriormente.
+
 \item \underline{SSIM:}
 
 \item \underline{Análisis de tiempos:}
