@@ -123,13 +123,18 @@
 
 Luego de haber llevado a cabo el TP1 y el TP2 de métodos númericos, la excelente compañía \textbf{Adobby} se vio interesada en nosotros. En vista de que se presentaron tres puestos libres en la compañía (se dice que tres de sus empleados, un flaquito de anteojos, un colorado y una sabelotodo, partieron en búsqueda de un nuevo trabajo en ``El Que No Debe Ser Nombrado''), los recruiters de la empresa lanzaron un desafío para encontrar los reemplazantes de lo que llamaban ``el trío mágico'', y suplantarlos de esta manera en sus puestos de \textit{Ninja Gurú Jedi Master: The image demosaicing god.}
 
-\par 
+\vspace{\baselineskip}
+
 El desafío consiste en diseñar, implementar y analizar un algoritmo para resolver el
 problema de demosaicing. El mismo consiste en obtener una imagen con información en los 3 canales (colores rojo, verde y azul) para cada pixel, a partir de la información capturada por un sensor de una cámara digital marca \textit{``Fotos Casi en Movimiento''}. Para esto se asume que la información captada por el sensor es
 correcta y se trata de inferir los valores de los dos canales faltantes en cada uno de los píxeles de la imagen.
-\par 
+
+\vspace{\baselineskip}
+
 Con el fin de no tener que invocar artes oscuras para resolver este problema, el desafío plantea trabajar solo sobre el Bayer Array. El mismo consiste en alternar filas de rojo y verde o verde y azul. Cada color no recibe una fracción igual en el area ya que el ojo humano es mas sensitivo a la ``luz verde''. Este tipo de arreglo tiene el doble de elementos verdes que rojos o azules, lo cual produce una imagen que aparenta tener menos ruido y mayor detalle que si se trataran los tres colores por igual. El motivo por el que sucede esto escapa los efectos de este trabajo práctico.
-\par 
+
+\vspace{\baselineskip}
+
 Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Programadores''}, \textit{Adobby} pidió que se implementaran varios métodos para poder recrear la imagen a partir de lo que tomó la cámara.
 
 \newpage
@@ -140,15 +145,23 @@ Como parte del desafío de lo que denominaron \textit{``El torneo de los Tres Pr
 
 Antes de poder empezar a trabajar se necesita una imagen obtenida por alguna cámara de fotos digital, pero antes de poder observarla en el visor. Esto es, \textit{que no tenga hecho el proceso de demosaicing}, ya que es justamente esto lo que se plantea resolver en el trabajo práctico. Por simpleza, la obtención del archivo con la representación en forma de mosaico se hace a partir de una imagen normal (con el proceso de \textit{mosaicing}) y no de lo que capten los sensores de una cámara. El algoritmo que se ocupa de este proceso fue realizado en \textit{Matlab} y pasa entonces una imagen normal a una imagen con un mosaico que sigue los lineamientos del Bayer Array propuesto (el más utilizado hoy en día).
 
+\vspace{\baselineskip}
+
 Igualmente, no utilizamos una librería/biblioteca\footnote{Son libres de elegir la palabra que quieran sin juzgar, se los prometemos.} de C++ que se ocupe de cargar imágenes, por lo tanto después de procesar una imagen normal con el algoritmo de \textit{mosaicing}, también se la lleva desde \textit{Matlab} a un archivo de texto que la represente. Este archivo tiene alto y ancho de la imagen y los valores de la matriz que la conforman en escala de grises (es decir, pasamos las 3 capas de colores a una sola capa ya que no hay canales que se superpongan en este tipo de imágenes anteriores al \textit{demosaicing}). Además, como ya sabemos donde se encuentra cada color del Bayer Array, podemos cargar la imagen con nuestro código en C++ sin mayores problemas.
 
 \vspace{\baselineskip}
 
 El programa recibe luego como parámetros el nombre de algún archivo que contenga la información antes explicada. El siguiente, es el tipo de filtro a aplicar. En caso del algoritmo de Malvar, He y Cutler, también se obtiene un tercer parámetro \textbf{$\alpha$} que caracteriza este filtro en particular.
 
+\vspace{\baselineskip}
+
 Acercándonos un poco más al código, lo primero que se hace es tomar el archivo obtenido por parámetro y, a partir de sus datos, crear la \textit{bayerImage} correspondiente, que luego es utilizada para aplicar el filtro que elegimos mediante el segundo parámetro.
 
+\vspace{\baselineskip}
+
 Finalmente, luego de la ejecución del filtro elegido, se guardan tres archivos correspondientes a las capas verde, azul y roja de la imagen obtenida. Estos archivos tienen un formato que permite ser leído por \textit{Matlab}, desde donde posteriormente se van a recrear las imágenes.
+
+\vspace{\baselineskip}
 
 A su vez, los algoritmos de cálculo de calidad cuantitativa también serán aplicados en \textit{Matlab}, ya que se nos hace mucho más fácil programarlos allí con las facilidades que nos ofrece el \textit{toolbox} de edición de imágenes. Las calidades medidas en nuestro TP son PSNR\footnote{\textit{Peak Signal to Noise Ratio}} y SSIM\footnote{\textit{Structural SIMilarity}} y se encuentran en el paquete de \textit{Matlab R2014a}. Dado que no tenemos esa versión, programamos PSNR e hicimos uso de un SSIM ya existente [4]. Todos estos scripts de \textit{Matlab} se pueden encontrar en la carpeta \textit{matlab}.
 
@@ -166,18 +179,30 @@ Todas la implementaciones que se mostrarán a continuación, se hicieron bajo la
 	
 Como podemos notar, e indexando las filas y columnas desde 0, los píxeles azules se encuentran en las posiciones de fila par y columna par. Por otro lado, el color rojo aparece en las filas impares y columnas impares, mientras que el color verde se encuentra en toda posición que no cumple la misma paridad entre columnas y filas.
 \par 
+
+\vspace{\baselineskip}
+
 Una vez dicho esto, comenzamos con el análisis de las implementaciones realizadas para los siguientes filtros.
 	
 \subsubsection{Closest Neighbor}
 
 Este filtro se basa en rellenar los valores faltantes copiando al vecino más
 cercano del pixel, siempre y cuando tenga una observación real en el mismo canal que se está tratando averiguar. Este fundamento se basa en considerar que el valor de dos pixeles cercanos no debe variar mucho respecto de un mismo canal. De esta manera, podemos obtener toda la información que necesitamos a partir de contemplar el entorno de cada pixel.
-\par 
+
+\vspace{\baselineskip}
+
 En nuestro caso, se decidió dividir los casos dependiendo si la información que buscamos corresponde al canal verde o a otro canal.
-\par 
+
+\vspace{\baselineskip}
+
 Como ya se explicó previamente, el color verde va a ser encontrado en las columnas impares y filas pares al igual que en las columnas pares y filas impares. De esta manera, y mirando el modelo de bayer array que se planteó previamente, decidimos tomar los valores que se encuentra en la fila superior y misma columna, y los valores en la columna anterior y misma fila (es decir, tomar el valor del pixel justo encima y el que se encuentra justo a la izquierda). Sin embargo, a qué canal corresponde cada valor depende de en qué fila se encuentre el pixel que quiero reconstruir. Es por esto que se hace un chequeo sobre la fila del píxel.
-\par 
+
+\vspace{\baselineskip}
+
 Solo a manera ilustrativa e informativa, se muestra en qué sector del código se realiza esto (método \textit{FilterImage()}): 
+
+\vspace{\baselineskip}
+
 \begin{lstlisting}
 if (bayerImage.CurrentPixelIsGreen(i,j))
 {
@@ -186,45 +211,73 @@ if (bayerImage.CurrentPixelIsGreen(i,j))
 	redChannelValue = getRedChannelInGreenPixel(i, j);
 }
 \end{lstlisting}
-\par 
+
+\vspace{\baselineskip}
+
 Donde \textit{getBlueChannelInGreenPixel(i,j)} y \textit{getRedChannelInGreenPixel(i,j)} hacen la deferencia sobre en que fila se encuentra el pixel con valor de verde para devolver correspondientemente el color azul y rojo.
-\par
+
+\vspace{\baselineskip}
+
 Seguido, se plantea el caso en el que \textbf{NO} estamos ubicados en un pixel verde. Nuevamente, mirando el modelo utilizado para el bayer array, suceden dos casos: o el pixel es azul o es rojo. Sin embargo, en ambos se puede encontrar un pixel verde a su lado izquierdo (hay que ver cuestiones de bordes que serán explicadas a continuación). Y a su vez, en cualquier diagonal contigua podemos encontrar el otro color distinto de verde, es decir, al azul si estamos en rojo y viceversa. Elegimos tomar el valor que se encuentra en la diagonal superior izquierda. El código para esta parte es muy similar al mostrado previamente, solo que las condiciones son distintas. Igualmente, la asignación a las variables se hace de la misma forma.
-\par 
+
+\vspace{\baselineskip}
+
 Podemos entonces distinguir en todo momento cuál es el color del pixel que estamos utilizando y qué posición vecina corresponde al mismo canal para tomar su valor. Cabe destacar que la elección de estos vecinos fue arbitraria. Dependiendo de la imagen que se utilice, algún vecino puede funcionar mejor que otra, pero esto no es cuantificable ni sigue un patrón tal que elegir un vecino en particular sea siempre la mejor opción.
-\par 
+
+\vspace{\baselineskip}
+
 Dado que siempre estamos completando la información faltante a partir de los píxeles que se encuentran en la fila superior o la columna anterior (mirando de izquierda a derecha), el filtro comienza a aplicarse a partir de la segunda fila y la segunda columna. De esta manera, el primer caso será a partir de la posición $(1,1)$ de la matriz (indexada desde 0). Luego, en \textit{matlab} se le recorta el borde a la imagen, dejando sin utilización el borde para el cual se perdió la información.
-\par 
+
+\vspace{\baselineskip}
+
 Finalmente, se setean los valores obtenidos a los canales correspondientes.
 
 
 
 \subsubsection{Bilinear Interpolation}
 Este método se compone de sucesivas interpolaciones lineales. De esta manera, se aproxima el valor de una función de dos variables a partir de puntos cercanos al que se quiere averiguar. En nuestro caso, esto se trasmite a cada pixel.  
-\par 
+
+\vspace{\baselineskip}
+
 La interpolación lineal fue definida como \textit{$(aValue + anotherValue)/2$}, siendo $aValue$ y $anotherValue$ los valores de los pixeles que se desean interpolar. 
-\par 
+
+\vspace{\baselineskip}
+
 Se define la interpolación bilineal como dos interpolaciones lineales, por ejemplo, una en las filas y otra en la columna, para luego interpolar linealmente ambos resultados. 
+
+\vspace{\baselineskip}
 
 Recordando que la estructura es Bayer Array, cuando nos encontramos con un pixel verde, podemos tener a ambos lados píxeles rojos o azules. Dependiendo de cual de estos casos cumplamos, arriba y abajo vamos a tener el color opuesto. De esta forma, cuando estemos en un pixel verde, se obtendrá el color azul interpolando linealmente vertical u horizontalmente (dependiendo de si estamos en fila par o impar), y en sentido opuesto para el rojo, obteniendo así los valores correspondientes a azul y rojo. Tengamos en cuenta que los colores rojos y azules se obtendrán en los métodos que se presentarán a continuación a través de esta interpolación.
 
+\vspace{\baselineskip}
 
 En el caso de estar en un pixel azul o rojo, tanto encima, abajo, a derecha e izquierda tenemos píxeles verdes. De esta manera, tomamos los cuatro píxeles verdes aledaños para realizar la interpolación; por un lado horizontal y por otro verticalmente, para luego finalizar interpolando ambos resultados. En estos casos, también debemos obtener el otro color distinto de verde, esto significa, obtener el azul para los píxeles rojos y viceversa. Para estos casos, desplazándose en cualquier diagonal podemos encontrar píxeles del color querido. Por lo que en nuestra implementación se hace una interpolación lineal para ambos pixeles en la fila anterior y otra para los de la siguiente fila. Finalmente, se interpolan entre ellos obteniendo el valor objetivo.
-\par 
+
+\vspace{\baselineskip}
+
 La decisión de tomar los píxeles mencionados para realizar las interpolaciones, al igual que en \textit{Closest Neighbor}, fue arbitraria. El factor más influyente fue la cercanía entre píxeles, ya que, como se mencionó en la sección previa, se espera que los valores no varíen demasiado de un píxel a otro. De esta manera, interpolando los puntos cercanos se espera obtener un valor mucho más cercano que simplemente tomar alguno de los vecinos y utilizarlo.
-\par 
-%VER SIGUIENTE FRASE
+
+\vspace{\baselineskip}
+
 Debido a la forma en la que fue realizada el código, y gracias al polimorfismo, el código que resuelve el filtro de imagen es igual al utilizado en \textit{Closest Neighbor}, teniendo como única diferencia, que el valor de cada color obtenido es producto de interpolación tal como fue explicada previamente.
 
 \subsubsection{Directional Interpolation}
 
 Este método se basa en la interpolación por direcciones. En nuestro caso, esto implica interpolar valores obtenidos a partir de una dirección en la matriz. Respetando las consignas del TP, se decidió conseguir únicamente el canal verde a través de este método y para el resto de las canales se utiliza interpolación bilineal.
-\par 
+
+\vspace{\baselineskip}
+
 En nuestro caso, utilizamos el gradiente para decidir si nos conviene tomar la dirección horizontal o vertical. Mientras mayor sea el gradiente, mayor es la variación de color entre un pixel y otro. El gradiente es útil por ejemplo, en los casos un pixel está junto a un borde: a priori, interpolar utilizando la información de una parte de la imagen que posiblemente no corresponda al mismo entorno del píxel en el cual trabajamos no parece una buena solución. Sin embargo, si tomamos la otra dirección, la cual posee menor gradiente, el resultado puede ser mejor. Decidimos entonces tomar los datos en la dirección de menor gradiente.
+
+\vspace{\baselineskip}
 
 El cálculo del gradiente se realiza utilizando la aproximación propuesta en el enunciado de este trabajo práctico. Básicamente, se consigue restando los valores del canal verde de los pixeles consecutivos (en la dirección vertical u horizontal) y tomando valor absoluto de ello.
 
+\vspace{\baselineskip}
+
 Como dijimos previamente, la información que queremos obtener es la correspondiente al canal verde de la imagen. De esta forma, cuando determinemos la dirección que deseamos, solo se interpolarán a partir de los píxeles verdes que conocemos. Se aplicará el algoritmo de interpolación a través de splines teniendo en cuenta como puntos únicamente a los píxeles verdes que ya poseemos su información en la fila o columna, dada por el criterio del gradiente.
+
+\vspace{\baselineskip}
 
 A través de splines (con el algoritmo obtenido del libro \textit{``Numerical Analysis'' de Richard L. Burden y J. Douglas Faires}) obtuvimos todos los polinomios correspondientes a la fila/columna respectiva al pixel del que deseamos obtener la información faltante. Con este algoritmo se consiguen todos los coeficientes de todos los trazadores cúbicos que interpolan cada par de puntos (polinomios cúbicos $S_j(x)$ en la teórica y la práctica). De esta forma obtenemos un polinomio que servirá para interpolar el canal verde en cualquier punto azul o rojo. En particular, podemos obtener el valor deseado para el pixel en el cual estamos iterando evaluando en el punto medio del polinomio interpolador correspondiente.
 
@@ -232,11 +285,19 @@ A través de splines (con el algoritmo obtenido del libro \textit{``Numerical An
 
 El algoritmo de Malvar, He y Cutler se concentra en corregir la interpolación bilineal: para ello cada canal que se quiera conseguir va a ser calculado con el valor correspondiente a la interpolación bilineal, sumado a un factor de corrección basado en cálculos con el gradiente. Este factor se va a aplicar en una cierta medida $\alpha$ especificada como parámetro en este problema.
 
+\vspace{\baselineskip}
+
 Una vez más, nos concentraremos en obtener únicamente el canal verde con este método. El resto de los canales será calculado nuevamente a través de  interpolación bilineal.
+
+\vspace{\baselineskip}
 
 La corrección del gradiente se calcula esta vez en una vecindad más grande. Para conseguirla en este método aproximaremos el gradiente en una ventana de $5 \times 5$  y por lo tanto para empezar el algoritmo debemos asegurarnos que esta cantidad de vecinos siempre esté disponible. Para ello, tuvimos que eliminar 4 filas y 4 columnas (2 de cada lado), a diferencia de los otros filtros que permitían eliminar 2 filas y columnas.
 
+\vspace{\baselineskip}
+
 La fórmula exacta para esta corrección es la misma que la del paper de Malvar, He, Cutler [2]: [INSERTAR FORMULA]
+
+\vspace{\baselineskip}
 
 A su vez como dijimos antes, esta corrección va a estar impuesta con cierta importancia gracias al parámetro $\alpha$. La fórmula resultante para el cálculo del valor del canal verde para un pixel en particular entonces es la siguiente: [INSERTAR FORMULA].
 
@@ -246,12 +307,16 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 \subsubsection{Problemas en la Implementación}
 En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido, siendo sus problemas, fáciles de encontrar.
 
+\vspace{\baselineskip}
+
 Debemos notar que la utilización de \textit{MatLab} para preparar los datos para los algoritmos fue crucial para simplificar el problema.
 	
 \newpage
 \subsection{Experimentación}
 
 A la hora de decidir qué algoritmo se debe utilizar, hay varios puntos que se deben tener en cuenta. ¿Queremos que sea rápido? ¿Queremos una imagen que sea grata a la vista o preferimos que sea lo más semejante posible a la imagen que queremos capturar? ¿Es necesario ceder algo de tiempo a fin de obtener una mejor imagen? Y si es así, ¿Estamos dispuestos a hacerlo? 
+
+\vspace{\baselineskip}
 
 A continuación se plantearán estos problemas mostrando las diferencias cuantitativas y cualitativas de todos los algoritmos explicados previamente.
 
@@ -336,14 +401,24 @@ Estamos analizando el promedio de iteraciones para cada imagen dependiendo del a
 
 Este gráfico se corresponde con el obtenido a partir de los promedios de cada imagen. Ya que interpretamos que una corrida del algoritmo casi no varía de una imagen a otra, y tenemos 20 corridas por algoritmo por cada una de las 12 imágenes, consideramos cantidad suficiente para calcular un promedio por algoritmo.
 
+\vspace{\baselineskip}
+
 Como se puede ver, la cantidad de ciclos utilizada por \textit{Closest Neighbor} es la menor a todas. De esta manera vemos que, lo que perdimos en cuenta a la similitud con la imagen original lo estamos ganando en velocidad. Es por esto que puede plantearse una situación donde este sea el método que mejor se acomoda a las circunstancias. 
 
+\vspace{\baselineskip}
+
 Por otro lado, vemos una relación muy parecida entre el método de \textit{interpolación bilineal} con el \textit{algoritmo de Malvar, He y Cutler}. Esto es razonable debido a que este último método se basa en aplicar una interpolación bilineal a la cual le realiza operaciones para modificar su calidad. Así vemos que con un leve aumento del tiempo de cómputo, podemos obtener una imagen de mayor calidad. A pesar de esto, el método de interpolación bilineal resulta más costoso que el de Closest Neighbor pero teniendo en cuenta la calidad de la imagen, puede preferirse ceder algo de tiempo para obtener una mayor nitidez o menor cantidad de artifacts. Teniendo en cuenta que la diferencia de tiempos de cómputo entre ambos no es tan notoria, y que también la implementación del algoritmo de Closest Neighbor se basa en el azar de obtener un buen vecino, la interpolación bilineal se vuelve un buen candidato a utilizar.
+
+\vspace{\baselineskip}
 
 Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene muy buenos resultados de calidad, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.
 Sin embargo, puede ser una buena elección si tenemos el tiempo para procesarlo. El usuario podría obtener una imagen de mayor calidad y más gustosa a la vista. 
 
+\vspace{\baselineskip}
+
 Este último planteo nos deja a la vista más preguntas. Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
+
+\vspace{\baselineskip}
 
 ¿Me gusta la imagen o no? 
 
@@ -358,7 +433,11 @@ Este último planteo nos deja a la vista más preguntas. Tenemos un análisis qu
 
 Para la búsqueda de \textit{artifacts} corrimos los cuatro algoritmos sobre las imágenes de la cátedra y proseguimos a buscarlos de manera empírica. Encontramos casos donde cada algoritmo funciona mejor que el resto, donde ``mejor'' queda sujeto a nuestra interpretación, subjetiva.
 
+\vspace{\baselineskip}
+
 La primer imagen utilizada es la de los loros \textit{(img1.bmp)}: nos quedamos sólo con el borde entre el fondo verde y el pico del loro que se encuentra a la derecha. Vemos como trata cada algoritmo la diferencia de tonalidad al presentarse una recta. 
+
+\vspace{\baselineskip}
 
 	\begin{center}
 		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/pico_loro_closest.png}
@@ -389,6 +468,8 @@ La primer imagen utilizada es la de los loros \textit{(img1.bmp)}: nos quedamos 
 		\footnotesize\textit{Borde entre colores, algoritmo: Malvar He Cutler.}
 	\end{center}
 
+\vspace{\baselineskip}
+
  \textit{Closest Neighbor}  posee notoriamente el artifact conocido como ``zipping''. Esto se debe intrínsecamente a cómo se obtienen los píxeles para rellenar; al copiar el valor de un píxel lindero, cuando nos encontramos en un borde, este, no va ser homogéneo. En el lado más claro se agrupan píxeles dando la sensación de tener conjunto de ``ladrillos'' del mismo color, su justificación es la misma que la del borde, simplemente con distintos tonos del mismo color.
 
 En el algoritmo \textit{Bilinear} la imagen es mucho mas homogénea ya que se utiliza la interpolación de cuatro puntos, ponderando así el valor de un píxel mediante la utilización de varios vecinos.
@@ -397,7 +478,11 @@ En el algoritmo \textit{Bilinear} la imagen es mucho mas homogénea ya que se ut
 
 El último algoritmo \textit{Malvar, He, Cutler}, posee las misma propiedades que el bilinear pero siendo más suave.
 
+\vspace{\baselineskip}
+
 A continuación veremos un extracto la la imagen número once (suministrada por la cátedra), correspondiente a la pared de un granero.
+
+\vspace{\baselineskip}
 
 %.---------------------
 	\begin{center}
@@ -431,9 +516,13 @@ A continuación veremos un extracto la la imagen número once (suministrada por 
 		\footnotesize\textit{Pared de un granero iluminado por el atardecer, algoritmo: Malvar He Cutler.}
 	\end{center}
 
+\vspace{\baselineskip}
+
 El algoritmo de vecinos mas cercanos y el de interpolación direccional poseen los \textit{artifacts} más notorios. En el primero volvemos a ver la creación de bloques similares a ladrillos en una pared y en el segundo la aparición de laberintos en la imágen.
 
 Consideramos que el algoritmo bilinear devuelve una mejor solución que \textit{Malvar He Cutler} considerando cómo manejan la anomalía de la esquina superior derecha (punto blanco). Dado que el segundo utiliza una vecindad extendida para definir el valor de cada píxel, si se encuentran detalles en la imagen que son resonantes (como un punto de otro color) el algoritmo los propaga de manera más notoria que el bilineal.
+
+\vspace{\baselineskip}
 
 Encontramos una imagen donde los artifacts que generan los algoritmos más complejos son más notorios y nos llevan a elegir como imagen de mejor calidad a la que le fue aplicada vecinos más cercanos. El extracto de imagen corresponde a rejas blancas, siendo la imagen número ocho suministrada por la cátedra.
 
@@ -470,10 +559,11 @@ Encontramos una imagen donde los artifacts que generan los algoritmos más compl
 		\footnotesize\textit{Rejas blancas, algoritmo: Malvar He Cutler.}
 	\end{center}
 
+\vspace{\baselineskip}
 El algoritmo bilineal y de Malvar poseen los mismo artifacts, generando la cuadrilla. El direccional genera el laberinto, los tres mencionados previamente. Lo interesante es lo que le pasa al algoritmo de vecinos más cercanos: Dada la rectitud de las rejas, y como se copia el color de al lado, el patrón se mantiene en la misma dirección que las rejas. Mirando esta imagen pero en resolución original (sin \textit{zoom}), este algoritmo nos da el resultado más agradable a la vista.
 
 
-
+\vspace{\baselineskip}
 
 %.--------------------
 Encontramos en la imagen de las palmeras (número siete) un artifact llamativo para el algoritmo direccional, y sólo se incluye ella, dado que los otros algoritmos no aportan información nueva.
@@ -485,7 +575,11 @@ Encontramos en la imagen de las palmeras (número siete) un artifact llamativo p
 		\footnotesize\textit{Palmeras en el horizonte, algoritmo: Directional Interpolation.}
 	\end{center}
 
+\vspace{\baselineskip}
+
 Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fueron tapados con el fondo, y por eso las palmeras ``flotan''. Parece ser un nuevo artifact ya que hasta el momento sólo habíamos encontrado el laberinto para el direccional. Dado que con esta información no podemos asegurar nada en concreto, procedemos a efectuar un \textit{zoom} sobre uno de los troncos.
+
+\vspace{\baselineskip}
 
 	\begin{center}
 		\includegraphics[scale=.5]{../enunciado/images_files/cualitativo/palms_zoom_directional.png}
@@ -494,7 +588,11 @@ Pareciera que algunos píxeles correspondientes a los troncos de las palmeras fu
 		\footnotesize\textit{Zoom sobre uno de los troncos para imagen de palmeras, algoritmo: Directional Interpolation.}
 	\end{center}
 
+\vspace{\baselineskip}
+
 Podemos ver que tanto el pasto (verde en la parte inferior) y el fondo azul forman laberintos. Así mismo, el correspondiente al fondo realiza su recorrido pasando por el tronco y de esta manera generando la ilusión de que estan cortados. Concluímos entonces que no encontramos un nuevo artefacto.
+
+\vspace{\baselineskip}
 
 Hemos encontrado distintos casos donde cada algoritmo nos da un mejor resultado que el otro. En lineas generales, vecinos cercanos no es un bueno, salvo el caso de las rejas: posee zipping muy notorio. En cambios abruptos de color en lineas rectas, el algoritmo de interpolación direccional da los mejores resultados. Por otro lado, Malvar y bilineal dan similares resultados, siendo el primero una mejora del segundo. Mirando las imágenes completas y sin zoom, Malvar y direccional parecen dar las imágenes con mejor calidad. Sólo cuando se pasa al detalle que Malvar supera a direccional ya que el artefacto del laberito aparece.
 
