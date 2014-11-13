@@ -350,7 +350,7 @@ Fue entonces realizado el score de PSNR para todos los filtros, para la capa ver
 
 Antes que nada hay que aclarar que la diferencia de score entre todos los canales y el canal verde existe y da mejor para el canal verde es porque, tal como se nos explicó en la presentación del TP, los humanos percibimos mejor este color y por lo tanto el bayer array tiene más verde que los otros colores. Además, al concentrarnos primordialmente en este canal para la gran mayoría de los filtros, es normal que el resultado tenga esta forma.
 
-Podemos ver entonces que para esta medida de calidad, el algoritmo más \textit{naïf} es el de peor rendimiento, llegando aproximadamente a los 29 dB. Luego, la interpolación bilateral nos consigue un valor de 34 dB. La interpolación direccional con splines empata en esta medición. Finalmente, el algoritmo de Malvar, He y Cutler, el cual aplica una corrección basada en el gradiente al filtro bilineal, es el que mejor funcionó, llegando a rozar el pico de los 40 dB. De aquí nos llevamos que claramente para PSNR el algoritmo de Malvar, He y Cutler es el ganador, mientras que interpolar direccionalmente (horizontalmente y verticalmente) toda una fila y una columna con splines contra interpolación bilineal en una vecindad de 3x3 nos da prácticamente los mismos resultados (34,00147845 para bilineal y 34,01162873 para direccional, una diferencia \textit{extremadamente chica}). Por lo tanto, si debemos elegir entre estos dos algoritmos, esta elección dependerá del tiempo de cómputo y de los \textit{artifacts} visuales que aparezcan (sin tener en cuenta la otra medición SSIM). Adelantándonos al análisis de tiempo de cómputo de los algoritmos, podemos intuir rápidamente que el filtro bilineal será mucho rápido que splines, ya que este último implica resolver matrices versus operaciones sencillas de interpolación lineal.
+Podemos ver entonces que para esta medida de calidad, el algoritmo más \textit{naïf} es el de peor rendimiento, llegando aproximadamente a los 29 dB. Luego, la interpolación bilateral nos consigue un valor de 34 dB. La interpolación direccional con splines empata en esta medición. Finalmente, el algoritmo de Malvar, He y Cutler, el cual aplica una corrección basada en el gradiente al filtro bilineal, es el que mejor funcionó, llegando a rozar el pico de los 40 dB. De aquí nos llevamos que claramente para PSNR el algoritmo de Malvar, He y Cutler es el ganador, mientras que interpolar direccionalmente (horizontalmente y verticalmente) toda una fila y una columna con splines contra interpolación bilineal en una vecindad de $3 \times 3$  nos da prácticamente los mismos resultados (34,00147845 para bilineal y 34,01162873 para direccional, una diferencia \textit{extremadamente chica}). Por lo tanto, si debemos elegir entre estos dos algoritmos, esta elección dependerá del tiempo de cómputo y de los \textit{artifacts} visuales que aparezcan (sin tener en cuenta la otra medición SSIM). Adelantándonos al análisis de tiempo de cómputo de los algoritmos, podemos intuir rápidamente que el filtro bilineal será mucho rápido que splines, ya que este último implica resolver matrices versus operaciones sencillas de interpolación lineal.
 
 Si miramos ahora los valores de todos los canales, se puede notar, además de tener valores más bajos, que el orden de la performance de los algoritmos según PSNR es el mismo. Debemos recordar también que conseguir los colores rojo y azul con las interpolaciones de Malvar, He y Cutler y \textit{Directional Interpolation} se realizó en ambos casos de igual manera con interpolación bilineal. Esto tal vez explique también el parecido en los scores entre interpolación direccional e interpolación bilineal. Para Malvar, He y Cutler, esto seguramente signifique que la mejora para todos los canales fue mejorada gracias a la mejora del verde y nada más.
 
@@ -363,6 +363,22 @@ Sin embargo, este análisis está basado en \textbf{la media de todos los result
 De aquí nos llevamos entonces que, siguiendo únicamente los scores de PSNR, \textit{Closest Neighbor} definitivamente no es el algoritmo que querríamos usar para obtener una imagen de buena calidad. Entre interpolación bilineal y direccional no hay mucha diferencia (habiendo interpolado en esas direcciones y esa cantidad de puntos que discutimos en la sección de implementación), pero ambos son mejores que \textit{Closest Neighbor}. El algoritmo a elegir es entonces el de Malvar, He y Cutler, el cual tiene el mejor PSNR. Faltará decidir nada más si este algoritmo conviene a nivel de tiempos de cómputo, análisis que será desarrollado posteriormente.
 
 \item \underline{SSIM:}
+
+SSIM o \textit{Structural Similarity} es otro tipo de medición de calidad entre dos imágenes. Este medidor se jacta en concentrarse más en lo visualmente parecido que en lo parecido matemáticamente/matricialmente, siendo esta última una crítica al PSNR y al error cuadrático medio. Ambos PSNR como SSIM tienen en común que, cuanto más alto sea el valor devuelto, más se parecen las imágenes comparadas. Esta vez, el valor máximo para SSIM es 1, luego las imágenes cuyo valor al aplicar este medidor sea más cercano a 1 serán las más parecidas a la imagen original en los criterios de SSIM. Se pueden ver más detalles de SSIM y la implementación que usamos\footnote{En particular los valores fueron calculados de la forma \textit{ssim(img1, img2)} sin parámetros adicionales.} en la referencia [4]. 
+
+El análisis se realizó de la misma manera que para PSNR: es decir, tomamos los resultados de aplicarlo a todas las imágenes con todos los filtros para el canal verde y para todos los canales. Para ver un resultado general, de manera análoga, tomamos la media de los resultados. He aquí el gráfico correspondiente:
+
+	\begin{center}
+		\includegraphics[scale=0.3]{./img/ssimScores.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Media de todos los resultados de SSIM aplicado a todas las imágenes provistas para todos los filtros}
+	\end{center}
+	
+Ya que el gráfico se mira de la misma manera que el de PSNR (cuanto más mejor), podemos observar rápidamente que los resultados \textit{se repiten}. Un dato más que se puede apreciar es que sin importar quién lidere en este gráfico, todos los valores son muy cercanos a 1, por lo tanto podemos esperar que las imágenes filtradas sean \textit{visualmente} parecidas a la original en un vistazo rápido. 
+
+Nos queda entonces que el claro perdedor resulta ser \textit{Closest Neighbor} y el ganador definitivo Malvar, He y Cutler. Sin embargo, esta vez es \textit{Bilineal Interpolation} el que sale en segundo lugar, dejando atrás \textit{Directional Interpolation} con SPLINES sobre filas y columnas. Aparentemente para SSIM, las imágenes con este último algoritmo de \textit{demosaicing} son menos parecidas a la original que utilizando \textit{Bilinear Interpolation}. Sabiendo además que SSIM supuestamente tiene mejor en cuenta cuán parecida es una imagen para el ojo humano, podríamos decir que aquellas pasadas por \textit{Directional Interpolation} son menos parecidas estructuralmente a la vista.
+
 
 \item \underline{Análisis de tiempos:}
 
@@ -388,7 +404,7 @@ Supongamos imágenes mucho más anchas que altas; por ende, la matriz que repres
 Sin embargo, no existen imágenes infinitas, y solamente el cálculo de splines es el que puede modificar de alguna manera el tiempo de cómputo. Pero para imágenes ``normales'', donde no se produce ningún caso extraño y el cálculo del gradiente alterna la elección del vector sobre el que aplicar splines, los tiempos de cómputo, como se vieron en la experimentación realizada.
 
 
-\vspace{2\baselineskip}
+\vspace{\baselineskip}
 
 Estamos analizando el promedio de iteraciones para cada imagen dependiendo del algoritmo. Los valores son muy similares para el mismo algoritmo. De esta manera, si calculamos la cantidad de ciclos promedio del algoritmo, nos encontraremos con un gráfico muy similar al recién mostrado:
 
@@ -626,10 +642,13 @@ Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las i
 %		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
 %		\par \textit{Papers} del TP.
 %	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-\item \ [1] \ \url{http://www.cambridgeincolour.com/tutorials/camera-sensors.htm}
-\item \ [2] \ \url{http://ins.sjtu.edu.cn/people/mtang/textbook.pdf}
-\item \ [3] \ \url{http://www.csie.ntu.edu.tw/~lyuu/theses/thesis\_r91723055.pdf}
-\item \ [4] \ \url{https://ece.uwaterloo.ca/\~{}z70wang/research/ssim/}
+\item \ [1] \ Cambridge in Colour:  \url{http://www.cambridgeincolour.com/tutorials/camera-sensors.htm}
+\item \textbf{Métodos Numéricos:}
+		\par [2] Resolviendo SPLINES eficientemente: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 3, p. 150
+\item \ [3] Más información sobre la complejidad de las interpolaciones: \ \url{http://www.csie.ntu.edu.tw/~lyuu/theses/thesis\_r91723055.pdf}
+\item \ [4] \ SSIM:  \url{https://ece.uwaterloo.ca/\~{}z70wang/research/ssim/}
+
+\item \ [5] Más sobre medidas de calidad (PSNR, SSIM y más): \url{http://www.ijser.org/researchpaper\%5CComparison-of-Image-Quality-Assessment-PSNR-HVS-SSIM-UIQI.pdf}
 
 \end{itemize}
 
