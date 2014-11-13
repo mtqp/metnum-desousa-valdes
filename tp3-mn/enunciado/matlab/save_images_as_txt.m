@@ -1,8 +1,11 @@
 %% Grabar imágenes en archivos
 
+% Falta agregar tamaño de imagen en el archivo de salida. Se hace
+% manualmente por ahora
+
 root = '../images/';
 root_to_save = '../images_txt/';
-saving_format = '.txt';
+saving_format = ''; % antes era .txt pero el C++ es mas facil maniobrarlo sin extensión
 
 lookup_term = strcat(root, '*.bmp');
 listing_bmp_names = ls(lookup_term);

@@ -636,14 +636,36 @@ Se encontraron artifacts en varias de las imágenes proveídas por la cátedra q
 
 \section{Conclusión}
 
-Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las imágenes son iguales. La digitalización de las imágenes nos otorga una mirada sesgada e irreal de la realidad (considerando ``realidad'' como lo que nuestros ojos pueden interpretar).
+Lo interesante a destacar es que, hilando fino, podemos ver que ninguna de las imágenes resultan iguales a lo que percibimos. La digitalización de las imágenes nos otorga una mirada sesgada e irreal de la realidad (considerando ``realidad'' como lo que nuestros ojos pueden interpretar). Y como hemos visto durante el desarrollo de este TP, dependiendo \textit{tan solo} del proceso de \textit{demosaicing} que apliquemos, esta calidad realística de la imagen se va alejando o acercando según lo que nosotros creamos \textit{más lindo} o \textit{más ajustado} a lo que nuestros ojos ven.
 
-[COMPLETAR]
-[COMPLETAR]
-[COMPLETAR]
-[COMPLETAR]
+Y así como lo dijimos, este es \textit{tan solo uno de los tantos procesos que se aplican} a la fotografía digital antes de pasar por el visor de nuestra cámara o a un archivo que abrimos desde cualquier computadora. Para este trabajo tuvimos que definir \textit{cuan bien se ve} una imagen y \textit{cuan eficientemente se pueden aplicar los métodos} en relación calidad-tiempo. 
 
-\newpage
+Imaginen pensando simplemente en problemas reales que le siguen al \textit{demosaicing}, como el de post-proceso de la imagen o luego la compresión, cómo habría que redefinir todo lo que estuvimos planteando: ¿estará bien elegir interpolación direccional si además por default aplico algún filtro gaussiano para suavizar bordes?, si utilizo \textit{Closest Neighbor}, ¿podré partir de allí y aplicar un filtro rápido que me mejore la calidad y así evitar algoritmos más lentos como el de Malvar, He y Cutler? También respecto de otros problemas: ¿me interesa tomar alguna decisión respecto al canal verde para comprimir mis imágenes, ya que es el color con más frecuencia y por lo tanto debería mantenerlo muy parecido, y tener al rojo y el azul lo más comprimidos posibles, ya que son de menos importancia al ojo humano? Y hasta si estuviera trabajando en un dominio menos \textit{artístico}: ¿me interesa aplicar algún algoritmo particular de \textit{demosaicing} para que mis bordes de tal color sean lo más notorios posibles y usar transformadas que me los detecten en tiempo real para algún sistema robótico?
+
+Como pueden ver, quedan muchísimas preguntas más por responder, y parten únicamente de lo que fuimos analizando en este trabajo. Por ello, he aquí las principales conclusiones que hemos extraído. 
+
+\vspace{\baselineskip}
+
+\begin{itemize}
+\item Que aparezca una imagen en una cámara de fotos digital no era tan simple como apretar un botón, captar luz y mostrar.
+\item Para que eso suceda debemos utilizar un Bayer Array (entre otros) e interpolar la información de los colores de la imagen para conseguir nuestros 3 canales RGB.
+\item Para interpolar tenemos \textbf{muchísimos} métodos distintos, con infinidades de ideas y experimentos por realizar que requieren mucho tiempo y dedicación para poder analizar todo lo que vimos y aún más.
+\item Cada método tiene su relación tiempo-calidad, y cada uno puede estar basado en la matemática más compleja como en sumas y restas triviales.
+\item No importa qué apliquemos, subjetivamente puede estar mejor o peor. Por ejemplo, puede estar más cerca de la realidad pero con los bordes más suavizados lo veo mejor, sin importar qué diga PSNR, SSIM, MSE, etc...
+\item Cada método deja su estela: bordes más marcados o suavizados, colores más brillantes o apagados, \textit{artifacts} particulares con zipping o mazing. Ninguno es perfecto a solas, y si encontramos alguno así, publiquemos un paper.
+\item Métodos numéricos está por todos lados.
+\item No es lo mismo interpolar hoy que una Polaroid del Inter.
+\end{itemize}
+
+Hemos aprendido mucho y este trabajo nos ha dejado ansiosos por conocer más del tema. De haber tenido más tiempo, seguramente nuestro análisis hubiera sido más extenso y más interesante. Esperamos que les haya sido una lectura amena, y les agradecemos por abrirnos esta pequeña gran ventana al mundo del procesamiento digital de imágenes.
+
+	\begin{center}
+		\includegraphics[scale=0.5]{img/filtered_apruebaestetp.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Emma con Malvar He Cutler. Bordes del texto con zipping. De cualquier forma Emma queda bien.}
+	\end{center}
+
 
 \section{Bibliografía y referencias} 
 
