@@ -295,13 +295,20 @@ La corrección del gradiente se calcula esta vez en una vecindad más grande. Pa
 
 \vspace{\baselineskip}
 
-La fórmula exacta para esta corrección es la misma que la del paper de Malvar, He, Cutler [2]: [INSERTAR FORMULA]
+La fórmula exacta para esta corrección es la misma que la del paper de Malvar, He, Cutler [2]: 
+
+\[ \hat{g}(i,j) = \hat{g}_B(i,j) + \alpha\Delta_R(i,j) \]
 
 \vspace{\baselineskip}
 
-A su vez como dijimos antes, esta corrección va a estar impuesta con cierta importancia gracias al parámetro $\alpha$. La fórmula resultante para el cálculo del valor del canal verde para un pixel en particular entonces es la siguiente: [INSERTAR FORMULA].
+A su vez como dijimos antes, esta corrección va a estar impuesta con cierta importancia gracias al parámetro $\alpha$. La fórmula resultante para el cálculo del valor del canal verde para un pixel en particular entonces es la siguiente:
 
-
+\[ \Delta_R(i,j) \triangleq r(i,j) - \dfrac{1}{4} \sum_{\substack{
+(m,n) = (0,-2) \\
+(m,n) = (0,2) \\
+(m,n) = (-2,0) \\
+(m,n) =  (2,0)
+  }} r(i+m, j+n) \]
 
 
 \subsubsection{Problemas en la Implementación}
@@ -436,10 +443,7 @@ Este último planteo nos deja a la vista más preguntas. Tenemos un análisis qu
 
 \vspace{\baselineskip}
 
-¿Me gusta la imagen o no? 
-
-
-
+Por lo tanto, pasamos a preguntarnos: ¿me gusta la imagen o no?
 
 \end{itemize}
 
