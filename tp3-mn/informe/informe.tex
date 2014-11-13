@@ -325,6 +325,7 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 (m,n) =  (2,0)
   }} r(i+m, j+n) \]
 
+\newpage
 
 \subsubsection{Problemas en la Implementación}
 En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido, siendo sus problemas, fáciles de encontrar.
@@ -449,12 +450,11 @@ Por otro lado, vemos una relación muy parecida entre el método de \textit{inte
 
 \vspace{\baselineskip}
 
-Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene muy buenos resultados de calidad, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.
-Sin embargo, puede ser una buena elección si tenemos el tiempo para procesarlo. El usuario podría obtener una imagen de mayor calidad y más gustosa a la vista. 
+Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene buenos resultados de calidad (según \textit{PSNR} y \textit{SSIM}, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.Con el set de datos utilizado, no parece ser una buena elección teniendo que Malvar, He, Cutler nos da mejores resultados y es menos costoso.
 
 \vspace{\baselineskip}
 
-Este último planteo nos deja a la vista más preguntas. Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
+Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
 
 \vspace{\baselineskip}
 
