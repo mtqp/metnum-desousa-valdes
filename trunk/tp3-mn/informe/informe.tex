@@ -180,6 +180,19 @@ Todas la implementaciones que se mostrarán a continuación, se hicieron bajo la
 Como podemos notar, e indexando las filas y columnas desde 0, los píxeles azules se encuentran en las posiciones de fila par y columna par. Por otro lado, el color rojo aparece en las filas impares y columnas impares, mientras que el color verde se encuentra en toda posición que no cumple la misma paridad entre columnas y filas.
 \par 
 
+Una imagen con el algoritmo de \textit{mosaicing} se ve entonces de esta forma y además al acercarnos se puede apreciar el Bayer Array: 
+
+	\par 
+	\begin{center}
+		\includegraphics[scale=0.3]{./img/mosaic_emma.png} \ \ \includegraphics[scale=0.3]{./img/mosaic_emma_lupa.png}
+		\par 
+		\vspace{2pt}
+		\footnotesize\textit{Modelo de Bayer Array utilizado, en Emma\footnote{Léase enema.}.}
+	\end{center}
+	\par 
+	
+
+
 \vspace{\baselineskip}
 
 Una vez dicho esto, comenzamos con el análisis de las implementaciones realizadas para los siguientes filtros.
@@ -271,7 +284,9 @@ En nuestro caso, utilizamos el gradiente para decidir si nos conviene tomar la d
 
 \vspace{\baselineskip}
 
-El cálculo del gradiente se realiza utilizando la aproximación propuesta en el enunciado de este trabajo práctico. Básicamente, se consigue restando los valores del canal verde de los pixeles consecutivos (en la dirección vertical u horizontal) y tomando valor absoluto de ello.
+El cálculo del gradiente se realiza utilizando la aproximación propuesta en el enunciado de este trabajo práctico. Básicamente, se consigue restando los valores del canal verde de los pixeles consecutivos (en la dirección vertical u horizontal) y tomando valor absoluto de ello. La fórmula es la siguiente: 
+
+\[ |\partial_xG(x,y)| \simeq |G(x -1, y) - G(x+1,y)| \]
 
 \vspace{\baselineskip}
 
@@ -283,7 +298,7 @@ A través de splines (con el algoritmo obtenido del libro \textit{``Numerical An
 
 \subsubsection{Algoritmo de Malvar, He y Cutler}
 
-El algoritmo de Malvar, He y Cutler se concentra en corregir la interpolación bilineal: para ello cada canal que se quiera conseguir va a ser calculado con el valor correspondiente a la interpolación bilineal, sumado a un factor de corrección basado en cálculos con el gradiente. Este factor se va a aplicar en una cierta medida $\alpha$ especificada como parámetro en este problema.
+El algoritmo de Malvar, He y Cutler [6] se concentra en corregir la interpolación bilineal: para ello cada canal que se quiera conseguir va a ser calculado con el valor correspondiente a la interpolación bilineal, sumado a un factor de corrección basado en cálculos con el gradiente. Este factor se va a aplicar en una cierta medida $\alpha$ especificada como parámetro en este problema.
 
 \vspace{\baselineskip}
 
@@ -446,8 +461,6 @@ Este último planteo nos deja a la vista más preguntas. Tenemos un análisis qu
 Por lo tanto, pasamos a preguntarnos: ¿me gusta la imagen o no?
 
 \end{itemize}
-
-\newpage
 
 \subsubsection{Análisis Cualitativo}
 
@@ -626,11 +639,8 @@ Se encontraron artifacts en varias de las imágenes proveídas por la cátedra q
 Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las imágenes son iguales. La digitalización de las imágenes nos otorga una mirada sesgada e irreal de la realidad (considerando ``realidad'' como lo que nuestros ojos pueden interpretar).
 
 [COMPLETAR]
-\par
 [COMPLETAR]
-\par
 [COMPLETAR]
-\par
 [COMPLETAR]
 
 \newpage
@@ -638,21 +648,15 @@ Lo interesante a destacar es, que hilando fino, podemos ver que ninguna de las i
 \section{Bibliografía y referencias} 
 
 \begin{itemize}
-	\item \textbf{STL de C++}: \url{http://en.cppreference.com}.
-%	\par Para la función \texttt{rand()}, \url{http://en.cppreference.com/w/cpp/numeric/random/rand}.
-%	\par Para la función \texttt{sort()}, \url{http://en.cppreference.com/w/cpp/algorithm/sort}.
-%	\item Distribución de \texttt{rand()}?, \url{http://eternallyconfuzzled.com/arts/jsw\_art\_r and.aspx}
-%	\item \textbf{Métodos Numéricos:}
-%		\par Método de la potencia: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 9 Section 3, p. 576
-%		\par \textit{Papers} del TP.
-%	\item \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
-\item \ [1] \ Cambridge in Colour:  \url{http://www.cambridgeincolour.com/tutorials/camera-sensors.htm}
+\item \ [1] \ \textbf{Cambridge in Colour}:  \url{http://www.cambridgeincolour.com/tutorials/camera-sensors.htm}
 \item \textbf{Métodos Numéricos:}
-		\par [2] Resolviendo SPLINES eficientemente: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 3, p. 150
-\item \ [3] Más información sobre la complejidad de las interpolaciones: \ \url{http://www.csie.ntu.edu.tw/~lyuu/theses/thesis\_r91723055.pdf}
-\item \ [4] \ SSIM:  \url{https://ece.uwaterloo.ca/\~{}z70wang/research/ssim/}
-
-\item \ [5] Más sobre medidas de calidad (PSNR, SSIM y más): \url{http://www.ijser.org/researchpaper\%5CComparison-of-Image-Quality-Assessment-PSNR-HVS-SSIM-UIQI.pdf}
+		\par [2] \textbf{Resolviendo SPLINES eficientemente}: Richard BURDEN, Numerical Analysis 9th Ed. Chapter 3, p. 150
+\item \ [3] \textbf{Más información sobre la complejidad de las interpolaciones}: \ \url{http://www.csie.ntu.edu.tw/~lyuu/theses/thesis\_r91723055.pdf}
+\item \ [4] \textbf{SSIM}:  \url{https://ece.uwaterloo.ca/\~{}z70wang/research/ssim/}
+\item \ [5] \textbf{Más sobre medidas de calidad} (PSNR, SSIM y más): \url{http://www.ijser.org/researchpaper\%5CComparison-of-Image-Quality-Assessment-PSNR-HVS-SSIM-UIQI.pdf}
+\item \ [6] \textbf{Malvar, He, Cutler Interpolation:} High-quality linear interpolation for \textit{demosaicing} of bayer-patterned color images, One Microsoft Way, Redmond, WA 98052
+\item \ [7] \textbf{STL de C++}: \url{http://en.cppreference.com}.
+\item \ [8] \textbf{Contador de clocks}: \url{http://www.mcs.anl.gov/\~kazutomo/rdtsc.html}
 
 \end{itemize}
 
