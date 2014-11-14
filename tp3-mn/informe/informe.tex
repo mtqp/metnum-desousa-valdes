@@ -671,8 +671,31 @@ Sigamos ahora analizando los resultados para SSIM:
 Se puede observar que la situación \textit{se repite}: tenemos 0.5 como el valor más adecuado y la misma campana que se forma entre 0 y 1, indicando que abusar de este parámetro arruina la calidad de la imagen.
 
 \vspace{\baselineskip}
-Para probar esto en detalle, hicimos un experimento elevando el $\alpha$ a 5.
+Para probar esto en detalle, hicimos un experimento elevando el $\alpha$ a 5. Antes de ver los resultados, pensamos un poco lo que sucedería: esto hará que la fórmula completa de la corrección del gradiente esté multiplicada por 5 en nuestro caso. La fórmula era la siguiente:
 
+\[ \Delta_R(i,j) \triangleq r(i,j) - \dfrac{1}{4} \sum_{\substack{
+(m,n) = (0,-2) \\
+(m,n) = (0,2) \\
+(m,n) = (-2,0) \\
+(m,n) =  (2,0)
+  }} r(i+m, j+n) \]
+
+Si aplicamos entonces 500 \% de este factor de corrección, los valores del verde se van a saturar hacia arriba o hacia abajo, ya que si este $\Delta_R(i,j)$ es negativo, entonces restarle 5 veces eso hará más negros los píxeles (más verdes oscuros en todo caso), y si no los resaltará mucho, llevándolos cerca del 255 en el canal verde. Veamos los resultados de PSNR y SSIM antes de ver la imagen.
+
+Para PSNR en el canal verde, esta imagen consiguió un score de \textbf{24 dB}, algo incluso menor que \textit{Closest Neighbor}. Un detalle para resaltar es que el PSNR para todos los canales es 23.4 dB, por lo tanto si estos valores están tan cercanos quiere decir que el verde, color más importante en nuestro Bayer Array por ser el más importante para el humano, es tan malo como todo el resto de las capas. Si esto sucede, seguramente la imagen se vea muy mal.
+
+Ahora con SSIM no pasa lo mismo: \textit{¡aún peor!} El valor para todos los canales es de 0.94, mientras que el del canal verde es de 0.85, siendo ambos los valores más bajos que hemos tenido. Esto presume que efectivamente, la imagen se verá mal, y será seguramente la culpa del verde.
+
+Como para terminar de confirmar, veamos la imagen:
+
+	\begin{center}
+		\includegraphics[scale=.3]{../enunciado/images_files/variacion_alfa/alfa5/filtered_img1.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Resultado de aplicar la corrección con $\alpha = 5$. Se ve claramente que los verdes quedaron saturados, principalmente hacia los verdes más claros pero si se mira detalladamente también hacia los más oscuros en las sombras por ejemplo.}
+	\end{center}
+
+Este ha sido nuestro peor resultado, por lo tanto sabemos que, más allá de 0 y 1, el filtro realmente no sirve. Además, el filtro en su mejor lugar es cuando $\alpha = $0.5 tal como el paper lo indicaba. 
 
 \newpage
 
