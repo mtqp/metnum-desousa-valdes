@@ -324,8 +324,8 @@ A su vez como dijimos antes, esta corrección va a estar impuesta con cierta imp
 (m,n) = (-2,0) \\
 (m,n) =  (2,0)
   }} r(i+m, j+n) \]
-
-\newpage
+  
+En nuestra implementación utilizaremos un parámetro $\alpha = 0.5$ para los experimentos comunes. Este valor no es arbitrario: en el paper [6] se menciona como el más adecuado para una óptima calidad de imagen. Luego en otra sección analizaremos en particular los efectos de cambiar este $\alpha$ a fines de cambiar la cantidad de corrección del gradiente que se va a aplicar sobre los resultados de la interpolación bilineal.
 
 \subsubsection{Problemas en la Implementación}
 En este caso, no nos encontramos con problemas a la hora de realizar la implementación. Las decisiones de diseño tomadas, principalmente para que cada filtro se ejecute de la misma manera, fueron fundamentales a la hora de realizar el código. Permitió crear un programa legible, reducido, siendo sus problemas, fáciles de encontrar.
@@ -371,7 +371,7 @@ Fue entonces realizado el score de PSNR para todos los filtros, para la capa ver
 	\end{center}
 
 
-Antes que nada hay que aclarar que la diferencia de score entre todos los canales y el canal verde existe y da mejor para el canal verde es porque, tal como se nos explicó en la presentación del TP, los humanos percibimos mejor este color y por lo tanto el bayer array tiene más verde que los otros colores. Además, al concentrarnos primordialmente en este canal para la gran mayoría de los filtros, es normal que el resultado tenga esta forma.
+Antes que nada hay que aclarar que la diferencia de score entre todos los canales y el canal verde existe y da mejor para el canal verde es porque, tal como se nos explicó en la presentación del TP, los humanos percibimos mejor este color y por lo tanto el bayer array tiene más verde que los otros colores. Además, al concentrarnos primordialmente en este canal para la gran mayoría de los filtros, es normal que el resultado tenga esta forma. Otra cosa más a aclarar es que para Malvar, He y Cutler, el parámetro $\alpha$ está seteado en 0.5, tal como habíamos dicho en la introducción a la implementación de este algoritmo.
 
 Podemos ver entonces que para esta medida de calidad, el algoritmo más \textit{naïf} es el de peor rendimiento, llegando aproximadamente a los 29 dB. Luego, la interpolación bilateral nos consigue un valor de 34 dB. La interpolación direccional con splines empata en esta medición. Finalmente, el algoritmo de Malvar, He y Cutler, el cual aplica una corrección basada en el gradiente al filtro bilineal, es el que mejor funcionó, llegando a rozar el pico de los 40 dB. De aquí nos llevamos que claramente para PSNR el algoritmo de Malvar, He y Cutler es el ganador, mientras que interpolar direccionalmente (horizontalmente y verticalmente) toda una fila y una columna con splines contra interpolación bilineal en una vecindad de $3 \times 3$  nos da prácticamente los mismos resultados (34,00147845 para bilineal y 34,01162873 para direccional, una diferencia \textit{extremadamente chica}). Por lo tanto, si debemos elegir entre estos dos algoritmos, esta elección dependerá del tiempo de cómputo y de los \textit{artifacts} visuales que aparezcan (sin tener en cuenta la otra medición SSIM). Adelantándonos al análisis de tiempo de cómputo de los algoritmos, podemos intuir rápidamente que el filtro bilineal será mucho rápido que splines, ya que este último implica resolver matrices versus operaciones sencillas de interpolación lineal.
 
@@ -448,13 +448,16 @@ Como se puede ver, la cantidad de ciclos utilizada por \textit{Closest Neighbor}
 
 Por otro lado, vemos una relación muy parecida entre el método de \textit{interpolación bilineal} con el \textit{algoritmo de Malvar, He y Cutler}. Esto es razonable debido a que este último método se basa en aplicar una interpolación bilineal a la cual le realiza operaciones para modificar su calidad. Así vemos que con un leve aumento del tiempo de cómputo, podemos obtener una imagen de mayor calidad. A pesar de esto, el método de interpolación bilineal resulta más costoso que el de Closest Neighbor pero teniendo en cuenta la calidad de la imagen, puede preferirse ceder algo de tiempo para obtener una mayor nitidez o menor cantidad de artifacts. Teniendo en cuenta que la diferencia de tiempos de cómputo entre ambos no es tan notoria, y que también la implementación del algoritmo de Closest Neighbor se basa en el azar de obtener un buen vecino, la interpolación bilineal se vuelve un buen candidato a utilizar.
 
-\vspace{\baselineskip}
-
-Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene buenos resultados de calidad (según \textit{PSNR} y \textit{SSIM}, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.Con el set de datos utilizado, no parece ser una buena elección teniendo que Malvar, He, Cutler nos da mejores resultados y es menos costoso.
+En una nota pequeña sobre Malvar, He y Cutler, el cambio del parámetro $\alpha$ \textit{no} afecta en el tiempo de cómputo (o afecta de manera totalmente despreciable). Esto se debe a que únicamente se utiliza para hacer una suma (ver ecuaciones en la sección de implementación o ver directamente el paper [6]) y por lo tanto no hay cambio de complejidad teórica ni práctica.
 
 \vspace{\baselineskip}
 
-Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
+Por último, tenemos la \textit{interpolación direccional}. Esta última obtiene muy buenos resultados de calidad (según \textit{PSNR} y \textit{SSIM}, sin embargo el tiempo de cómputo es muy alto y extensamente alejado de los demás métodos presentados.
+Sin embargo, puedCon el set de datos utilizado, no parece ser una buena elección si tenemos el tiempo para procesarlo. El usuario podría obtener una imagen de mayor calidad y más gustosa a la vista. 
+
+\vspace{\baselineskip}
+
+Este último planteo nos deja a la vista más preguntas. Tenemos un análisis que nos dice que métodos nos brindan imágenes más cercanas a la original. Podemos a su vez decidir si queremos gastar el tiempo para obtener una imagen más ``real'' o no. Sin embargo, ¿es eso lo que queremos? ¿Qué es lo que se busca: una imagen más real o una imagen que se vea bien? Ya vimos que para obtener una o la otra es necesaria gastar más o menos tiempo en cómputo, pero ahora nos planteamos algo que se aleja de lo cuantificable. 
 
 \vspace{\baselineskip}
 
@@ -630,6 +633,45 @@ Podemos ver que tanto el pasto (verde en la parte inferior) y el fondo azul form
 Hemos encontrado distintos casos donde cada algoritmo nos da un mejor resultado que el otro. En lineas generales, vecinos cercanos no es un bueno, salvo el caso de las rejas: posee zipping muy notorio. En cambios abruptos de color en lineas rectas, el algoritmo de interpolación direccional da los mejores resultados. Por otro lado, Malvar y bilineal dan similares resultados, siendo el primero una mejora del segundo. Mirando las imágenes completas y sin zoom, Malvar y direccional parecen dar las imágenes con mejor calidad. Sólo cuando se pasa al detalle que Malvar supera a direccional ya que el artefacto del laberito aparece.
 
 Se encontraron artifacts en varias de las imágenes proveídas por la cátedra que no se agregaron al informe al no aportar más información. Las mismas están dentro de la carpeta \texttt{cualitativo}.
+
+\subsubsection{Análisis particular: el parámetro $\alpha$ en Malvar, He y Cutler}
+
+Como habíamos explicado, la función del parámetro $\alpha$ es determinar el porcentaje de aplicación de la corrección del gradiente que realiza este algoritmo a los resultados de aplicar interpolación bilineal. Si nos fijamos la fórmula nuevamente
+
+\[ \hat{g}(i,j) = \hat{g}_B(i,j) + \alpha\Delta_R(i,j) \]
+
+podremos ver que cuanto más cerca de 0 esté el $\alpha$, más parecido será el resultado a la interpolación bilineal. Es más, como se puede observar fácilmente, si $\alpha = 0$ entonces este algoritmo \textit{es} la interpolación bilineal. Lo que no sabemos qué ocurrirá es cuando el $\alpha$ toma valores mayores a 0. En particular, probamos valores en 0 y 1 para ver como se comportaban todos los factores que fuimos viendo: scores de PSNR y SSIM y cualitativamente (como ya dijimos, el tiempo de cómputo no es afectado por la elección del valor de $\alpha$). Cabe destacar que utilizamos sólo la imagen 1 para este análisis. Estos son los gráficos para el análisis cuantitativo.
+
+\vspace{\baselineskip}
+
+Para PSNR:
+
+	\begin{center}
+		\includegraphics[scale=.3]{img/psnrScoresALPHA.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Valores de PSNR según el $\alpha$ elegido para la imagen 1}
+	\end{center}
+
+
+Rápidamente lo que podemos destacar es que para 0.5 efectivamente el valor de PSNR es el más alto. Se puede ver una campana que se forma que va del 0 al 0.9, casi cuando aplicamos toda la corrección. Esto significa que aplicar mucho esta corrección \textit{afecta bastante} la calidad de la imagen de forma peyorativa, al menos para PSNR. Sabiendo que la interpolación bilineal estaba en tercer puesto\footnote{Aunque un tercer puesto extremadamente ajustado con \textit{Directional Interpolation}} para esta imagen (lo pueden ver en el excel adjunto en \textit{/excel/}), podemos notar que aplicar mucho de este filtro nos empeora incluso lo que la interpolación bilineal lograba de antemano.
+
+\vspace{\baselineskip}
+
+Sigamos ahora analizando los resultados para SSIM:
+
+
+	\begin{center}
+		\includegraphics[scale=.3]{img/ssimScoresALPHA.png}
+		\vspace{2pt}
+		\par
+		\footnotesize\textit{Valores de SSIM según el $\alpha$ elegido para la imagen 1}
+	\end{center}
+
+Se puede observar que la situación \textit{se repite}: tenemos 0.5 como el valor más adecuado y la misma campana que se forma entre 0 y 1, indicando que abusar de este parámetro arruina la calidad de la imagen.
+
+\vspace{\baselineskip}
+Para probar esto aún mejor, hicimos un experimento elevando el $\alpha$ a 5.
 
 
 \newpage
